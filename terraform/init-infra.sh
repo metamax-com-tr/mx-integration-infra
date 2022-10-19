@@ -1,7 +1,7 @@
 PROJECT_ID="5"
-TF_STAGE="development"
-TF_USERNAME="suleyman"
-TF_PASSWORD="<Your GITLAB token>"
+TF_STAGE="${TF_STAGE}"
+TF_USERNAME="${GITLAB_USER_NAME}"
+TF_PASSWORD="${CI_JOB_TOKEN}"
 TF_ADDRESS="https://gitlab.orema.com.tr/api/v4/projects/${PROJECT_ID}/terraform/state/${TF_STAGE}"
 
 terraform init -upgrade \

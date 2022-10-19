@@ -6,9 +6,10 @@ image:
 variables:
   TF_ROOT: ${CI_PROJECT_DIR}/terraform  # The relative path to the root directory of the Terraform project
   TF_STAGE: ${CI_COMMIT_BRANCH} 
-  TF_ADDRESS: https://gitlab.orema.com.tr/api/v4/projects/${CI_PROJECT_ID}/terraform/state/${CI_COMMIT_BRANCH}
+  TF_ADDRESS: https://gitlab.orema.com.tr/api/v4/projects/${CI_PROJECT_ID}/terraform/state/${TF_STATE_NAME:-default}
   TF_USERNAME: gitlab-ci-token
   TF_PASSWORD: ${CI_JOB_TOKEN}
+  TF_STATE_NAME: ${TF_STATE_NAME:-default}
 
 stages:
   - validate

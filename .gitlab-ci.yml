@@ -27,6 +27,7 @@ build:
     - chmod +x init-infra.sh
     - sh init-infra.sh
     - terraform validate
+    - echo $TF_ADDRESS
 
 # To contribute improvements to CI/CD templates, please follow the Development guide at:
 # https://docs.gitlab.com/ee/development/cicd/templates.html

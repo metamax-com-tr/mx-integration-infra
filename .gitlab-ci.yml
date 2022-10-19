@@ -8,6 +8,7 @@ variables:
   TF_STAGE: ${CI_COMMIT_BRANCH} 
   TF_ADDRESS: https://gitlab.orema.com.tr/api/v4/projects/${CI_PROJECT_ID}/terraform/state/old-state-name
   TF_USERNAME: gitlab-ci-token
+  TF_PASSWORD: ${CI_JOB_TOKEN}
 
 stages:
   - validate

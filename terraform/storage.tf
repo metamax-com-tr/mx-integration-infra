@@ -18,8 +18,8 @@ data "aws_iam_policy_document" "cdn_public_read" {
 
     effect = "Allow"
 
-    sid       = "AddCannedAcl"
-    actions   = ["s3:GetObject"]
+    sid     = "AddCannedAcl"
+    actions = ["s3:GetObject"]
     resources = [
       "${aws_s3_bucket.cdn_bucket.arn}/*"
     ]

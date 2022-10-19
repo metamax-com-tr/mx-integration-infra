@@ -1,5 +1,5 @@
 resource "aws_appautoscaling_target" "ecs_target" {
-  for_each           = {for i in var.backend_tasks : i.application_name => i}
+  for_each           = { for i in var.backend_tasks : i.application_name => i }
   max_capacity       = each.value.autoscaling.max_capacity
   min_capacity       = each.value.autoscaling.min_capacity
   resource_id        = "service/${aws_ecs_cluster.backend_cluster.name}/${each.value.application_name}"
@@ -17,7 +17,7 @@ resource "aws_appautoscaling_target" "ecs_target" {
 }
 
 resource "aws_appautoscaling_policy" "ecs_target_cpu" {
-  for_each           = {for i in aws_appautoscaling_target.ecs_target : i.resource_id => i}
+  for_each           = { for i in aws_appautoscaling_target.ecs_target : i.resource_id => i }
   name               = "application-scaling-policy-cpu"
   policy_type        = "TargetTrackingScaling"
   resource_id        = each.value.resource_id
@@ -37,7 +37,7 @@ resource "aws_appautoscaling_policy" "ecs_target_cpu" {
 }
 
 resource "aws_appautoscaling_policy" "ecs_target_memory" {
-  for_each           = {for i in aws_appautoscaling_target.ecs_target : i.resource_id => i}
+  for_each           = { for i in aws_appautoscaling_target.ecs_target : i.resource_id => i }
   name               = "application-scaling-policy-memory"
   policy_type        = "TargetTrackingScaling"
   resource_id        = each.value.resource_id

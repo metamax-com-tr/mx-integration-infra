@@ -1,5 +1,5 @@
 resource "aws_secretsmanager_secret" "secret" {
-  name       = "secrets-${var.application_key}-${var.application_stage}"
+  name = "secrets-${var.application_key}-${var.application_stage}"
   depends_on = [
     aws_rds_cluster.database_cluster,
     aws_elasticache_replication_group.cache,
@@ -22,7 +22,7 @@ resource "aws_secretsmanager_secret" "secret" {
 }
 
 locals {
-  code_deploy_group_names = join(",", values({for cj in var.backend_tasks : cj.application_name => "\"CODE_DEPLOY_GROUP_${cj.application_name}\": \"${aws_codedeploy_deployment_group.ecs_deploy_group[cj.application_name].deployment_group_name}\""}))
+  code_deploy_group_names = join(",", values({ for cj in var.backend_tasks : cj.application_name => "\"CODE_DEPLOY_GROUP_${cj.application_name}\": \"${aws_codedeploy_deployment_group.ecs_deploy_group[cj.application_name].deployment_group_name}\"" }))
 }
 
 resource "aws_secretsmanager_secret_version" "secrets" {

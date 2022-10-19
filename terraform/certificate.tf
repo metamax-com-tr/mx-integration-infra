@@ -18,11 +18,11 @@ data "aws_route53_zone" "app_zone" {
 
 resource "aws_route53_record" "app_zone_records" {
   for_each = {
-  for dvo in aws_acm_certificate.ssl_cert.domain_validation_options : dvo.domain_name => {
-    name   = dvo.resource_record_name
-    record = dvo.resource_record_value
-    type   = dvo.resource_record_type
-  }
+    for dvo in aws_acm_certificate.ssl_cert.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
   }
 
   allow_overwrite = true
@@ -45,7 +45,7 @@ resource "aws_acm_certificate" "cloudfront_cert" {
   validation_method         = "DNS"
 
   provider = aws.aws_us_east_1
-  tags     = {
+  tags = {
     Name = "cloudfront-cert-${var.application_stage}.${data.aws_route53_zone.app_zone.name}"
   }
 
@@ -56,11 +56,11 @@ resource "aws_acm_certificate" "cloudfront_cert" {
 
 resource "aws_route53_record" "cloudfront_zone_records" {
   for_each = {
-  for dvo in aws_acm_certificate.cloudfront_cert.domain_validation_options : dvo.domain_name => {
-    name   = dvo.resource_record_name
-    record = dvo.resource_record_value
-    type   = dvo.resource_record_type
-  }
+    for dvo in aws_acm_certificate.cloudfront_cert.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
   }
 
   allow_overwrite = true

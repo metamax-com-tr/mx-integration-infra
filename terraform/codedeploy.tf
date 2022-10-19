@@ -17,11 +17,11 @@ resource "aws_codedeploy_deployment_group" "ecs_deploy_group" {
 
   blue_green_deployment_config {
     deployment_ready_option {
-      action_on_timeout    = "CONTINUE_DEPLOYMENT"
+      action_on_timeout = "CONTINUE_DEPLOYMENT"
     }
 
     terminate_blue_instances_on_deployment_success {
-      action                           = "TERMINATE"
+      action = "TERMINATE"
     }
   }
 
@@ -53,7 +53,7 @@ resource "aws_codedeploy_deployment_group" "ecs_deploy_group" {
 
   lifecycle {
     create_before_destroy = true
-    prevent_destroy = false
+    prevent_destroy       = false
   }
   tags = {
     Name = "depgroup-${each.value.name}-${var.application_stage}"

@@ -1,6 +1,6 @@
 resource "tls_private_key" "ssh_bastion_key_private" {
   algorithm = "RSA"
-  rsa_bits = 4096
+  rsa_bits  = 4096
 }
 
 resource "aws_key_pair" "ssh_bastion_key" {
@@ -14,7 +14,7 @@ resource "aws_instance" "ssh_bastion" {
 
   associate_public_ip_address = true
 
-  subnet_id = aws_subnet.db[0].id
+  subnet_id              = aws_subnet.db[0].id
   vpc_security_group_ids = [aws_security_group.ssh_bastion.id]
 
   key_name = aws_key_pair.ssh_bastion_key.key_name
@@ -26,7 +26,7 @@ resource "aws_instance" "ssh_bastion" {
               systemctl start postgresql.service
             EOF
 
-tags = {
-Name = "ssh-bastion-${var.application_key}-${var.application_stage}"
-}
+  tags = {
+    Name = "ssh-bastion-${var.application_key}-${var.application_stage}"
+  }
 }

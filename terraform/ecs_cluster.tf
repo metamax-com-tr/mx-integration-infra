@@ -31,7 +31,7 @@ resource "aws_ecs_cluster_capacity_providers" "backend_cluster_capacity" {
 }
 
 resource "aws_ecs_service" "backend_cluster_services" {
-  for_each = {for i in var.backend_tasks : i.application_name => i}
+  for_each = { for i in var.backend_tasks : i.application_name => i }
 
   name            = each.value.application_name
   cluster         = aws_ecs_cluster.backend_cluster.id
@@ -66,7 +66,7 @@ resource "aws_ecs_service" "backend_cluster_services" {
 }
 
 resource "aws_ecs_task_definition" "backend_cluster_tasks" {
-  for_each = {for i in var.backend_tasks : i.application_name => i}
+  for_each = { for i in var.backend_tasks : i.application_name => i }
 
   family                   = "${var.application_key}-${var.application_stage}-${each.key}"
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
@@ -77,11 +77,11 @@ resource "aws_ecs_task_definition" "backend_cluster_tasks" {
 
   container_definitions = jsonencode([
     {
-      name         = each.value.application_name
-      image        = each.value.app_image
-      cpu          = tonumber(each.value.fargate_cpu)
-      memory       = tonumber(each.value.fargate_memory)
-      essential    = true
+      name      = each.value.application_name
+      image     = each.value.app_image
+      cpu       = tonumber(each.value.fargate_cpu)
+      memory    = tonumber(each.value.fargate_memory)
+      essential = true
       portMappings = [
         {
           containerPort = each.value.port_mappings.containerPort
@@ -110,7 +110,7 @@ resource "aws_ecs_task_definition" "backend_cluster_tasks" {
 }
 
 resource "aws_lb_target_group" "app_blue" {
-  for_each = {for cj in var.backend_tasks : cj.application_name => cj}
+  for_each = { for cj in var.backend_tasks : cj.application_name => cj }
 
   name                 = "${var.application_key}-${var.application_stage}-blue-${each.key}"
   port                 = each.value.app_port
@@ -132,7 +132,7 @@ resource "aws_lb_target_group" "app_blue" {
 }
 
 resource "aws_lb_target_group" "app_green" {
-  for_each = {for cj in var.backend_tasks : cj.application_name => cj}
+  for_each = { for cj in var.backend_tasks : cj.application_name => cj }
 
   name                 = "${var.application_key}-${var.application_stage}-green-${each.key}"
   port                 = each.value.app_port
@@ -154,7 +154,7 @@ resource "aws_lb_target_group" "app_green" {
 }
 
 resource "aws_lb_listener_rule" "app_services" {
-  for_each = {for cj in var.backend_tasks : cj.application_name => cj}
+  for_each = { for cj in var.backend_tasks : cj.application_name => cj }
 
   listener_arn = aws_lb_listener.https_443.arn
 

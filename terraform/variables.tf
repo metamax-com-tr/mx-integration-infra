@@ -47,7 +47,7 @@ variable "backend_tasks" {
     slow_start        = number
     matcher           = string
     #application_environment = list(map(string))
-    port_mappings     = object({
+    port_mappings = object({
       containerPort = number
       hostPort      = number
       protocol      = string

@@ -43,7 +43,7 @@ output "ECS_Task_Definition" {
 }
 
 output "Codedeploy_Groups" {
-  value = {for cj in var.backend_tasks : cj.application_name => aws_codedeploy_deployment_group.ecs_deploy_group[cj.application_name].deployment_group_name}
+  value = { for cj in var.backend_tasks : cj.application_name => aws_codedeploy_deployment_group.ecs_deploy_group[cj.application_name].deployment_group_name }
 }
 
 
@@ -53,5 +53,5 @@ output "SSH_Bastion_Private_Key" {
 }
 
 output "SSH_Bastion_Public_Key" {
-  value     = tls_private_key.ssh_bastion_key_private.public_key_openssh
+  value = tls_private_key.ssh_bastion_key_private.public_key_openssh
 }

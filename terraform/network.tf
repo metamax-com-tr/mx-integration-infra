@@ -7,7 +7,7 @@ resource "aws_vpc" "aws_vpc" {
   cidr_block           = var.cidr
   enable_dns_hostnames = true
   enable_dns_support   = true
-  tags                 = {
+  tags = {
     Name = "vpc-${var.application_key}-${var.application_stage}"
   }
 }
@@ -16,7 +16,7 @@ resource "aws_vpc" "aws_vpc" {
 resource "aws_internet_gateway" "igw" {
   vpc_id     = aws_vpc.aws_vpc.id
   depends_on = [aws_vpc.aws_vpc]
-  tags       = {
+  tags = {
     Name = "igw-${var.application_key}-${var.application_stage}"
   }
 }
@@ -37,7 +37,7 @@ data "aws_eip" "elastic_ip" {
 resource "aws_nat_gateway" "aws_natgw" {
   allocation_id = data.aws_eip.elastic_ip.id
   subnet_id     = element(aws_subnet.public.*.id, 0)
-  depends_on    = [
+  depends_on = [
     aws_internet_gateway.igw
   ]
   tags = {

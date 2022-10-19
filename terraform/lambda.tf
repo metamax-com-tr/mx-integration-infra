@@ -23,7 +23,7 @@ resource "aws_lambda_function" "lambda_function" {
 
   environment {
     variables = {
-      STAGE                = var.application_stage
+      STAGE   = var.application_stage
       API_URL = "https://${aws_acm_certificate.ssl_cert.domain_name}/services"
     }
   }

@@ -131,7 +131,7 @@ resource "aws_cognito_user_pool_client" "client" {
   generate_secret               = false
   refresh_token_validity        = 60
   prevent_user_existence_errors = "ENABLED"
-  explicit_auth_flows           = [
+  explicit_auth_flows = [
     "ALLOW_CUSTOM_AUTH",
     "ALLOW_REFRESH_TOKEN_AUTH",
     "ALLOW_USER_SRP_AUTH"
@@ -142,5 +142,5 @@ resource "aws_lambda_permission" "lambda_cognito_permission" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.lambda_function.function_name
   principal     = "cognito-idp.amazonaws.com"
-  source_arn = aws_cognito_user_pool.user_pool.arn
+  source_arn    = aws_cognito_user_pool.user_pool.arn
 }

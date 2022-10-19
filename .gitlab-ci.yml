@@ -30,8 +30,8 @@ include:
 stages:
   - validate
   - test
-  # - build
-  # - deploy
+  - build
+  - deploy
 
 fmt:
   extends: .terraform:fmt

@@ -9,85 +9,68 @@ variable "cidr" {
   default     = "10.0.0.0/20"
 }
 
-variable "availability_zones" {
-  type        = list(string)
-  description = "List of availability_zones"
-}
+# variable "availability_zones" {
+#   type        = list(string)
+#   description = "List of availability_zones"
+# }
 
 variable "ecs_task_execution_role_name" {
   description = "ECS task execution role name"
   default     = "myEcsTaskExecutionRole"
 }
 
-variable "application_key" {
-  description = "Application Key"
+variable "namespace" {
+  description = "Application Namespace"
+  type        = string
   default     = "metamax"
 }
 
-variable "application_stage" {
-  description = "Application Stage"
-  default     = "staging"
+
+
+
+
+# Metamax environment resource profiles
+locals {
+  environments = {
+    development = "development"
+    testing     = "testing"
+    production  = "production"
+
+  }
+  redis_types = {
+    development = "cache.t3.micro"
+    testing     = "cache.t3.micro"
+    production  = "cache.t3.micro"
+  }
+
+  db_type = {
+    development = "db.m5d.large"
+    testing     = "db.m5d.large"
+    production  = "db.m5d.large"
+  }
+  availability_zones = {
+    development = ["eu-central-1c"]
+    testing     = ["eu-central-1c", "eu-central-1b"]
+    production  = ["eu-central-1c", "eu-central-1b", "eu-central-1a"]
+  }
 }
 
-variable "elastic_ip_allocation" {
-  description = "Allocation Id of VPC outgoing elastic ip"
-}
+# variable "environment" {
+#   description = "Defines environment name"
+#   type = string
+#   default     = local.environments[terraform.workspace]
+# }
 
-variable "backend_tasks" {
-  type = set(object({
-    app_image         = string
-    app_port          = number
-    app_count         = number
-    health_check_path = string
-    fargate_cpu       = string
-    fargate_memory    = string
-    application_name  = string
-    path_pattern      = string
-    priority          = number
-    slow_start        = number
-    matcher           = string
-    #application_environment = list(map(string))
-    port_mappings = object({
-      containerPort = number
-      hostPort      = number
-      protocol      = string
-    })
-    autoscaling = object({
-      min_capacity       = number
-      max_capacity       = number
-      scalable_dimension = string
-      service_namespace  = string
-    })
-  }))
-  description = "Data object representing fields for ECS Services to create"
-}
+# # Cache
+# variable "cache_instance_type" {
+#   description = "type of cache nodes"
+#   type        = string
+#   default     = local.redis_types[terraform.workspace]
+# }
 
-# Cache
-variable "cache_instance_type" {
-  description = "type of cache nodes"
-  type        = string
-  default     = "cache.t3.micro"
-}
-
-# Database
-variable "db_instance_type" {
-  description = "type of database"
-  type        = string
-  default     = "db.m5d.large"
-}
-
-variable "db_username" {
-  description = "username of database"
-  type        = string
-}
-
-variable "db_password" {
-  description = "Password of database"
-  type        = string
-}
-
-# Aws secrets
-variable "aws_zone_id" {
-  description = "Aws Route53 domain id"
-  type        = string
-}
+# # Database
+# variable "db_instance_type" {
+#   description = "type of database"
+#   type        = string
+#   default     = local.db_type[terraform.workspace]
+# }

@@ -9,8 +9,7 @@ terraform {
 
 #Configure AWS provider
 provider "aws" {
-  region  = var.aws_region
-  profile = "metamax"
+  region = var.aws_region
 }
 
 #Configure AWS provider fro cloudfront certificate

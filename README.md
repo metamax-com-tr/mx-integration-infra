@@ -11,8 +11,8 @@ This project is Infrastructure schema based Terraform.
 # How to use
 First you need AWS secret to access your AWS resources. After getting that you must set credentials on your shell environment.
 ```sh
- $ export $AWS_ACCESS_KEY_ID = "AWS_ID"
- $ export $AWS_SECRET_ACCESS_KEY = "AWS_SECRET"
+ $ export AWS_ACCESS_KEY_ID = "AWS_ID"
+ $ export AWS_SECRET_ACCESS_KEY = "AWS_SECRET"
  $ terraform init
  $ terraform apply
 ```

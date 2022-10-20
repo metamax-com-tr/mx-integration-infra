@@ -9,11 +9,6 @@ variable "cidr" {
   default     = "10.0.0.0/20"
 }
 
-# variable "availability_zones" {
-#   type        = list(string)
-#   description = "List of availability_zones"
-# }
-
 variable "ecs_task_execution_role_name" {
   description = "ECS task execution role name"
   default     = "myEcsTaskExecutionRole"
@@ -25,11 +20,7 @@ variable "namespace" {
   default     = "metamax"
 }
 
-
-
-
-
-# Metamax environment resource profiles
+# Metamax Resource profiles by environments
 locals {
   environments = {
     default     = "default"

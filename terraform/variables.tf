@@ -32,27 +32,27 @@ variable "namespace" {
 # Metamax environment resource profiles
 locals {
   environments = {
-    default = "default"
+    default     = "default"
     development = "development"
     testing     = "testing"
     production  = "production"
 
   }
   redis_types = {
-    default = "cache.t3.micro"
+    default     = "cache.t3.micro"
     development = "cache.t3.micro"
     testing     = "cache.t3.micro"
     production  = "cache.t3.micro"
   }
 
   db_type = {
-    default = "db.m5d.large"
+    default     = "db.m5d.large"
     development = "db.m5d.large"
     testing     = "db.m5d.large"
     production  = "db.m5d.large"
   }
   availability_zones = {
-    default = ["eu-central-1c"]
+    default     = ["eu-central-1c"]
     development = ["eu-central-1c"]
     testing     = ["eu-central-1c", "eu-central-1b"]
     production  = ["eu-central-1c", "eu-central-1b", "eu-central-1a"]

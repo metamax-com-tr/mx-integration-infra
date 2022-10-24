@@ -34,7 +34,9 @@ resource "aws_route" "internet_access" {
   gateway_id             = aws_internet_gateway.igw.id
 }
 
-#Elastic IP For NAT
+# Elastic IP For NAT
+# You first must allocate ip(s) on AWS console and you should add tag as the example follows
+# Name=development-metamax
 data "aws_eip" "elastic_ip" {
   filter {
     name   = "tag:Name"

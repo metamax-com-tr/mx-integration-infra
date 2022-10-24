@@ -50,21 +50,24 @@ resource "aws_subnet" "db" {
 }
 
 
-# #Internet Gateway For Public Subnet
-# resource "aws_internet_gateway" "igw" {
-#   vpc_id     = aws_vpc.aws_vpc.id
-#   depends_on = [aws_vpc.aws_vpc]
-#   tags = {
-#     Name = "igw-${var.application_key}-${var.application_stage}"
-#   }
-# }
+#Internet Gateway For Public Subnet
+resource "aws_internet_gateway" "igw" {
+  vpc_id     = aws_vpc.aws_vpc.id
+  depends_on = [aws_vpc.aws_vpc]
+  tags = {
+    Name        = "${local.environments[terraform.workspace]}-${var.namespace}"
+    NameSpace   = "${var.namespace}"
+    Environment = "${local.environments[terraform.workspace]}"
 
-# # Route the public subnet traffic through the IGW
-# resource "aws_route" "internet_access" {
-#   route_table_id         = aws_vpc.aws_vpc.main_route_table_id
-#   destination_cidr_block = "0.0.0.0/0"
-#   gateway_id             = aws_internet_gateway.igw.id
-# }
+  }
+}
+
+# Route the public subnet traffic through the IGW
+resource "aws_route" "internet_access" {
+  route_table_id         = aws_vpc.aws_vpc.main_route_table_id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.igw.id
+}
 
 # #Elastic IP For NAT
 # data "aws_eip" "elastic_ip" {

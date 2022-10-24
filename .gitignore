@@ -37,5 +37,8 @@ terraform.tfstate.backup
 
 # OSX template
 .DS_Store
+
+# TerraForm hidden files
 terraform/init.local.sh
 terraform/init.*.sh
+terraform/terraform.tfvars

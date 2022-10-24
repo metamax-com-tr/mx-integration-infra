@@ -18,10 +18,16 @@ before_script:
 
 validate:
   stage: validate
+  only:
+    - merge_requests
   script:
     - terraform fmt -check
 build:
   stage: build
+  only:
+    - production
+    - testing
+    - development
   script:
     - chmod +x init.sh
     - sh init.sh

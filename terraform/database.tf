@@ -15,7 +15,7 @@ resource "aws_db_subnet_group" "db_group" {
 
 
 data "aws_secretsmanager_secret_version" "postgres_initial_version" {
-  secret_id  = aws_secretsmanager_secret.postgres_sec.id
+  secret_id  = aws_secretsmanager_secret.secret.id
   version_id = aws_secretsmanager_secret_version.postgres_initial.version_id
 }
 

@@ -43,35 +43,32 @@ locals {
   }
 
   db_type = {
-    default     = "db.m5d.large"
-    development = "db.m5d.large"
-    testing     = "db.m5d.large"
-    production  = "db.m5d.large"
+    default = {
+      class             = "db.t3.micro"
+      allocated_storage = "10"
+      multi_az          = false
+    }
+    development = {
+      class             = "db.t3.micro"
+      allocated_storage = "10"
+      multi_az          = false
+    }
+    testing = {
+      class             = "db.t3.micro"
+      allocated_storage = "10"
+      multi_az          = false
+    }
+    production = {
+      class             = "db.t3.micro"
+      allocated_storage = "10"
+      multi_az          = false
+    }
   }
   availability_zones = {
     default     = ["eu-central-1c"]
-    development = ["eu-central-1c"]
+    development = ["eu-central-1c", "eu-central-1b"]
     testing     = ["eu-central-1c", "eu-central-1b"]
     production  = ["eu-central-1c", "eu-central-1b", "eu-central-1a"]
   }
 }
 
-# variable "environment" {
-#   description = "Defines environment name"
-#   type = string
-#   default     = local.environments[terraform.workspace]
-# }
-
-# # Cache
-# variable "cache_instance_type" {
-#   description = "type of cache nodes"
-#   type        = string
-#   default     = local.redis_types[terraform.workspace]
-# }
-
-# # Database
-# variable "db_instance_type" {
-#   description = "type of database"
-#   type        = string
-#   default     = local.db_type[terraform.workspace]
-# }

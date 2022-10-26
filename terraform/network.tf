@@ -1,6 +1,3 @@
-data "aws_availability_zones" "available" {
-  state = "available"
-}
 
 #VPC
 resource "aws_vpc" "aws_vpc" {

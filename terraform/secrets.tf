@@ -20,8 +20,8 @@ data "aws_secretsmanager_random_password" "postgres_password" {
 }
 
 data "aws_secretsmanager_random_password" "postgres_user" {
-  password_length = 12
-  exclude_numbers = true
+  password_length     = 12
+  exclude_numbers     = true
   exclude_punctuation = true
 }
 

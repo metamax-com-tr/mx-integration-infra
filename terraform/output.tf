@@ -3,11 +3,11 @@ output "Nat_Gateway_Public_Ip" {
 }
 
 output "postgres_user" {
-  value = jsondecode(data.aws_secretsmanager_secret_version.postgres_initial_version.secret_string)["DB_USER"]
+  value     = jsondecode(data.aws_secretsmanager_secret_version.postgres_initial_version.secret_string)["DB_USER"]
   sensitive = true
 }
 
 output "postgres_pass" {
-  value = jsondecode(data.aws_secretsmanager_secret_version.postgres_initial_version.secret_string)["DB_PASSWORD"]
+  value     = jsondecode(data.aws_secretsmanager_secret_version.postgres_initial_version.secret_string)["DB_PASSWORD"]
   sensitive = true
 }

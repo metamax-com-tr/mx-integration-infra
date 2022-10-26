@@ -15,7 +15,7 @@ resource "aws_db_subnet_group" "db_group" {
 
 
 data "aws_secretsmanager_secret_version" "postgres_initial_version" {
-  secret_id = aws_secretsmanager_secret.postgres_sec.id
+  secret_id  = aws_secretsmanager_secret.postgres_sec.id
   version_id = aws_secretsmanager_secret_version.postgres_initial.version_id
 }
 
@@ -29,7 +29,7 @@ resource "aws_db_instance" "database_instance" {
   vpc_security_group_ids = [aws_security_group.rds.id]
   instance_class         = local.db_type[terraform.workspace].class
   multi_az               = local.db_type[terraform.workspace].multi_az
-  db_subnet_group_name = aws_db_subnet_group.db_group.name
+  db_subnet_group_name   = aws_db_subnet_group.db_group.name
 
   allocated_storage   = local.db_type[terraform.workspace].allocated_storage
   skip_final_snapshot = true

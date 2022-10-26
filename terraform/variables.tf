@@ -66,7 +66,7 @@ locals {
   }
   availability_zones = {
     default     = ["eu-central-1c"]
-    development = ["eu-central-1c", "eu-central-1b"],
+    development = ["eu-central-1c", "eu-central-1b"]
     testing     = ["eu-central-1c", "eu-central-1b"]
     production  = ["eu-central-1c", "eu-central-1b", "eu-central-1a"]
   }

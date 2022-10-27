@@ -45,12 +45,12 @@ resource "aws_acm_certificate_validation" "ssl_cert_validation" {
 
 # Cloudfront certificate
 resource "aws_acm_certificate" "cloudfront_cert" {
-  domain_name               = "*.${data.aws_route53_zone.app_zone.name}"
+  domain_name = "*.${data.aws_route53_zone.app_zone.name}"
   # subject_alternative_names = [".${data.aws_route53_zone.app_zone.name}"]
-  validation_method         = "DNS"
+  validation_method = "DNS"
 
   provider = aws.aws_us_east_1
-  
+
   tags = {
     NameSpace   = "${var.namespace}"
     Environment = "${local.environments[terraform.workspace]}"

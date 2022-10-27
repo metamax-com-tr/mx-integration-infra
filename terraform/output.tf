@@ -11,3 +11,11 @@ output "postgres_pass" {
   value     = jsondecode(data.aws_secretsmanager_secret_version.postgres_initial_version.secret_string)["DB_PASSWORD"]
   sensitive = true
 }
+
+output "Console_Distribution_Id" {
+  value = aws_cloudfront_distribution.cloudfront_console.id
+}
+
+# output "Web_Distribution_Id" {
+#   value = aws_cloudfront_distribution.cloudfront_web.id
+# }

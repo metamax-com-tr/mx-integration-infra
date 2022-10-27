@@ -9,6 +9,11 @@ variable "aws_cli_profile" {
   type        = string
 }
 
+# Aws Zone
+variable "aws_zone_id" {
+  description = "Aws Route53 domain id"
+  type        = string
+}
 
 variable "cidr" {
   description = "The CIDR block for the VPC."
@@ -25,6 +30,14 @@ variable "namespace" {
   type        = string
   default     = "metamax"
 }
+
+
+variable "metamax_secret" {
+  sensitive   = true
+  description = "All secrets for metamax project"
+}
+
+
 
 # Metamax Resource profiles by environments
 locals {

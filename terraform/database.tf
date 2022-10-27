@@ -15,10 +15,11 @@ resource "aws_db_subnet_group" "db_group" {
 
 
 data "aws_secretsmanager_secret_version" "postgres_initial_version" {
-  secret_id  = aws_secretsmanager_secret.postgres_sec.id
+  secret_id  = aws_secretsmanager_secret.secret.id
   version_id = aws_secretsmanager_secret_version.postgres_initial.version_id
 }
 
+# TODO: auto-backup or maintain options
 resource "aws_db_instance" "database_instance" {
   db_name        = "metamax"
   engine         = "postgres"
@@ -31,8 +32,9 @@ resource "aws_db_instance" "database_instance" {
   multi_az               = local.db_type[terraform.workspace].multi_az
   db_subnet_group_name   = aws_db_subnet_group.db_group.name
 
-  allocated_storage   = local.db_type[terraform.workspace].allocated_storage
-  skip_final_snapshot = true
+  allocated_storage     = local.db_type[terraform.workspace].allocated_storage
+  max_allocated_storage = local.db_type[terraform.workspace].max_allocated_storage
+  skip_final_snapshot   = true
 
   tags = {
     Name        = "${local.environments[terraform.workspace]}-${var.namespace}-database"

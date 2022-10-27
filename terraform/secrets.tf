@@ -1,7 +1,7 @@
 
 # Postgres Secrets
-resource "aws_secretsmanager_secret" "postgres_sec" {
-  name = "postgres_secret"
+resource "aws_secretsmanager_secret" "secret" {
+  name = "${local.environments[terraform.workspace]}-${var.namespace}-secret"
   # (Optional) Number of days that AWS Secrets Manager waits before it can delete the secret. This value can be 0 to force deletion without recovery or range from 7 to 30 days. The default value is 30.
   # Link: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret
   recovery_window_in_days = 0
@@ -12,28 +12,42 @@ resource "aws_secretsmanager_secret" "postgres_sec" {
   }
 }
 
-
+# Postgres
 data "aws_secretsmanager_random_password" "postgres_password" {
   password_length     = 22
   exclude_numbers     = true
   exclude_punctuation = true
 }
-
 data "aws_secretsmanager_random_password" "postgres_user" {
   password_length     = 12
   exclude_numbers     = true
   exclude_punctuation = true
 }
 
+# Redis MemoryDB
+resource "random_password" "redis_user" {
+  length = 16
+}
+
+resource "random_string" "redis_user" {
+  length           = 16
+  special          = false
+  lower            = true
+  upper            = false
+  override_special = "-"
+}
+resource "random_password" "redis_pass" {
+  length = 22
+}
+
 resource "aws_secretsmanager_secret_version" "postgres_initial" {
-  secret_id     = aws_secretsmanager_secret.postgres_sec.id
+  secret_id     = aws_secretsmanager_secret.secret.id
   secret_string = <<EOF
    {
     "DB_PASSWORD": "${data.aws_secretsmanager_random_password.postgres_password.random_password}",
-    "DB_USER": "${data.aws_secretsmanager_random_password.postgres_user.random_password}"
+    "DB_USER": "${data.aws_secretsmanager_random_password.postgres_user.random_password}",
+    "CACHE_PASSWORD": "${random_password.redis_pass.result}",
+    "CACHE_USER": "u${random_string.redis_user.result}"
    }
 EOF
 }
-
-
-# END Postgres Secrets

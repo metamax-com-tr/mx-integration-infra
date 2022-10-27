@@ -44,24 +44,28 @@ locals {
 
   db_type = {
     default = {
-      class             = "db.t3.micro"
-      allocated_storage = "10"
-      multi_az          = false
+      class                 = "db.t3.micro"
+      allocated_storage     = "10"
+      multi_az              = false
+      max_allocated_storage = 15
     }
     development = {
-      class             = "db.t3.micro"
-      allocated_storage = "10"
-      multi_az          = false
+      class                 = "db.t3.micro"
+      allocated_storage     = "10"
+      multi_az              = false
+      max_allocated_storage = 15
     }
     testing = {
-      class             = "db.t3.micro"
-      allocated_storage = "10"
-      multi_az          = false
+      class                 = "db.t3.micro"
+      allocated_storage     = "10"
+      multi_az              = false
+      max_allocated_storage = 20
     }
     production = {
-      class             = "db.t3.micro"
-      allocated_storage = "10"
-      multi_az          = false
+      class                 = "db.t3.micro"
+      allocated_storage     = "10"
+      multi_az              = false
+      max_allocated_storage = 30
     }
   }
   availability_zones = {

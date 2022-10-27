@@ -42,3 +42,4 @@ terraform.tfstate.backup
 terraform/init.local.sh
 terraform/init.*.sh
 terraform/terraform.tfvars
+terraform/terraform.tfstate.d

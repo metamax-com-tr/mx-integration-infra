@@ -1,5 +1,5 @@
 resource "aws_ses_domain_identity" "email_identity" {
-  domain = data.aws_route53_zone.app_zone.name
+  domain     = data.aws_route53_zone.app_zone.name
   depends_on = [data.aws_route53_zone.app_zone]
 }
 

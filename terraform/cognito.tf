@@ -40,9 +40,9 @@ resource "aws_cognito_user_pool" "user_pool" {
   }
 
   depends_on = [
-    aws_ses_domain_identity.email_identity, 
+    aws_ses_domain_identity.email_identity,
     # aws_lambda_function.lambda_function
-]
+  ]
 
   # Attributes
   schema {

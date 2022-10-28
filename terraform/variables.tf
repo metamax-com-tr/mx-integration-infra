@@ -76,3 +76,32 @@ locals {
   }
 }
 
+
+# variable "backend_tasks" {
+#   type = set(object({
+#     app_image         = string
+#     app_port          = number
+#     app_count         = number
+#     health_check_path = string
+#     fargate_cpu       = string
+#     fargate_memory    = string
+#     application_name  = string
+#     path_pattern      = string
+#     priority          = number
+#     slow_start        = number
+#     matcher           = string
+#     #application_environment = list(map(string))
+#     port_mappings = object({
+#       containerPort = number
+#       hostPort      = number
+#       protocol      = string
+#     })
+#     autoscaling = object({
+#       min_capacity       = number
+#       max_capacity       = number
+#       scalable_dimension = string
+#       service_namespace  = string
+#     })
+#   }))
+#   description = "Data object representing fields for ECS Services to create"
+# }

@@ -37,7 +37,12 @@ variable "metamax_secret" {
   description = "All secrets for metamax project"
 }
 
+variable "ecs_task_default_image" {
+  description = "Gateway default image for cold start on building infra"
+  type        = string
+  default     = "639300795004.dkr.ecr.eu-central-1.amazonaws.com/default-metamax:v1.1.1"
 
+}
 
 # Metamax Resource profiles by environments
 locals {

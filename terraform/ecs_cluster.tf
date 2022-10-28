@@ -32,7 +32,7 @@ resource "aws_ecs_cluster_capacity_providers" "backend_cluster_capacity" {
 
 resource "aws_ecs_service" "backend_cluster_services" {
 
-  name            = "metamax-cluster"
+  name            = "gateway"
   cluster         = aws_ecs_cluster.backend_cluster.id
   task_definition = aws_ecs_task_definition.gateway_task.arn
   launch_type     = "FARGATE"
@@ -49,13 +49,14 @@ resource "aws_ecs_service" "backend_cluster_services" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.app_blue[each.key].arn # Referencing our target group
-    container_name   = "metamax"
+    target_group_arn = aws_lb_target_group.gateway_app_blue.arn # Referencing our target group
+    container_name   = "gateway"
     container_port   = "80" # Specifying the container port
   }
 
   depends_on = [
-    aws_lb.load_balancer, aws_lb_listener.https_443, aws_lb_listener_rule.app_services
+    aws_lb.load_balancer, aws_lb_listener.https_443, aws_lb_listener_rule.app_services,
+    aws_ecs_task_definition.gateway_task
   ]
 
   lifecycle {
@@ -66,7 +67,7 @@ resource "aws_ecs_service" "backend_cluster_services" {
 
 resource "aws_ecs_task_definition" "gateway_task" {
 
-  family                   = "${local.environments[terraform.workspace]}-${var.namespace}-${each.key}"
+  family                   = "${local.environments[terraform.workspace]}-${var.namespace}"
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
@@ -76,7 +77,7 @@ resource "aws_ecs_task_definition" "gateway_task" {
   container_definitions = jsonencode([
     {
       name      = "gateway"
-      image     = "${var.default_image}"
+      image     = "${var.ecs_task_default_image}"
       cpu       = 256
       memory    = 512
       essential = true
@@ -105,12 +106,11 @@ resource "aws_ecs_task_definition" "gateway_task" {
   }
 
   depends_on = [aws_vpc.aws_vpc, aws_iam_role.ecs_task_execution_role]
-
 }
 
 resource "aws_lb_target_group" "gateway_app_blue" {
 
-  name                 = "${local.environments[terraform.workspace]}-${var.namespace}-blue-gateway"
+  name                 = "${var.namespace}-gateway-blue"
   port                 = 80
   protocol             = "HTTP"
   vpc_id               = aws_vpc.aws_vpc.id
@@ -126,11 +126,16 @@ resource "aws_lb_target_group" "gateway_app_blue" {
     timeout             = "50"
     path                = "/services/health"
     unhealthy_threshold = "10"
+  }
+
+  tags = {
+    NameSpace   = "${var.namespace}"
+    Environment = "${local.environments[terraform.workspace]}"
   }
 }
 
 resource "aws_lb_target_group" "gateway_app_green" {
-  name                 = "${local.environments[terraform.workspace]}-${var.namespace}-green-${each.key}"
+  name                 = "${var.namespace}-gateway-green"
   port                 = 80
   protocol             = "HTTP"
   vpc_id               = aws_vpc.aws_vpc.id
@@ -147,11 +152,14 @@ resource "aws_lb_target_group" "gateway_app_green" {
     path                = "/services/health"
     unhealthy_threshold = "10"
   }
+
+  tags = {
+    NameSpace   = "${var.namespace}"
+    Environment = "${local.environments[terraform.workspace]}"
+  }
 }
 
 resource "aws_lb_listener_rule" "app_services" {
-  for_each = { for cj in var.backend_tasks : cj.application_name => cj }
-
   listener_arn = aws_lb_listener.https_443.arn
 
   action {
@@ -161,7 +169,7 @@ resource "aws_lb_listener_rule" "app_services" {
 
   condition {
     path_pattern {
-      values = [each.value.path_pattern]
+      values = ["services/*"]
     }
   }
 

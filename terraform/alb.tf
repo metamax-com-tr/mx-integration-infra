@@ -29,7 +29,7 @@ resource "aws_lb_listener" "https_443" {
   certificate_arn = aws_acm_certificate.ssl_cert.arn
 
   depends_on = [
-    aws_lb.load_balancer, aws_lb_target_group.app_blue, aws_lb_target_group.app_green
+    aws_lb.load_balancer, aws_lb_target_group.gateway_app_blue, aws_lb_target_group.gateway_app_green
   ]
 
   lifecycle {

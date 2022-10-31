@@ -5,10 +5,6 @@ resource "aws_acm_certificate" "ssl_cert" {
   domain_name       = "*.${data.aws_route53_zone.app_zone.name}"
   validation_method = "DNS"
 
-  # tags = {
-  #   Name = "cert-${local.environments[terraform.workspace]}.${data.aws_route53_zone.app_zone.name}"
-  # }
-
   tags = {
     NameSpace   = "${var.namespace}"
     Environment = "${local.environments[terraform.workspace]}"

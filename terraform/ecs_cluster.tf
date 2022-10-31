@@ -198,13 +198,13 @@ resource "aws_lb_target_group" "gateway_app_blue" {
   vpc_id               = aws_vpc.aws_vpc.id
   target_type          = "ip"
   deregistration_delay = 60
-  slow_start           = 30
+  slow_start           = 60
 
   health_check {
     healthy_threshold   = "2"
     interval            = "60"
     protocol            = "HTTP"
-    matcher             = "200"
+    matcher             = "200-302"
     timeout             = "50"
     path                = "/services/health"
     unhealthy_threshold = "10"
@@ -223,13 +223,13 @@ resource "aws_lb_target_group" "gateway_app_green" {
   vpc_id               = aws_vpc.aws_vpc.id
   target_type          = "ip"
   deregistration_delay = 60
-  slow_start           = 30
+  slow_start           = 60
 
   health_check {
     healthy_threshold   = "2"
     interval            = "60"
     protocol            = "HTTP"
-    matcher             = "200"
+    matcher             = "200-302"
     timeout             = "50"
     path                = "/services/health"
     unhealthy_threshold = "10"

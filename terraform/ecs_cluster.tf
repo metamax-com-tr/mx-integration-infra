@@ -71,8 +71,8 @@ resource "aws_ecs_task_definition" "gateway_task" {
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu       = local.ecs_instace_type[terraform.workspace].cpu
-  memory    = local.ecs_instace_type[terraform.workspace].memory
+  cpu                      = local.ecs_instace_type[terraform.workspace].cpu
+  memory                   = local.ecs_instace_type[terraform.workspace].memory
 
   container_definitions = jsonencode([
     {

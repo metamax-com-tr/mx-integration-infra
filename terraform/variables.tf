@@ -62,21 +62,21 @@ locals {
 
   # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html#fargate-tasks-size
   ecs_instace_type = {
-    default     = {
-      cpu       = 256
-      memory    = 512
+    default = {
+      cpu    = 256
+      memory = 512
     }
     development = {
-      cpu       = 256
-      memory    = 512
+      cpu    = 256
+      memory = 512
     }
-    testing     = {
-      cpu       = 512
-      memory    = 1
+    testing = {
+      cpu    = 512
+      memory = 1
     }
-    production  = {
-      cpu       = 4096
-      memory    = 8
+    production = {
+      cpu    = 4096
+      memory = 8
     }
   }
 

@@ -46,5 +46,5 @@ resource "aws_db_instance" "database_instance" {
 
 
 data "aws_db_instance" "database_instance" {
-  db_instance_identifier = "${aws_db_instance.database_instance.id}"
+  db_instance_identifier = aws_db_instance.database_instance.id
 }

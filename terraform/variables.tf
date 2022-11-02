@@ -60,6 +60,39 @@ locals {
     production  = "cache.t3.micro"
   }
 
+  # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html#fargate-tasks-size
+  ecs_instace_type = {
+    default = {
+      cpu    = 256
+      memory = 512
+    }
+    development = {
+      cpu    = 256
+      memory = 512
+    }
+    testing = {
+      cpu    = 512
+      memory = 1
+    }
+    production = {
+      cpu    = 4096
+      memory = 8
+    }
+  }
+
+  cloud_watch = {
+    default = {
+      retention_in_days = 2
+    },
+    development = {
+      retention_in_days = 5
+    },
+    production = {
+      retention_in_days = 360
+    }
+  }
+
+
   db_type = {
     default = {
       class                 = "db.t3.micro"
@@ -95,31 +128,3 @@ locals {
 }
 
 
-# variable "backend_tasks" {
-#   type = set(object({
-#     app_image         = string
-#     app_port          = number
-#     app_count         = number
-#     health_check_path = string
-#     fargate_cpu       = string
-#     fargate_memory    = string
-#     application_name  = string
-#     path_pattern      = string
-#     priority          = number
-#     slow_start        = number
-#     matcher           = string
-#     #application_environment = list(map(string))
-#     port_mappings = object({
-#       containerPort = number
-#       hostPort      = number
-#       protocol      = string
-#     })
-#     autoscaling = object({
-#       min_capacity       = number
-#       max_capacity       = number
-#       scalable_dimension = string
-#       service_namespace  = string
-#     })
-#   }))
-#   description = "Data object representing fields for ECS Services to create"
-# }

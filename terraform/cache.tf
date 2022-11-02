@@ -59,3 +59,8 @@ resource "aws_memorydb_cluster" "cluster" {
     Environment = "${local.environments[terraform.workspace]}"
   }
 }
+
+
+data "aws_memorydb_cluster" "cluster" {
+  name = "metamax-cache-cluster"
+}

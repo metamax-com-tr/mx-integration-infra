@@ -19,3 +19,11 @@ output "Console_Distribution_Id" {
 # output "Web_Distribution_Id" {
 #   value = aws_cloudfront_distribution.cloudfront_web.id
 # }
+
+output "redis_host" {
+  value = aws_memorydb_cluster.cluster.cluster_endpoint[0].address
+}
+
+output "redis_port" {
+  value = aws_memorydb_cluster.cluster.cluster_endpoint[0].port
+}

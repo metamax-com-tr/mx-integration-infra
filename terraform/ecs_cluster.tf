@@ -71,16 +71,92 @@ resource "aws_ecs_task_definition" "gateway_task" {
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = 256
-  memory                   = 512
+  cpu                      = local.ecs_instace_type[terraform.workspace].cpu
+  memory                   = local.ecs_instace_type[terraform.workspace].memory
 
   container_definitions = jsonencode([
     {
       name      = "gateway"
       image     = "${var.ecs_task_default_image}"
-      cpu       = 256
-      memory    = 512
+      cpu       = local.ecs_instace_type[terraform.workspace].cpu
+      memory    = local.ecs_instace_type[terraform.workspace].memory
       essential = true
+      secrets = [
+        {
+          name      = "DB_PASSWORD",
+          valueFrom = "${aws_secretsmanager_secret.secret.arn}:DB_PASSWORD"
+        },
+        {
+          name      = "DB_USER",
+          valueFrom = "${aws_secretsmanager_secret.secret.arn}:DB_USER"
+        },
+        {
+          name      = "CACHE_USER",
+          valueFrom = "${aws_secretsmanager_secret.secret.arn}:CACHE_USER"
+        },
+        {
+          name      = "CACHE_PASSWORD",
+          valueFrom = "${aws_secretsmanager_secret.secret.arn}:CACHE_PASSWORD"
+        },
+        # TODO: This is AWS service credential. This credentials will deleted after 
+        # SNS, S3, Cognito and KMS services can access by 
+        # aws_iam_role.ecs_task_execution_role.name role
+        {
+          name      = "ACCESS_KEY",
+          valueFrom = "${aws_secretsmanager_secret.secret.arn}:ACCESS_KEY"
+        },
+        {
+          name      = "SECRET_KEY",
+          valueFrom = "${aws_secretsmanager_secret.secret.arn}:SECRET_KEY"
+        }
+      ],
+      environment = [
+        {
+          name  = "STAGE",
+          value = "${local.environments[terraform.workspace]}"
+        },
+        {
+          name  = "GATEWAY_PORT",
+          value = "80"
+        },
+        {
+          name  = "USER_POOL",
+          value = "${aws_cognito_user_pool.user_pool.id}"
+        },
+        {
+          name  = "CDN_BUCKET",
+          value = "cdn-${local.environments[terraform.workspace]}.${data.aws_route53_zone.app_zone.name}"
+        },
+        {
+          name  = "MAIL_SOURCE",
+          value = "noreply@${data.aws_route53_zone.app_zone.name}"
+        },
+        {
+          name  = "SOCKETIO_ADAPTER",
+          value = "redis://${data.aws_memorydb_cluster.cluster.cluster_endpoint[0].address}:${data.aws_memorydb_cluster.cluster.cluster_endpoint[0].port}"
+        },
+        {
+          name  = "CACHE_URL",
+          value = "redis://${data.aws_memorydb_cluster.cluster.cluster_endpoint[0].address}:${data.aws_memorydb_cluster.cluster.cluster_endpoint[0].port}"
+        },
+        {
+          name  = "CHANNELS_ADAPTER",
+          value = "redis://${data.aws_memorydb_cluster.cluster.cluster_endpoint[0].address}:${data.aws_memorydb_cluster.cluster.cluster_endpoint[0].port}"
+        },
+        {
+          name  = "COGNITO_CLIENT_ID",
+          value = "${aws_cognito_user_pool_client.client.id}"
+        },
+        {
+          name  = "TRANSPORTER_URL",
+          value = "redis://${data.aws_memorydb_cluster.cluster.cluster_endpoint[0].address}:${data.aws_memorydb_cluster.cluster.cluster_endpoint[0].port}"
+        },
+        {
+          name  = "DB_HOST"
+          Value = "${data.aws_db_instance.database_instance.endpoint}"
+        }
+      ]
+
       portMappings = [
         {
           containerPort = 80
@@ -102,7 +178,13 @@ resource "aws_ecs_task_definition" "gateway_task" {
 
   lifecycle {
     create_before_destroy = true
-    ignore_changes        = [tags, container_definitions]
+    # ignore_changes        = [tags, container_definitions]
+  }
+
+
+  tags = {
+    NameSpace   = "${var.namespace}"
+    Environment = "${local.environments[terraform.workspace]}"
   }
 
   depends_on = [aws_vpc.aws_vpc, aws_iam_role.ecs_task_execution_role]
@@ -116,13 +198,13 @@ resource "aws_lb_target_group" "gateway_app_blue" {
   vpc_id               = aws_vpc.aws_vpc.id
   target_type          = "ip"
   deregistration_delay = 60
-  slow_start           = 30
+  slow_start           = 60
 
   health_check {
     healthy_threshold   = "2"
     interval            = "60"
     protocol            = "HTTP"
-    matcher             = "200"
+    matcher             = "200-302"
     timeout             = "50"
     path                = "/services/health"
     unhealthy_threshold = "10"
@@ -141,13 +223,13 @@ resource "aws_lb_target_group" "gateway_app_green" {
   vpc_id               = aws_vpc.aws_vpc.id
   target_type          = "ip"
   deregistration_delay = 60
-  slow_start           = 30
+  slow_start           = 60
 
   health_check {
     healthy_threshold   = "2"
     interval            = "60"
     protocol            = "HTTP"
-    matcher             = "200"
+    matcher             = "200-302"
     timeout             = "50"
     path                = "/services/health"
     unhealthy_threshold = "10"

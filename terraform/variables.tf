@@ -53,6 +53,14 @@ locals {
     production  = "production"
 
   }
+
+  metamax_stage = {
+    default     = "DEV"
+    development = "DEV"
+    testing     = "DEV"
+    production  = "DEV"
+  }
+
   redis_types = {
     default     = "cache.t3.micro"
     development = "cache.t3.micro"

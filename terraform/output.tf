@@ -20,10 +20,30 @@ output "Console_Distribution_Id" {
 #   value = aws_cloudfront_distribution.cloudfront_web.id
 # }
 
-output "redis_host" {
+output "memorydb_redis_host" {
   value = aws_memorydb_cluster.cluster.cluster_endpoint[0].address
 }
 
-output "redis_port" {
+output "memorydb_redis_port" {
   value = aws_memorydb_cluster.cluster.cluster_endpoint[0].port
+}
+
+output "redis_host" {
+  value = aws_elasticache_replication_group.cache.primary_endpoint_address
+}
+
+output "redis_port" {
+  value = "6379"
+}
+
+output "db_host_endpoint" {
+  value = data.aws_db_instance.database_instance.endpoint
+}
+
+output "db_host_host" {
+  value = data.aws_db_instance.database_instance.address
+}
+
+output "db_host_port" {
+  value = data.aws_db_instance.database_instance.port
 }

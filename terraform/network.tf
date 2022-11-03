@@ -49,6 +49,7 @@ resource "aws_nat_gateway" "aws_natgw" {
   depends_on = [
     aws_internet_gateway.igw
   ]
+
   tags = {
     Name        = "${local.environments[terraform.workspace]}-${var.namespace}"
     NameSpace   = "${var.namespace}"
@@ -154,3 +155,26 @@ resource "aws_route_table" "private" {
     create_before_destroy = true
   }
 }
+
+# resource "aws_network_acl" "network_acl" {
+#   vpc_id     = aws_vpc.aws_vpc.id
+#   subnet_ids = [for subnet in aws_subnet.public : subnet.id]
+#   tags = {
+#     Name        = "Metamax Network ACL "
+#     NameSpace   = "${var.namespace}"
+#     Environment = "${local.environments[terraform.workspace]}"
+#   }
+# }
+
+
+# resource "aws_network_acl_rule" "rule" {
+#   network_acl_id = aws_network_acl.network_acl.id
+#   count = length(local.network_acl_rules[terraform.workspace])
+#   rule_number = local.network_acl_rules[terraform.workspace][count.index].rule_number
+#   egress      = local.network_acl_rules[terraform.workspace][count.index].egress
+#   protocol    = local.network_acl_rules[terraform.workspace][count.index].protocol
+#   rule_action = local.network_acl_rules[terraform.workspace][count.index].rule_action
+#   cidr_block  = local.network_acl_rules[terraform.workspace][count.index].cidr_block
+#   from_port   = local.network_acl_rules[terraform.workspace][count.index].from_port
+#   to_port     = local.network_acl_rules[terraform.workspace][count.index].to_port
+# }

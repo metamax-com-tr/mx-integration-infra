@@ -127,12 +127,107 @@ locals {
       max_allocated_storage = 30
     }
   }
+
   availability_zones = {
     default     = ["eu-central-1c"]
     development = ["eu-central-1c", "eu-central-1b"]
     testing     = ["eu-central-1c", "eu-central-1b"]
     production  = ["eu-central-1c", "eu-central-1b", "eu-central-1a"]
   }
+
+  # AKA: Firewall
+  network_acl_rules = {
+    default = [
+        {
+          rule_number = 1
+          egress      = false
+          protocol    = "tcp"
+          rule_action = "allow"
+          cidr_block  = "78.186.23.180/32"
+          from_port   = 80
+          to_port     = 80
+        },
+        {
+          rule_number = 2
+          egress      = false
+          protocol    = "tcp"
+          rule_action = "allow"
+          cidr_block  = "78.186.23.180/32"
+          from_port   = 443
+          to_port     = 443
+        }
+    ]
+
+    development = [
+      {
+        rule_number = 1
+        egress      = false
+        protocol    = "tcp"
+        rule_action = "allow"
+        cidr_block  = "176.232.61.74/32"
+        from_port   = 80
+        to_port     = 80
+      },
+      {
+        rule_number = 2
+        egress      = false
+        protocol    = "tcp"
+        rule_action = "allow"
+        cidr_block  = "176.232.61.74/32"
+        from_port   = 443
+        to_port     = 443
+      },
+      {
+        rule_number = 1
+        egress      = true
+        protocol    = "tcp"
+        rule_action = "allow"
+        cidr_block  = "0.0.0.0/0"
+        from_port   = 443
+        to_port     = 443
+      }
+    ]
+  
+    testing = [
+        {
+          rule_number = 1
+          egress      = false
+          protocol    = "tcp"
+          rule_action = "allow"
+          cidr_block  = "78.186.23.180/32"
+          from_port   = 80
+          to_port     = 80
+        },
+        {
+          rule_number = 2
+          egress      = false
+          protocol    = "tcp"
+          rule_action = "allow"
+          cidr_block  = "78.186.23.180/32"
+          from_port   = 443
+          to_port     = 443
+        }
+    ]
+
+    production = [
+        {
+          rule_number = 1
+          egress      = false
+          protocol    = "tcp"
+          rule_action = "allow"
+          cidr_block  = "0.0.0.0/0"
+          from_port   = 80
+          to_port     = 80
+        },
+        {
+          rule_number = 2
+          egress      = false
+          protocol    = "tcp"
+          rule_action = "allow"
+          cidr_block  = "0.0.0.0/0"
+          from_port   = 443
+          to_port     = 443
+        }
+    ]
+  }
 }
-
-

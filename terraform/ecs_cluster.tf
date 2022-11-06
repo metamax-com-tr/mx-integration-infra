@@ -258,8 +258,8 @@ resource "aws_lb_listener_rule" "app_services" {
 
   depends_on = [aws_lb_listener.https_443, aws_lb_target_group.gateway_app_blue]
 
-  # lifecycle {
-  #   ignore_changes = [listener_arn, action]
-  # }
+  lifecycle {
+    ignore_changes = [listener_arn, action]
+  }
 
 }

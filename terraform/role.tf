@@ -15,8 +15,8 @@ data "aws_iam_policy_document" "ecs_task_execution_role" {
 }
 
 
-resource "aws_iam_policy" "kms_access" {
-  name        = "${local.environments[terraform.workspace]}-${var.namespace}-kms-read_access"
+resource "aws_iam_policy" "secretmanager_access" {
+  name        = "${local.environments[terraform.workspace]}-${var.namespace}-secretmanger-read_access"
   description = "IAM policy for sending sms from cognito"
 
   policy = <<EOF
@@ -29,6 +29,48 @@ resource "aws_iam_policy" "kms_access" {
         "secretsmanager:GetSecretValue"
       ],
       "Resource": "${aws_secretsmanager_secret.secret.arn}"
+    }
+  ]
+}
+EOF
+}
+
+
+resource "aws_iam_policy" "ssm_access" {
+  name        = "${local.environments[terraform.workspace]}-${var.namespace}-sms-read-access"
+  description = "IAM policy for sending sms from cognito"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ssm:GetParameters"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+
+resource "aws_iam_policy" "kms_access" {
+  name        = "${local.environments[terraform.workspace]}-${var.namespace}-kms-read-access"
+  description = "IAM policy for sending sms from cognito"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "kms:Decrypt."
+      ],
+      "Resource": "*"
     }
   ]
 }
@@ -53,7 +95,19 @@ resource "aws_iam_role" "ecs_task_execution_role" {
 }
 
 # ECS Secret Manager read policy attachment
-resource "aws_iam_role_policy_attachment" "ecs_read_secret_policy" {
+resource "aws_iam_role_policy_attachment" "secretmanager_access_attach" {
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = aws_iam_policy.secretmanager_access.arn
+}
+
+# SSM read policy attachment
+resource "aws_iam_role_policy_attachment" "ssm_access_attach" {
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = aws_iam_policy.ssm_access.arn
+}
+
+# KMS decrypt policy attachment
+resource "aws_iam_role_policy_attachment" "kms_attach" {
   role       = aws_iam_role.ecs_task_execution_role.name
   policy_arn = aws_iam_policy.kms_access.arn
 }

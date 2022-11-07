@@ -20,3 +20,8 @@ provider "aws" {
   alias   = "aws_us_east_1"
   profile = var.aws_cli_profile
 }
+
+# Gitlab Runner to run gitlab-ci
+module "gitlabrunner" {
+  source = "./modules/gitlab-runner"
+}

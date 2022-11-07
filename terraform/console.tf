@@ -100,7 +100,7 @@ resource "aws_cloudfront_distribution" "cloudfront_console" {
 
   viewer_certificate {
     acm_certificate_arn      = aws_acm_certificate.cloudfront_cert.arn
-    ssl_support_method       = "vip"
+    ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1"
   }
 

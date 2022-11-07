@@ -61,7 +61,6 @@ resource "aws_cloudfront_distribution" "cloudfront_web" {
     allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cached_methods   = ["GET", "HEAD", "OPTIONS"]
     target_origin_id = "web.${data.aws_route53_zone.app_zone.name}"
-
     viewer_protocol_policy = "allow-all"
     min_ttl                = 0
     default_ttl            = 3600
@@ -106,7 +105,7 @@ resource "aws_cloudfront_distribution" "cloudfront_web" {
 
   viewer_certificate {
     acm_certificate_arn      = aws_acm_certificate.cloudfront_cert.arn
-    ssl_support_method       = "vip"
+    ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1"
   }
 

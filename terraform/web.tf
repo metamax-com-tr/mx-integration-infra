@@ -58,9 +58,9 @@ resource "aws_cloudfront_distribution" "cloudfront_web" {
   aliases = ["${data.aws_route53_zone.app_zone.name}"]
 
   default_cache_behavior {
-    allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cached_methods   = ["GET", "HEAD", "OPTIONS"]
-    target_origin_id = "web.${data.aws_route53_zone.app_zone.name}"
+    allowed_methods        = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods         = ["GET", "HEAD", "OPTIONS"]
+    target_origin_id       = "web.${data.aws_route53_zone.app_zone.name}"
     viewer_protocol_policy = "allow-all"
     min_ttl                = 0
     default_ttl            = 3600

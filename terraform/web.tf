@@ -55,7 +55,7 @@ resource "aws_cloudfront_distribution" "cloudfront_web" {
 
   price_class = "PriceClass_200"
 
-  aliases = ["${local.environments[terraform.workspace]}.${data.aws_route53_zone.app_zone.name}"]
+  aliases = ["${data.aws_route53_zone.app_zone.name}"]
 
   default_cache_behavior {
     allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]

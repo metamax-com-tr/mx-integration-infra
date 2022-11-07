@@ -84,36 +84,36 @@ resource "aws_ecs_task_definition" "gateway_task" {
       secrets = [
         {
           name      = "DB_PASSWORD",
-          valueFrom = "${aws_secretsmanager_secret.secret.arn}:DB_PASSWORD"
+          valueFrom = "${aws_secretsmanager_secret.secret.arn}:DB_PASSWORD::"
         },
         {
           name      = "DB_USER",
-          valueFrom = "${aws_secretsmanager_secret.secret.arn}:DB_USER"
+          valueFrom = "${aws_secretsmanager_secret.secret.arn}:DB_USER::"
         },
         {
           name      = "CACHE_USER",
-          valueFrom = "${aws_secretsmanager_secret.secret.arn}:CACHE_USER"
+          valueFrom = "${aws_secretsmanager_secret.secret.arn}:CACHE_USER::"
         },
         {
           name      = "CACHE_PASSWORD",
-          valueFrom = "${aws_secretsmanager_secret.secret.arn}:CACHE_PASSWORD"
+          valueFrom = "${aws_secretsmanager_secret.secret.arn}:CACHE_PASSWORD::"
         },
         # TODO: This is AWS service credential. This credentials will deleted after 
         # SNS, S3, Cognito and KMS services can access by 
         # aws_iam_role.ecs_task_execution_role.name role
         {
           name      = "ACCESS_KEY",
-          valueFrom = "${aws_secretsmanager_secret.secret.arn}:ACCESS_KEY"
+          valueFrom = "${aws_secretsmanager_secret.secret.arn}:ACCESS_KEY::"
         },
         {
           name      = "SECRET_KEY",
-          valueFrom = "${aws_secretsmanager_secret.secret.arn}:SECRET_KEY"
+          valueFrom = "${aws_secretsmanager_secret.secret.arn}:SECRET_KEY::"
         }
       ],
       environment = [
         {
           name  = "STAGE",
-          value = "${local.environments[terraform.workspace]}"
+          value = "${local.metamax_stage[terraform.workspace]}"
         },
         {
           name  = "GATEWAY_PORT",
@@ -133,15 +133,15 @@ resource "aws_ecs_task_definition" "gateway_task" {
         },
         {
           name  = "SOCKETIO_ADAPTER",
-          value = "redis://${data.aws_memorydb_cluster.cluster.cluster_endpoint[0].address}:${data.aws_memorydb_cluster.cluster.cluster_endpoint[0].port}"
+          value = "redis://${aws_elasticache_replication_group.cache.primary_endpoint_address}:6379"
         },
         {
           name  = "CACHE_URL",
-          value = "redis://${data.aws_memorydb_cluster.cluster.cluster_endpoint[0].address}:${data.aws_memorydb_cluster.cluster.cluster_endpoint[0].port}"
+          value = "redis://${aws_elasticache_replication_group.cache.primary_endpoint_address}:6379"
         },
         {
           name  = "CHANNELS_ADAPTER",
-          value = "redis://${data.aws_memorydb_cluster.cluster.cluster_endpoint[0].address}:${data.aws_memorydb_cluster.cluster.cluster_endpoint[0].port}"
+          value = "redis://${aws_elasticache_replication_group.cache.primary_endpoint_address}:6379"
         },
         {
           name  = "COGNITO_CLIENT_ID",
@@ -149,11 +149,11 @@ resource "aws_ecs_task_definition" "gateway_task" {
         },
         {
           name  = "TRANSPORTER_URL",
-          value = "redis://${data.aws_memorydb_cluster.cluster.cluster_endpoint[0].address}:${data.aws_memorydb_cluster.cluster.cluster_endpoint[0].port}"
+          value = "redis://${aws_elasticache_replication_group.cache.primary_endpoint_address}:6379"
         },
         {
           name  = "DB_HOST"
-          Value = "${data.aws_db_instance.database_instance.endpoint}"
+          Value = "${data.aws_db_instance.database_instance.address}"
         }
       ]
 
@@ -189,6 +189,7 @@ resource "aws_ecs_task_definition" "gateway_task" {
 
   depends_on = [aws_vpc.aws_vpc, aws_iam_role.ecs_task_execution_role]
 }
+
 
 resource "aws_lb_target_group" "gateway_app_blue" {
 
@@ -251,7 +252,7 @@ resource "aws_lb_listener_rule" "app_services" {
 
   condition {
     path_pattern {
-      values = ["services/*"]
+      values = ["services/*", "/*"]
     }
   }
 

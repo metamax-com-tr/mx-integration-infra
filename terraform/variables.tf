@@ -53,6 +53,14 @@ locals {
     production  = "production"
 
   }
+
+  metamax_stage = {
+    default     = "DEV"
+    development = "DEV"
+    testing     = "DEV"
+    production  = "DEV"
+  }
+
   redis_types = {
     default     = "cache.t3.micro"
     development = "cache.t3.micro"
@@ -119,12 +127,258 @@ locals {
       max_allocated_storage = 30
     }
   }
+
   availability_zones = {
     default     = ["eu-central-1c"]
     development = ["eu-central-1c", "eu-central-1b"]
     testing     = ["eu-central-1c", "eu-central-1b"]
     production  = ["eu-central-1c", "eu-central-1b", "eu-central-1a"]
   }
+
+  # AKA: Firewall
+  # Notes:
+  # - "78.186.23.180/32" address belongs to Sophos Metamax VPN
+  network_acl_rules = {
+    default = [
+      {
+        rule_number = 1
+        egress      = false
+        protocol    = "tcp"
+        rule_action = "allow"
+        cidr_block  = "78.186.23.180/32"
+        from_port   = 80
+        to_port     = 80
+      },
+      {
+        rule_number = 2
+        egress      = false
+        protocol    = "tcp"
+        rule_action = "allow"
+        cidr_block  = "78.186.23.180/32"
+        from_port   = 443
+        to_port     = 443
+      }
+    ]
+
+    development = [
+      # Inbound
+      {
+        rule_number = 100
+        egress      = false
+        protocol    = "-1"
+        rule_action = "allow"
+        cidr_block  = "78.186.23.180/32"
+        from_port   = 80
+        to_port     = 80
+      },
+      {
+        rule_number = 101
+        egress      = false
+        protocol    = "-1"
+        rule_action = "allow"
+        cidr_block  = "78.186.23.180/32"
+        from_port   = 443
+        to_port     = 443
+      },
+      # # For AWL Load Balancer internal check
+      {
+        rule_number = 102
+        egress      = false
+        protocol    = "-1"
+        rule_action = "allow"
+        cidr_block  = "10.0.0.0/20"
+        from_port   = 0
+        to_port     = 65535
+      },
+      # Outbound
+      {
+        rule_number = 100
+        egress      = true
+        protocol    = "-1"
+        rule_action = "allow"
+        cidr_block  = "10.0.0.0/20"
+        from_port   = 80
+        to_port     = 80
+      },
+      {
+        rule_number = 101
+        egress      = true
+        protocol    = "-1"
+        rule_action = "allow"
+        cidr_block  = "10.0.0.0/20"
+        from_port   = 443
+        to_port     = 443
+      },
+      {
+        rule_number = 102
+        egress      = true
+        protocol    = "-1"
+        rule_action = "allow"
+        cidr_block  = "0.0.0.0/0"
+        from_port   = 1024
+        to_port     = 65535
+      }
+    ]
+
+    testing = [
+      # Outbound
+      {
+        rule_number = 100
+        egress      = false
+        protocol    = "tcp"
+        rule_action = "allow"
+        cidr_block  = "78.186.23.180/32"
+        from_port   = 80
+        to_port     = 80
+      },
+      {
+        rule_number = 101
+        egress      = false
+        protocol    = "tcp"
+        rule_action = "allow"
+        cidr_block  = "78.186.23.180/32"
+        from_port   = 443
+        to_port     = 443
+      },
+      # For AWL Load Balancer internal check
+      {
+        rule_number = 102
+        egress      = false
+        protocol    = "tcp"
+        rule_action = "allow"
+        cidr_block  = "10.0.0.0/20"
+        from_port   = 1024
+        to_port     = 65535
+      },
+
+      # Outbound Traffic
+      {
+        rule_number = 100
+        egress      = true
+        protocol    = "tcp"
+        rule_action = "allow"
+        cidr_block  = "78.186.23.180/32"
+        from_port   = 80
+        to_port     = 80
+      },
+      {
+        rule_number = 101
+        egress      = true
+        protocol    = "tcp"
+        rule_action = "allow"
+        cidr_block  = "78.186.23.180/32"
+        from_port   = 443
+        to_port     = 443
+      },
+      {
+        rule_number = 102
+        egress      = true
+        protocol    = "tcp"
+        rule_action = "allow"
+        cidr_block  = "10.0.0.0/20"
+        from_port   = 443
+        to_port     = 443
+      },
+      {
+        rule_number = 103
+        egress      = true
+        protocol    = "tcp"
+        rule_action = "allow"
+        cidr_block  = "10.0.0.0/20"
+        from_port   = 80
+        to_port     = 80
+      },
+      {
+        rule_number = 104
+        egress      = true
+        protocol    = "tcp"
+        rule_action = "allow"
+        cidr_block  = "78.186.23.180/32"
+        from_port   = 1024
+        to_port     = 65535
+      },
+    ]
+    production = [
+
+      # This conf needs test or update..
+      # Its not ready for production not yet.
+      # Outbound
+      {
+        rule_number = 100
+        egress      = false
+        protocol    = "tcp"
+        rule_action = "allow"
+        cidr_block  = "78.186.23.180/32"
+        from_port   = 80
+        to_port     = 80
+      },
+      {
+        rule_number = 101
+        egress      = false
+        protocol    = "tcp"
+        rule_action = "allow"
+        cidr_block  = "78.186.23.180/32"
+        from_port   = 443
+        to_port     = 443
+      },
+      # For AWL Load Balancer internal check
+      {
+        rule_number = 102
+        egress      = false
+        protocol    = "tcp"
+        rule_action = "allow"
+        cidr_block  = "10.0.0.0/20"
+        from_port   = 1024
+        to_port     = 65535
+      },
+
+      # Outbound Traffic
+      {
+        rule_number = 100
+        egress      = true
+        protocol    = "tcp"
+        rule_action = "allow"
+        cidr_block  = "78.186.23.180/32"
+        from_port   = 80
+        to_port     = 80
+      },
+      {
+        rule_number = 101
+        egress      = true
+        protocol    = "tcp"
+        rule_action = "allow"
+        cidr_block  = "78.186.23.180/32"
+        from_port   = 443
+        to_port     = 443
+      },
+      {
+        rule_number = 102
+        egress      = true
+        protocol    = "tcp"
+        rule_action = "allow"
+        cidr_block  = "10.0.0.0/20"
+        from_port   = 443
+        to_port     = 443
+      },
+      {
+        rule_number = 103
+        egress      = true
+        protocol    = "tcp"
+        rule_action = "allow"
+        cidr_block  = "10.0.0.0/20"
+        from_port   = 80
+        to_port     = 80
+      },
+      {
+        rule_number = 104
+        egress      = true
+        protocol    = "tcp"
+        rule_action = "allow"
+        cidr_block  = "78.186.23.180/32"
+        from_port   = 1024
+        to_port     = 65535
+      },
+    ]
+
+  }
 }
-
-

@@ -13,7 +13,7 @@ resource "aws_spot_instance_request" "gitlabrunner" {
 
     # Verified provider Ubuntu Server 22.04 LTS (HVM), SSD Volume Type
   ami           = "ami-0caef02b518350c8b"
-  instance_type = "t2.micro"
+  instance_type = "t2.medium"
 
 
   subnet_id              = aws_subnet.infra.id
@@ -24,7 +24,9 @@ resource "aws_spot_instance_request" "gitlabrunner" {
   #   volume_type = "gp2"
   #   volume_size = "8"
   # }
-  spot_price    = "0.0043"
+
+  # Spot Instance prices : https://eu-central-1.console.aws.amazon.com/ec2/home?region=eu-central-1#SpotInstances:
+  spot_price    = "0.017"
   # Not working and I don't know the reason of yet!
   wait_for_fulfillment  = false
   

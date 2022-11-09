@@ -24,44 +24,57 @@ resource "aws_iam_role" "artifact_deploy" {
   }
 }
 
-
 resource "aws_iam_policy" "lambda_artifact_upload" {
   name        = "lambda_artifact_upload"
   description = "Uploding lambda artifact policy to S3 service"
 
   policy = <<EOF
 {
-   "Version":"2012-10-17",
-   "Statement":[
-      {
-         "Sid":"",
-         "Effect":"Allow",
-         "Action":[
-            "s3:PutAnalyticsConfiguration",
-            "s3:PutAccelerateConfiguration",
-            "s3:PutAccessPointConfigurationForObjectLambda",
-            "s3:PutBucketOwnershipControls",
-            "s3:PutObjectLegalHold",
-            "s3:PutObject",
-            "s3:PutBucketNotification",
-            "s3:DeleteStorageLensConfiguration",
-            "s3:PutBucketWebsite",
-            "s3:PutBucketRequestPayment",
-            "s3:PutObjectRetention",
-            "s3:PutBucketLogging",
-            "s3:PutBucketObjectLockConfiguration",
-            "s3:PutBucketVersioning",
-            "s3:ReplicateDelete"
-         ],
-         "Resource":"${aws_s3_bucket.artifact.arn}"
-      },
-      {
-         "Sid":"",
-         "Effect":"Allow",
-         "Action":"s3:PutStorageLensConfiguration",
-         "Resource":"${aws_s3_bucket.artifact.arn}"
-      }
-   ]
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor1",
+            "Effect": "Allow",
+            "Action": [
+                "s3:PutAnalyticsConfiguration",
+                "s3:PutAccelerateConfiguration",
+                "lambda:GetFunction",
+                "s3:PutBucketOwnershipControls",
+                "s3:PutObjectLegalHold",
+                "s3:PutObject",
+                "s3:PutBucketNotification",
+                "lambda:UpdateFunctionCode",
+                "lambda:ListFunctions",
+                "s3:PutBucketWebsite",
+                "s3:PutBucketRequestPayment",
+                "s3:PutObjectRetention",
+                "s3:PutBucketLogging",
+                "s3:PutBucketObjectLockConfiguration",
+                "s3:PutBucketVersioning",
+                "s3:ReplicateDelete"
+            ],
+            "Resource": [
+                "${aws_s3_bucket.artifact.arn}/*",
+                "${aws_s3_bucket.artifact.arn}/*",
+                "arn:aws:lambda:${var.aws_region}:${data.aws_caller_identity.current.account_id}:function:*"
+            ]
+        },
+        {
+            "Sid": "VisualEditor2",
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject",
+                "s3:GetObjectAttributes"
+            ],
+            "Resource": "${aws_s3_bucket.artifact.arn}/*"
+        },
+        {
+            "Sid": "VisualEditor3",
+            "Effect": "Allow",
+            "Action": "s3:PutStorageLensConfiguration",
+            "Resource": "${aws_s3_bucket.artifact.arn}/*"
+        }
+    ]
 }
 EOF
 

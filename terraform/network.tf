@@ -42,10 +42,17 @@ data "aws_eip" "elastic_ip" {
   }
 }
 
+# data "aws_eip" "backend_outbound_ip" {
+#   filter {
+#     name   = "tag:Name"
+#     values = ["${local.environments[terraform.workspace]}-bank-integration"]
+#   }
+# }
+
 data "aws_eip" "backend_outbound_ip" {
   filter {
     name   = "tag:Name"
-    values = ["${local.environments[terraform.workspace]}-bank-integration"]
+    values = ["vakifbank-ip-from-metamax-prod"]
   }
 }
 

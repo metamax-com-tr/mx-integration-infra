@@ -19,6 +19,7 @@ data "aws_secretsmanager_secret_version" "postgres_initial_version" {
   version_id = aws_secretsmanager_secret_version.postgres_initial.version_id
 }
 
+
 # TODO: auto-backup or maintain options
 resource "aws_db_instance" "database_instance" {
   db_name        = "metamax"

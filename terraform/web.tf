@@ -113,7 +113,6 @@ resource "aws_cloudfront_distribution" "cloudfront_web" {
     Name        = "web.${data.aws_route53_zone.app_zone.name}"
     NameSpace   = "${var.namespace}"
     Environment = "${local.environments[terraform.workspace]}"
-
   }
 
 }

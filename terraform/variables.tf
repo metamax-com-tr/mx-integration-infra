@@ -37,11 +37,26 @@ variable "metamax_secret" {
   description = "All secrets for metamax project"
 }
 
+variable "metamax_integration_vakifbank_statements_client" {
+  sensitive   = true
+  description = "Vakifbank Client Secrets"
+}
+
 variable "ecs_task_default_image" {
   description = "Gateway default image for cold start on building infra"
   type        = string
   default     = "639300795004.dkr.ecr.eu-central-1.amazonaws.com/default-metamax:v1.1.1"
 
+}
+
+variable "vakifbank-statements-client_default_artifact" {
+  description = "This is for cold-start"
+  default     = "metamax-integrations-bank-deposits-vakifbank-statements-client/vakifbank-statements-client-v0.0.9.zip"
+}
+
+variable "lambda_artifact_bucket" {
+  description = "This is for cold-start"
+  default     = "artifacts-lbljkp"
 }
 
 # Metamax Resource profiles by environments

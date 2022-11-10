@@ -47,3 +47,7 @@ output "postgres_pass" {
 # output "db_host_port" {
 #   value = data.aws_db_instance.database_instance.port
 # }
+
+output "account_id" {
+  value = data.aws_caller_identity.current.account_id
+}

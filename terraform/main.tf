@@ -20,3 +20,14 @@ provider "aws" {
   alias   = "aws_us_east_1"
   profile = var.aws_cli_profile
 }
+
+# Getting data about account
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity
+data "aws_caller_identity" "current" {}
+
+
+# Gitlab Runner to run gitlab-ci
+module "gitlabrunner" {
+  source     = "./modules/gitlab-runner"
+  aws_region = var.aws_region
+}

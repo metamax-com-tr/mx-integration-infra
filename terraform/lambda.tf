@@ -103,10 +103,10 @@ resource "aws_lambda_function" "vakifbank_statements_client" {
       QUARKUS_REDIS_CLIENT_TYPE                                           = "cluster"
       # We can't connect MemoryDb for redis in TLS connection on success.
       # The problem is not resolved!
-      QUARKUS_REDIS_TLS_ENABLED                                           = false
-      QUARKUS_REDIS_TLS_TRUST_ALL                                         = false
-      QUARKUS_REST_CLIENT_CONNECT_TIMEOUT                                 = 5000
-      QUARKUS_REST_CLIENT_READ_TIMEOUT                                    = 10000
+      QUARKUS_REDIS_TLS_ENABLED           = false
+      QUARKUS_REDIS_TLS_TRUST_ALL         = false
+      QUARKUS_REST_CLIENT_CONNECT_TIMEOUT = 5000
+      QUARKUS_REST_CLIENT_READ_TIMEOUT    = 10000
     }
   }
 

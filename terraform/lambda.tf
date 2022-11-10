@@ -125,7 +125,7 @@ resource "aws_lambda_function" "vakifbank_statements_client" {
 resource "aws_cloudwatch_event_rule" "cron_every_five" {
   name                = "trigger-vakifbank-client"
   description         = "Every N time trigger Vakifbank Client"
-  schedule_expression = "rate(5 minutes)"
+  schedule_expression = "rate(30 minutes)"
 
   tags = {
     NameSpace   = "bank-integration"
@@ -151,8 +151,7 @@ EOF
   }
 }
 
-
-resource "aws_lambda_permission" "events" {
+resource "aws_lambda_permission" "permission_for_every_minute" {
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.vakifbank_statements_client.function_name

@@ -112,7 +112,7 @@ locals {
     },
     production = {
       # Never
-      retention_in_days = 0 
+      retention_in_days = 0
     }
   }
 

@@ -105,13 +105,14 @@ locals {
 
   cloud_watch = {
     default = {
-      retention_in_days = 2
+      retention_in_days = 1
     },
     development = {
-      retention_in_days = 5
+      retention_in_days = 14
     },
     production = {
-      retention_in_days = 360
+      # Never
+      retention_in_days = 0 
     }
   }
 

@@ -158,3 +158,27 @@ resource "aws_lambda_permission" "permission_for_every_minute" {
   principal     = "events.amazonaws.com"
   source_arn    = aws_cloudwatch_event_rule.cron_every_five.arn
 }
+
+
+resource "aws_cloudwatch_log_group" "vakifbank_statements_client" {
+  name              = "/aws/lambda/vakifbank-statements-client"
+  retention_in_days = local.cloud_watch[terraform.workspace].retention_in_days
+  tags = {
+    Name        = "vakifbank-statements-client"
+    NameSpace   = "${var.namespace}"
+    Environment = "${local.environments[terraform.workspace]}"
+  }
+}
+
+
+resource "aws_lambda_permission" "vakifbank_statements_client" {
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.vakifbank_statements_client.function_name
+  principal     = "logs.eu-west-1.amazonaws.com"
+  source_arn    = "${aws_cloudwatch_log_group.vakifbank_statements_client.arn}:*"
+}
+
+resource "aws_iam_role_policy_attachment" "vakifbank_statements_client-log-policy" {
+  role       = aws_iam_role.vakifbank_statements_client.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}

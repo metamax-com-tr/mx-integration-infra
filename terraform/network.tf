@@ -42,20 +42,23 @@ data "aws_eip" "elastic_ip" {
   }
 }
 
-# data "aws_eip" "backend_outbound_ip" {
-#   filter {
-#     name   = "tag:Name"
-#     values = ["${local.environments[terraform.workspace]}-bank-integration"]
-#   }
-# }
 
-data "aws_eip" "backend_outbound_ip" {
+## outbound ip for metamax gateway
+data "aws_eip" "backend_outbound" {
   filter {
     name   = "tag:Name"
     values = ["vakifbank-ip-from-metamax-prod"]
   }
 }
 
+
+## outbound ip for bank intergation
+data "aws_eip" "bank_integration_outbound" {
+  filter {
+    name   = "tag:Name"
+    values = ["metamax-outbound-1"]
+  }
+}
 
 #NAT
 resource "aws_nat_gateway" "aws_natgw" {
@@ -75,8 +78,24 @@ resource "aws_nat_gateway" "aws_natgw" {
 # Back-end services need to access to internet, This is 
 # just outbound traffic. 
 resource "aws_nat_gateway" "backend_natgw" {
-  allocation_id = data.aws_eip.backend_outbound_ip.id
+  allocation_id = data.aws_eip.backend_outbound.id
   subnet_id     = element(aws_subnet.firewall_subnet.*.id, 0)
+  depends_on = [
+    aws_internet_gateway.igw
+  ]
+
+  tags = {
+    Name        = "${local.environments[terraform.workspace]}-backend-nat"
+    NameSpace   = "${var.namespace}"
+    Environment = "${local.environments[terraform.workspace]}"
+  }
+}
+
+# Back-end services need to access to internet, This is 
+# just outbound traffic. 
+resource "aws_nat_gateway" "bank_integration_natgw" {
+  allocation_id = data.aws_eip.bank_integration_outbound.id
+  subnet_id     = element(aws_subnet.bank_integrations.*.id, 0)
   depends_on = [
     aws_internet_gateway.igw
   ]
@@ -100,6 +119,26 @@ resource "aws_subnet" "backend" {
 
   tags = {
     Name        = "${local.environments[terraform.workspace]}-${var.namespace}-backend"
+    NameSpace   = "${var.namespace}"
+    Environment = "${local.environments[terraform.workspace]}"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# PRIVATE SUBNET for all services belongs to Bank Integrations
+resource "aws_subnet" "bank_integrations" {
+  count                   = length(local.availability_zones[terraform.workspace])
+  availability_zone       = local.availability_zones[terraform.workspace][count.index]
+  cidr_block              = cidrsubnet(aws_vpc.aws_vpc.cidr_block, 4, count.index + 3)
+  vpc_id                  = aws_vpc.aws_vpc.id
+  map_public_ip_on_launch = true
+
+
+  tags = {
+    Name        = "${local.environments[terraform.workspace]}-${var.namespace}-bank-integrations"
     NameSpace   = "${var.namespace}"
     Environment = "${local.environments[terraform.workspace]}"
   }
@@ -166,11 +205,8 @@ resource "aws_subnet" "db" {
   #   "10.0.1.0/24"
   #   > cidrsubnet("10.0.0.0/20", 4, 6)
   #   "10.0.6.0/24"
-  #   > cidrsubnet("10.0.0.0/20", 4, 6)
-  #   "10.0.6.0/24"
   #   > cidrsubnet("10.0.0.0/20", 4, 0)
   #   "10.0.0.0/24"
-  #   > cidrsubnet("10.0.0.0/20", 4, 1)
   #   "10.0.1.0/24"
   #   > cidrsubnet("10.0.0.0/20", 4, 2)
   #   "10.0.2.0/24"
@@ -201,6 +237,26 @@ resource "aws_route_table" "backend" {
 
   tags = {
     Name        = "${local.environments[terraform.workspace]}-${var.namespace}-backend"
+    NameSpace   = "${var.namespace}"
+    Environment = "${local.environments[terraform.workspace]}"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+
+# Create a new route table for the private subnets.
+resource "aws_route_table" "bank_integrations" {
+  vpc_id = aws_vpc.aws_vpc.id
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.backend_natgw.id
+  }
+
+  tags = {
+    Name        = "${local.environments[terraform.workspace]}-${var.namespace}-bank-integrations"
     NameSpace   = "${var.namespace}"
     Environment = "${local.environments[terraform.workspace]}"
   }

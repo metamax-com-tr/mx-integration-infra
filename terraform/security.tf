@@ -56,11 +56,31 @@ resource "aws_security_group" "ecs_tasks" {
 
 }
 
-
-
 # Traffic to ECS cluster only comes from the ALB
 resource "aws_security_group" "vakifbank_statements_client" {
   name        = "vakifbank_statements_client"
+  description = "allow inbound access from ALB only"
+  vpc_id      = aws_vpc.aws_vpc.id
+
+
+  egress {
+    from_port        = 0
+    to_port          = 65535
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+}
+
+
+# Traffic to ECS cluster only comes from the ALB
+resource "aws_security_group" "bank_statements" {
+  name        = "All_bank_statements_statements_client"
   description = "allow inbound access from ALB only"
   vpc_id      = aws_vpc.aws_vpc.id
 

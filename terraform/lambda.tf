@@ -84,19 +84,13 @@ resource "aws_lambda_function" "vakifbank_statements_client" {
   handler       = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
   runtime       = "java11"
   timeout       = 20
-  memory_size   = 256
+  memory_size   = 1024
 
   environment {
     variables = {
-      QUARKUS_LAMBDA_HANDLER                                              = "get-last-statements"
-      APPLICATION_BANK_VAKIFBANK_CUSTOMERNUMBER                           = "SECRET",
-      APPLICATION_BANK_VAKIFBANK_USERNAME                                 = "SECRET",
-      APPLICATION_BANK_VAKIFBANK_PASSWORD                                 = "SECRET",
-      APPLICATION_BANK_VAKIFBANK_ACCOUNTNUMBER                            = "SECRET",
-      QUARKUS_REST_CLIENT_VAKIFBANK_DEPOSIT_CLIENT_URL                    = "https://vbservice.vakifbank.com.tr/HesapHareketleri.OnlineEkstre/SOnlineEkstreServis.svc",
-      APPLICATION_REST_CLIENT_LOGGING_SCOPE                               = "all",
+      QUARKUS_LAMBDA_HANDLER                                              = "get-last-statements",
       APPLICATION_REST_CLIENT_LOGGING_BODY_LIMIT                          = "100000",
-      APPLICATION_LOG_CATAGORY_ORG_JBOSS_RESTEASY_REACTIVE_CLIENT_LOGGING = "DEBUG",
+      APPLICATION_LOG_CATAGORY_ORG_JBOSS_RESTEASY_REACTIVE_CLIENT_LOGGING = "ERROR",
       QUARKUS_REDIS_HOSTS                                                 = "redis://${aws_memorydb_cluster.metamax_integrations.cluster_endpoint[0].address}:${aws_memorydb_cluster.metamax_integrations.cluster_endpoint[0].port}",
       QUARKUS_REDIS_DATABASE                                              = 1
       QUARKUS_REDIS_TIMEOUT                                               = 3
@@ -106,10 +100,11 @@ resource "aws_lambda_function" "vakifbank_statements_client" {
       QUARKUS_REDIS_TLS_ENABLED           = false
       QUARKUS_REDIS_TLS_TRUST_ALL         = false
       QUARKUS_REST_CLIENT_CONNECT_TIMEOUT = 5000
-      QUARKUS_REST_CLIENT_READ_TIMEOUT    = 10000
+      QUARKUS_REST_CLIENT_READ_TIMEOUT    = 15000
+      # https://quarkus.io/guides/all-config#quarkus-vertx_quarkus.vertx.warning-exception-time
+      QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME = "3s"
     }
   }
-
   vpc_config {
     security_group_ids = [aws_security_group.vakifbank_statements_client.id]
     subnet_ids         = aws_subnet.backend.*.id

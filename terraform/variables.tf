@@ -53,6 +53,10 @@ variable "ziraatbank-statements-client_default_artifact" {
   default     = "metamax-integrations-bank-deposits-ziraatbank-statements-client/ziraatbank-statements-client-v0.0.3.development.zip"
 }
 
+variable "bank_statement_handler_default_artifact" {
+  description = "This is for cold-start"
+  default     = "metamax-integrations-bank-deposits-bank-deposits-gateway/bank-deposits-gateway-v0.0.2.development.zip"
+}
 
 variable "vakifbank-statements-client_default_artifact" {
   description = "This is for cold-start"

@@ -107,7 +107,7 @@ resource "aws_lambda_function" "vakifbank_statements_client" {
   }
   vpc_config {
     security_group_ids = [aws_security_group.vakifbank_statements_client.id]
-    subnet_ids         = aws_subnet.backend.*.id
+    subnet_ids         = aws_subnet.bank_integration.*.id
   }
 
   tags = {

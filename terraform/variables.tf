@@ -17,7 +17,7 @@ variable "aws_zone_id" {
 
 variable "cidr" {
   description = "The CIDR block for the VPC."
-  default     = "10.0.0.0/20"
+  default     = "10.0.0.0/18"
 }
 
 variable "ecs_task_execution_role_name" {

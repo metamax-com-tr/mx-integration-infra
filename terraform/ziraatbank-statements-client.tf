@@ -45,7 +45,7 @@ resource "aws_secretsmanager_secret_version" "ziraat_bank_initial" {
 
 resource "aws_iam_policy" "ziraatbank-statements-client_secret" {
   name        = "${local.environments[terraform.workspace]}-${var.namespace}-ziraatbank-statements-client_secret"
-  description = "Ziraat Bank Client Read Secret Policy"
+  description = "Ziraat Bank Client Policy"
 
   policy = <<EOF
 {
@@ -85,13 +85,46 @@ resource "aws_iam_policy" "ziraatbank-statements-client_secret" {
   ]
 }
 EOF
+
 }
 
 
-# Vakifbank Read Secret Policy role policy attachment
+resource "aws_iam_policy" "ziraatbank_statements_sqs_destination" {
+  name        = "${local.environments[terraform.workspace]}-${var.namespace}-ziraatbank-statements-sqs-destination"
+  description = "Ziraat Bank Client Policy"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [   
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Action": [
+        "sqs:SendMessage"
+      ],
+      "Resource": [
+        "${aws_sqs_queue.bank_integration_bank_statements_fails.arn}",
+        "${aws_sqs_queue.bank_integration_bank_statements.arn}"
+      ]
+    }
+  ]
+}
+EOF
+
+}
+
+# Ziraat Bank Read Secret Policy role policy attachment
 resource "aws_iam_role_policy_attachment" "ziraat_bank_statements_read_secret" {
   role       = aws_iam_role.ziraatbank-statements-client.name
   policy_arn = aws_iam_policy.ziraatbank-statements-client_secret.arn
+}
+
+
+# Ziraat Bank SQS Destination Policy role policy attachment
+resource "aws_iam_role_policy_attachment" "ziraat_bank_statements_sqs_destination" {
+  role       = aws_iam_role.ziraatbank-statements-client.name
+  policy_arn = aws_iam_policy.ziraatbank_statements_sqs_destination.arn
 }
 
 
@@ -103,7 +136,7 @@ resource "aws_lambda_function" "ziraatbank-statements-client" {
   handler       = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
   runtime       = "java11"
   timeout       = 20
-  memory_size   = 512
+  memory_size   = 1024
 
   environment {
     variables = {
@@ -123,19 +156,24 @@ resource "aws_lambda_function" "ziraatbank-statements-client" {
       QUARKUS_REDIS_TLS_ENABLED   = false
       QUARKUS_REDIS_TLS_TRUST_ALL = false
       # https://quarkus.io/guides/all-config#quarkus-vertx_quarkus.vertx.warning-exception-time
-      QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME = "3s"
+      QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME = "5s"
+      APPLICATION_BANK_TRANSFER_QUEUE_URL       = "${aws_sqs_queue.bank_integration_bank_statements.url}"
     }
   }
 
   vpc_config {
     security_group_ids = [aws_security_group.bank_statements.id]
-    subnet_ids         = aws_subnet.backend.*.id
+    subnet_ids         = aws_subnet.bank_integration.*.id
   }
 
   tags = {
     NameSpace   = "bank-integration"
     Environment = "${local.environments[terraform.workspace]}"
   }
+
+  depends_on = [
+    aws_sqs_queue.bank_integration_bank_statements
+  ]
 }
 
 
@@ -199,3 +237,20 @@ resource "aws_iam_role_policy_attachment" "ziraatbank-statements-client-log-poli
   role       = aws_iam_role.ziraatbank-statements-client.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
+
+
+
+# resource "aws_lambda_function_event_invoke_config" "ziraat_bank_sqs_destination" {
+#   function_name = aws_lambda_function.ziraatbank-statements-client.function_name
+
+#   destination_config {
+#     on_failure {
+#       destination = aws_sqs_queue.bank_integration_bank_statements_fails.arn
+#     }
+
+#     on_success {
+#       destination = aws_sqs_queue.bank_integration_bank_statements.arn
+#     }
+#   }
+
+# }

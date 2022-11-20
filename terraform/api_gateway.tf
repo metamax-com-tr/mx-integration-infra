@@ -88,7 +88,7 @@ resource "aws_api_gateway_resource" "integration" {
 
 resource "aws_api_gateway_resource" "withdrawals" {
   parent_id   = aws_api_gateway_resource.integration.id
-  path_part   = "withdrawals"
+    path_part   = "withdrawals"
   rest_api_id = aws_api_gateway_rest_api.bank_integration.id
 }
 
@@ -212,14 +212,126 @@ resource "aws_api_gateway_deployment" "default_deployment_trigger" {
   }
 }
 
-resource "aws_api_gateway_stage" "example" {
+
+resource "aws_cloudwatch_log_group" "api_gw_bank_integration" {
+  name = "/aws/apigateway/${aws_api_gateway_rest_api.bank_integration.name}"
+  retention_in_days = local.cloud_watch[terraform.workspace].retention_in_days
+
+  tags = {
+    NameSpace   = "${var.namespace}"
+    Environment = "${local.environments[terraform.workspace]}"
+  }
+}
+
+resource "aws_api_gateway_stage" "development" {
   deployment_id = aws_api_gateway_deployment.default_deployment_trigger.id
   rest_api_id   = aws_api_gateway_rest_api.bank_integration.id
   stage_name    = "development"
+
+  
+  access_log_settings {
+    destination_arn = aws_cloudwatch_log_group.api_gw_bank_integration.arn
+    format = jsonencode({
+      requestId               = "$context.requestId"
+      sourceIp                = "$context.identity.sourceIp"
+      requestTime             = "$context.requestTime"
+      protocol                = "$context.protocol"
+      httpMethod              = "$context.httpMethod"
+      resourcePath            = "$context.resourcePath"
+      routeKey                = "$context.routeKey"
+      status                  = "$context.status"
+      responseLength          = "$context.responseLength"
+      integrationErrorMessage = "$context.integrationErrorMessage"
+      }
+    )
+  }
+  
+  depends_on = [aws_cloudwatch_log_group.api_gw_bank_integration]
+
+
+}
+resource "aws_api_gateway_account" "bank_integration" {
+  cloudwatch_role_arn = aws_iam_role.api_gateway_bank_integration.arn
 }
 
-# resource "aws_api_gateway_stage" "example" {
-#   deployment_id = aws_api_gateway_deployment.example.id
-#   rest_api_id   = aws_api_gateway_rest_api.example.id
-#   stage_name    = "example"
+resource "aws_iam_role" "api_gateway_bank_integration" {
+  name = "api_gateway_cloudwatch_global"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "apigateway.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy" "cloudwatch" {
+  name = "bank-integration-api-gateway-log"
+  role = aws_iam_role.api_gateway_bank_integration.id
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:DescribeLogGroups",
+                "logs:DescribeLogStreams",
+                "logs:PutLogEvents",
+                "logs:GetLogEvents",
+                "logs:FilterLogEvents"
+            ],
+            "Resource": "*" 
+        }
+    ]
+}
+EOF
+}
+
+  
+resource "aws_api_gateway_method_settings" "general_settings" {
+  rest_api_id = aws_api_gateway_rest_api.bank_integration.id
+  stage_name  = aws_api_gateway_stage.development.stage_name
+  method_path = "*/*"
+
+  settings {
+    # Enable CloudWatch logging and metrics
+    metrics_enabled        = true
+    data_trace_enabled     = true
+    # logging_level          = "ERROR,INFO"
+
+    # Limit the rate of calls to prevent abuse and unwanted charges
+    throttling_rate_limit  = 100
+    throttling_burst_limit = 50
+  }
+}
+
+
+# resource "aws_api_gateway_method_settings" "log_withdrawals" {
+#   rest_api_id = aws_api_gateway_rest_api.bank_integration.id
+#   stage_name  = aws_api_gateway_stage.development.stage_name
+#   method_path = "*/POST"
+
+#   settings {
+#     # Enable CloudWatch logging and metrics
+#     metrics_enabled        = true
+#     data_trace_enabled     = true
+#     logging_level          = "INFO"
+
+#     # Limit the rate of calls to prevent abuse and unwanted charges
+#     throttling_rate_limit  = 100
+#     throttling_burst_limit = 50
+#   }
 # }

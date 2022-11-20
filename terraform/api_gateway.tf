@@ -88,7 +88,7 @@ resource "aws_api_gateway_resource" "integration" {
 
 resource "aws_api_gateway_resource" "withdrawals" {
   parent_id   = aws_api_gateway_resource.integration.id
-    path_part   = "withdrawals"
+  path_part   = "withdrawals"
   rest_api_id = aws_api_gateway_rest_api.bank_integration.id
 }
 
@@ -214,7 +214,7 @@ resource "aws_api_gateway_deployment" "default_deployment_trigger" {
 
 
 resource "aws_cloudwatch_log_group" "api_gw_bank_integration" {
-  name = "/aws/apigateway/${aws_api_gateway_rest_api.bank_integration.name}"
+  name              = "/aws/apigateway/${aws_api_gateway_rest_api.bank_integration.name}"
   retention_in_days = local.cloud_watch[terraform.workspace].retention_in_days
 
   tags = {
@@ -228,7 +228,7 @@ resource "aws_api_gateway_stage" "development" {
   rest_api_id   = aws_api_gateway_rest_api.bank_integration.id
   stage_name    = "development"
 
-  
+
   access_log_settings {
     destination_arn = aws_cloudwatch_log_group.api_gw_bank_integration.arn
     format = jsonencode({
@@ -245,7 +245,7 @@ resource "aws_api_gateway_stage" "development" {
       }
     )
   }
-  
+
   depends_on = [aws_cloudwatch_log_group.api_gw_bank_integration]
 
 
@@ -300,7 +300,7 @@ resource "aws_iam_role_policy" "cloudwatch" {
 EOF
 }
 
-  
+
 resource "aws_api_gateway_method_settings" "general_settings" {
   rest_api_id = aws_api_gateway_rest_api.bank_integration.id
   stage_name  = aws_api_gateway_stage.development.stage_name
@@ -308,8 +308,8 @@ resource "aws_api_gateway_method_settings" "general_settings" {
 
   settings {
     # Enable CloudWatch logging and metrics
-    metrics_enabled        = true
-    data_trace_enabled     = true
+    metrics_enabled    = true
+    data_trace_enabled = true
     # logging_level          = "ERROR,INFO"
 
     # Limit the rate of calls to prevent abuse and unwanted charges

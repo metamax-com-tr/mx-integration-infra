@@ -180,7 +180,7 @@ resource "aws_lambda_function" "ziraatbank-statements-client" {
 resource "aws_cloudwatch_event_rule" "ziraat_statements_cron_every_five" {
   name                = "ziraat-vakifbank-client"
   description         = "Every N time ziraat Vakifbank Client"
-  schedule_expression = "rate(30 minutes)"
+  schedule_expression = "rate(5 minutes)"
 
   tags = {
     NameSpace   = "bank-integration"

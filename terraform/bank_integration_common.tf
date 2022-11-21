@@ -2,8 +2,8 @@
 
 # https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_CreateQueue.html#API_CreateQueue_RequestParameters
 resource "aws_sqs_queue" "bank_integration_bank_statements" {
-  name       = "bank-integration-bank-statements.fifo"
-  fifo_queue = true
+  name       = "bank-integration-bank-statements"
+  fifo_queue = false
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.bank_integration_bank_statements_deadletter.arn
     maxReceiveCount     = 3
@@ -46,8 +46,8 @@ resource "aws_sqs_queue" "bank_integration_bank_statements_fails" {
 }
 
 resource "aws_sqs_queue" "bank_integration_bank_statements_deadletter" {
-  name       = "bank-integration-bank-statements-deadletter.fifo"
-  fifo_queue = true
+  name       = "bank-integration-bank-statements-deadletter"
+  fifo_queue = false
   #   redrive_allow_policy = jsonencode({
   #     redrivePermission = "byQueue",
   #     sourceQueueArns   = [aws_sqs_queue.terraform_queue.arn]
@@ -102,11 +102,10 @@ resource "aws_sqs_queue" "bank_integration_withdrawals_deadletter" {
 }
 
 
-
 # https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_CreateQueue.html#API_CreateQueue_RequestParameters
 resource "aws_sqs_queue" "bank_integration_deposits" {
-  name       = "bank-integration-deposits.fifo"
-  fifo_queue = true
+  name       = "bank-integration-deposits"
+  fifo_queue = false
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.bank_integration_deposits_deadletter.arn
     maxReceiveCount     = 3
@@ -130,8 +129,8 @@ resource "aws_sqs_queue" "bank_integration_deposits" {
 
 
 resource "aws_sqs_queue" "bank_integration_deposits_deadletter" {
-  name       = "bank-integration-deposits-deadletter.fifo"
-  fifo_queue = true
+  name       = "bank-integration-deposits-deadletter"
+  fifo_queue = false
 
   # 14 days
   message_retention_seconds = 1209600
@@ -141,4 +140,3 @@ resource "aws_sqs_queue" "bank_integration_deposits_deadletter" {
     Environment = "${local.environments[terraform.workspace]}"
   }
 }
-

@@ -146,7 +146,7 @@ resource "aws_api_gateway_integration" "withdrawals_post_to_sqs" {
   integration_http_method = "POST"
   passthrough_behavior    = "NEVER"
   credentials             = aws_iam_role.aws_api_gateway_rest.arn
-  uri                     = "arn:aws:apigateway:${var.aws_region}:sqs:path/${aws_sqs_queue.bank_integration_withdrawals.name}"
+  uri                     = "arn:aws:apigateway:${var.aws_region}:sqs:path/${aws_sqs_queue.bank_withdrawal_withdrawals.name}"
 
   request_parameters = {
     "integration.request.header.Content-Type" = "'application/x-www-form-urlencoded'"
@@ -156,6 +156,62 @@ resource "aws_api_gateway_integration" "withdrawals_post_to_sqs" {
     "application/json" = "Action=SendMessage&MessageBody=$input.body"
   }
 }
+
+
+resource "aws_iam_policy" "aws_api_gateway_rest_sqs" {
+  name        = "${local.environments[terraform.workspace]}-bank-integration-api-gateway-write-sqs"
+  description = "The policy of access to SQS by AWS API Gateway"
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:DescribeLogGroups",
+          "logs:DescribeLogStreams",
+          "logs:PutLogEvents",
+          "logs:GetLogEvents",
+          "logs:FilterLogEvents"
+        ],
+        "Resource": "*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "sqs:GetQueueUrl",
+          "sqs:ChangeMessageVisibility",
+          "sqs:SendMessageBatch",
+          "sqs:SendMessage",
+          "sqs:GetQueueAttributes",
+          "sqs:ListQueueTags",
+          "sqs:ChangeMessageVisibilityBatch",
+          "sqs:SetQueueAttributes"
+        ],
+        "Resource": "${aws_sqs_queue.bank_withdrawal_withdrawals.arn}"
+      },
+      {
+        "Effect": "Allow",
+        "Action": "sqs:ListQueues",
+        "Resource": "*"
+      }      
+    ]
+}
+EOF
+
+  depends_on = [
+    aws_sqs_queue.bank_withdrawal_withdrawals
+  ]
+}
+
+resource "aws_iam_role_policy_attachment" "api_gateway_sqs" {
+  role       = aws_iam_role.aws_api_gateway_rest.name
+  policy_arn = aws_iam_policy.aws_api_gateway_rest_sqs.arn
+}
+
 
 resource "aws_api_gateway_integration_response" "post_success" {
   rest_api_id = aws_api_gateway_rest_api.bank_integration.id

@@ -46,9 +46,9 @@ resource "aws_iam_policy" "vakifbank_statements_client_secret" {
         "ec2:CreateNetworkInterface"
       ],
       "Resource": [
-          "arn:aws:ec2:*:639300795004:subnet/*",
-          "arn:aws:ec2:*:639300795004:security-group/*",
-          "arn:aws:ec2:*:639300795004:network-interface/*"
+          "arn:aws:ec2:*:*:subnet/*",
+          "arn:aws:ec2:*:*:security-group/*",
+          "arn:aws:ec2:*:*:network-interface/*"
       ]
     },
     {
@@ -84,19 +84,13 @@ resource "aws_lambda_function" "vakifbank_statements_client" {
   handler       = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
   runtime       = "java11"
   timeout       = 20
-  memory_size   = 256
+  memory_size   = 1024
 
   environment {
     variables = {
-      QUARKUS_LAMBDA_HANDLER                                              = "get-last-statements"
-      APPLICATION_BANK_VAKIFBANK_CUSTOMERNUMBER                           = "SECRET",
-      APPLICATION_BANK_VAKIFBANK_USERNAME                                 = "SECRET",
-      APPLICATION_BANK_VAKIFBANK_PASSWORD                                 = "SECRET",
-      APPLICATION_BANK_VAKIFBANK_ACCOUNTNUMBER                            = "SECRET",
-      QUARKUS_REST_CLIENT_VAKIFBANK_DEPOSIT_CLIENT_URL                    = "https://vbservice.vakifbank.com.tr/HesapHareketleri.OnlineEkstre/SOnlineEkstreServis.svc",
-      APPLICATION_REST_CLIENT_LOGGING_SCOPE                               = "all",
+      QUARKUS_LAMBDA_HANDLER                                              = "get-last-statements",
       APPLICATION_REST_CLIENT_LOGGING_BODY_LIMIT                          = "100000",
-      APPLICATION_LOG_CATAGORY_ORG_JBOSS_RESTEASY_REACTIVE_CLIENT_LOGGING = "DEBUG",
+      APPLICATION_LOG_CATAGORY_ORG_JBOSS_RESTEASY_REACTIVE_CLIENT_LOGGING = "ERROR",
       QUARKUS_REDIS_HOSTS                                                 = "redis://${aws_memorydb_cluster.metamax_integrations.cluster_endpoint[0].address}:${aws_memorydb_cluster.metamax_integrations.cluster_endpoint[0].port}",
       QUARKUS_REDIS_DATABASE                                              = 1
       QUARKUS_REDIS_TIMEOUT                                               = 3
@@ -106,13 +100,80 @@ resource "aws_lambda_function" "vakifbank_statements_client" {
       QUARKUS_REDIS_TLS_ENABLED           = false
       QUARKUS_REDIS_TLS_TRUST_ALL         = false
       QUARKUS_REST_CLIENT_CONNECT_TIMEOUT = 5000
-      QUARKUS_REST_CLIENT_READ_TIMEOUT    = 10000
+      QUARKUS_REST_CLIENT_READ_TIMEOUT    = 15000
+      # https://quarkus.io/guides/all-config#quarkus-vertx_quarkus.vertx.warning-exception-time
+      QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME = "3s"
     }
   }
-
   vpc_config {
     security_group_ids = [aws_security_group.vakifbank_statements_client.id]
-    subnet_ids         = aws_subnet.backend.*.id
+    subnet_ids         = aws_subnet.bank_integration.*.id
+  }
+
+  tags = {
+    NameSpace   = "bank-integration"
+    Environment = "${local.environments[terraform.workspace]}"
   }
 }
 
+
+resource "aws_cloudwatch_event_rule" "cron_every_five" {
+  name                = "trigger-vakifbank-client"
+  description         = "Every N time trigger Vakifbank Client"
+  schedule_expression = "rate(30 minutes)"
+
+  tags = {
+    NameSpace   = "bank-integration"
+    Environment = "${local.environments[terraform.workspace]}"
+  }
+}
+
+resource "aws_cloudwatch_event_target" "vakifbank_client" {
+  arn  = aws_lambda_function.vakifbank_statements_client.arn
+  rule = aws_cloudwatch_event_rule.cron_every_five.id
+
+  input_transformer {
+    input_paths = {
+      instance = "$.detail.instance",
+      status   = "$.detail.status",
+    }
+    input_template = <<EOF
+{
+  "instance_id": <instance>,
+  "instance_status": <status>
+}
+EOF
+  }
+}
+
+resource "aws_lambda_permission" "permission_for_every_minute" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.vakifbank_statements_client.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.cron_every_five.arn
+}
+
+
+resource "aws_cloudwatch_log_group" "vakifbank_statements_client" {
+  name              = "/aws/lambda/vakifbank-statements-client"
+  retention_in_days = local.cloud_watch[terraform.workspace].retention_in_days
+  tags = {
+    Name        = "vakifbank-statements-client"
+    NameSpace   = "${var.namespace}"
+    Environment = "${local.environments[terraform.workspace]}"
+  }
+}
+
+
+resource "aws_lambda_permission" "vakifbank_statements_client" {
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.vakifbank_statements_client.function_name
+  principal     = "logs.eu-west-1.amazonaws.com"
+  source_arn    = "${aws_cloudwatch_log_group.vakifbank_statements_client.arn}:*"
+}
+
+resource "aws_iam_role_policy_attachment" "vakifbank_statements_client-log-policy" {
+  role       = aws_iam_role.vakifbank_statements_client.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}

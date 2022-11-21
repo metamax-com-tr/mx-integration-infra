@@ -14,7 +14,7 @@ resource "aws_internet_gateway" "infra_internet" {
   tags = {
     Name = "infra"
   }
-  depends_on = [aws_spot_instance_request.gitlabrunner]
+  depends_on = [aws_instance.gitlabrunner]
 }
 
 resource "aws_subnet" "infra" {
@@ -36,7 +36,7 @@ resource "aws_route_table" "infra" {
   tags = {
     Name = "infra"
   }
-  depends_on = [aws_spot_instance_request.gitlabrunner]
+  depends_on = [aws_instance.gitlabrunner]
 }
 
 # Route the public subnet traffic through the IGW
@@ -44,16 +44,16 @@ resource "aws_route" "internet_access" {
   route_table_id         = aws_vpc.gitlab_vpc.main_route_table_id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.infra_internet.id
-  depends_on = [aws_spot_instance_request.gitlabrunner]
+  depends_on = [aws_instance.gitlabrunner]
 }
 
 # After you've launched an instance into the subnet,
 # you must assign it an Elastic IP address
 # if you want it to be reachable from the internet over IPv4.
 resource "aws_eip" "lb" {
-  instance = aws_spot_instance_request.gitlabrunner.spot_instance_id
+  instance = aws_instance.gitlabrunner.id
   vpc      = true
-  depends_on = [aws_spot_instance_request.gitlabrunner]
+  depends_on = [aws_instance.gitlabrunner]
   tags = {
     Name = "gitlab-runner"
     Environment = "infra"

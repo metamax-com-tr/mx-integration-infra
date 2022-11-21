@@ -265,43 +265,77 @@ resource "aws_iam_role_policy_attachment" "user_pool_sns_role_policy_attach" {
   policy_arn = aws_iam_policy.user_pool_sns_role_policy.arn
 }
 
-# Db Proxy
-#resource "aws_iam_role_policy" "db_proxy_role_policy" {
-#  name = "db_proxy_role_policy-${var.application_key}-${var.application_stage}"
-#  role = aws_iam_role.db_proxy_role.id
-#
-#  policy = jsonencode({
-#    Version   = "2012-10-17"
-#    Statement = [
-#      {
-#        Action = [
-#          "secretsmanager:*",
-#        ]
-#        Effect   = "Allow"
-#        Resource = "*"
-#      },
-#    ]
-#  })
-#}
 
-#resource "aws_iam_role" "db_proxy_role" {
-#  name = "db_proxy_role-${var.application_key}-${var.application_stage}"
-#
-#  assume_role_policy = jsonencode({
-#    Version   = "2012-10-17"
-#    Statement = [
-#      {
-#        Action    = "sts:AssumeRole"
-#        Effect    = "Allow"
-#        Sid       = ""
-#        Principal = {
-#          Service = "secretsmanager.amazonaws.com"
-#        }
-#      },
-#    ]
-#  })
-#
-#  lifecycle {
-#    create_before_destroy = true
-#  }
-#}
+# AWS API Gateway Rest
+resource "aws_iam_role" "aws_api_gateway_rest" {
+  name               = "${local.environments[terraform.workspace]}-bank-integration-api-gateway"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "apigateway.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_policy" "aws_api_gateway_rest_sqs" {
+  name        = "${local.environments[terraform.workspace]}-bank-integration-api-gateway-write-sqs"
+  description = "The policy of access to SQS by AWS API Gateway"
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:DescribeLogGroups",
+          "logs:DescribeLogStreams",
+          "logs:PutLogEvents",
+          "logs:GetLogEvents",
+          "logs:FilterLogEvents"
+        ],
+        "Resource": "*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "sqs:GetQueueUrl",
+          "sqs:ChangeMessageVisibility",
+          "sqs:SendMessageBatch",
+          "sqs:SendMessage",
+          "sqs:GetQueueAttributes",
+          "sqs:ListQueueTags",
+          "sqs:ChangeMessageVisibilityBatch",
+          "sqs:SetQueueAttributes"
+        ],
+        "Resource": "${aws_sqs_queue.bank_integration_withdrawals.arn}"
+      },
+      {
+        "Effect": "Allow",
+        "Action": "sqs:ListQueues",
+        "Resource": "*"
+      }      
+    ]
+}
+EOF
+
+  depends_on = [
+    aws_sqs_queue.bank_integration_withdrawals
+  ]
+}
+
+resource "aws_iam_role_policy_attachment" "api_gateway_sqs" {
+  role       = aws_iam_role.aws_api_gateway_rest.name
+  policy_arn = aws_iam_policy.aws_api_gateway_rest_sqs.arn
+}

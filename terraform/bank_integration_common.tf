@@ -62,6 +62,8 @@ resource "aws_sqs_queue" "bank_integration_bank_statements_deadletter" {
   }
 }
 
+
+#---> Will be deleted!
 # https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_CreateQueue.html#API_CreateQueue_RequestParameters
 resource "aws_sqs_queue" "bank_integration_withdrawals" {
   name       = "bank-integration-withdrawals"
@@ -101,6 +103,8 @@ resource "aws_sqs_queue" "bank_integration_withdrawals_deadletter" {
   }
 }
 
+#---> END OF Will be deleted!
+
 
 # https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_CreateQueue.html#API_CreateQueue_RequestParameters
 resource "aws_sqs_queue" "bank_integration_deposits" {
@@ -137,6 +141,46 @@ resource "aws_sqs_queue" "bank_integration_deposits_deadletter" {
 
   tags = {
     NameSpace   = "bank-integration"
+    Environment = "${local.environments[terraform.workspace]}"
+  }
+}
+
+
+# https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_CreateQueue.html#API_CreateQueue_RequestParameters
+resource "aws_sqs_queue" "bank_withdrawal_withdrawals" {
+  name       = "bank-withdrawal-withdrawals"
+  fifo_queue = false
+  redrive_policy = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.bank_withdrawal_withdrawals_deadletter.arn
+    maxReceiveCount     = 3
+  })
+  # 12 hours
+  visibility_timeout_seconds = 30
+  receive_wait_time_seconds  = 0
+
+  # 10 minute
+  message_retention_seconds = 600
+
+  tags = {
+    NameSpace   = "bank-withdrawal"
+    Environment = "${local.environments[terraform.workspace]}"
+  }
+
+  depends_on = [
+    aws_sqs_queue.bank_withdrawal_withdrawals_deadletter
+  ]
+}
+
+
+resource "aws_sqs_queue" "bank_withdrawal_withdrawals_deadletter" {
+  name       = "bank-withdrawal-withdrawals-deadletter"
+  fifo_queue = false
+
+  # 14 days
+  message_retention_seconds = 1209600
+
+  tags = {
+    NameSpace   = "bank-withdrawal"
     Environment = "${local.environments[terraform.workspace]}"
   }
 }

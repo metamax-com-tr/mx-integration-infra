@@ -175,8 +175,6 @@ resource "aws_lambda_permission" "resend_deposit_uncertain_result_handler_for_ev
 }
 
 
-
-
 resource "aws_iam_policy" "resend_deposit_uncertain_result_handler_dynamodb" {
   name        = "${local.environments[terraform.workspace]}-${var.namespace}-resend-deposit-uncertain-result-handler-dynamodb"
   description = "resend_deposit_uncertain_result_handler must to have read access from SQS"

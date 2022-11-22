@@ -104,11 +104,11 @@ resource "aws_sqs_queue" "bank_integration_deposits_deadletter" {
 
 
 # https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_CreateQueue.html#API_CreateQueue_RequestParameters
-resource "aws_sqs_queue" "bank_withdrawal_withdrawals" {
-  name       = "bank-withdrawal-withdrawals"
+resource "aws_sqs_queue" "bank_withdrawal_withdrawal_request" {
+  name       = "bank-withdrawal-withdrawal-request"
   fifo_queue = false
   redrive_policy = jsonencode({
-    deadLetterTargetArn = aws_sqs_queue.bank_withdrawal_withdrawals_deadletter.arn
+    deadLetterTargetArn = aws_sqs_queue.bank_withdrawal_withdrawal_request_deadletter.arn
     maxReceiveCount     = 3
   })
   # 12 hours
@@ -124,12 +124,12 @@ resource "aws_sqs_queue" "bank_withdrawal_withdrawals" {
   }
 
   depends_on = [
-    aws_sqs_queue.bank_withdrawal_withdrawals_deadletter
+    aws_sqs_queue.bank_withdrawal_withdrawal_request_deadletter
   ]
 }
 
-resource "aws_sqs_queue" "bank_withdrawal_withdrawals_deadletter" {
-  name       = "bank-withdrawal-withdrawals-deadletter"
+resource "aws_sqs_queue" "bank_withdrawal_withdrawal_request_deadletter" {
+  name       = "bank-withdrawal-withdrawal-request-deadletter"
   fifo_queue = false
 
   # 14 days

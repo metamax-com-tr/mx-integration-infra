@@ -146,7 +146,7 @@ resource "aws_api_gateway_integration" "withdrawals_post_to_sqs" {
   integration_http_method = "POST"
   passthrough_behavior    = "NEVER"
   credentials             = aws_iam_role.aws_api_gateway_rest.arn
-  uri                     = "arn:aws:apigateway:${var.aws_region}:sqs:path/${aws_sqs_queue.bank_withdrawal_withdrawals.name}"
+  uri                     = "arn:aws:apigateway:${var.aws_region}:sqs:path/${aws_sqs_queue.bank_withdrawal_withdrawal_request.name}"
 
   request_parameters = {
     "integration.request.header.Content-Type" = "'application/x-www-form-urlencoded'"
@@ -191,7 +191,7 @@ resource "aws_iam_policy" "aws_api_gateway_rest_sqs" {
           "sqs:ChangeMessageVisibilityBatch",
           "sqs:SetQueueAttributes"
         ],
-        "Resource": "${aws_sqs_queue.bank_withdrawal_withdrawals.arn}"
+        "Resource": "${aws_sqs_queue.bank_withdrawal_withdrawal_request.arn}"
       },
       {
         "Effect": "Allow",
@@ -203,7 +203,7 @@ resource "aws_iam_policy" "aws_api_gateway_rest_sqs" {
 EOF
 
   depends_on = [
-    aws_sqs_queue.bank_withdrawal_withdrawals
+    aws_sqs_queue.bank_withdrawal_withdrawal_request
   ]
 }
 
@@ -280,7 +280,7 @@ resource "aws_cloudwatch_log_group" "api_gw_bank_integration" {
 }
 
 resource "aws_api_gateway_stage" "development" {
-  deployment_id = aws_api_gateway_deployment.default_deployment_trigger.id
+  deployment_id = "c2yo7p"
   rest_api_id   = aws_api_gateway_rest_api.bank_integration.id
   stage_name    = "development"
 

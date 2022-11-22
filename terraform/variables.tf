@@ -65,7 +65,7 @@ variable "vakifbank-statements-client_default_artifact" {
 
 variable "ziraatbank_withdraw_client_default_artifact" {
   description = "This is for cold-start"
-  default     = "metamax-integrations-bank-withdrawals-ziraatbank-withdraw-clien/ziraatbank-withdraw-client-v0.0.2.development.zip"
+  default     = "metamax-integrations-bank-withdrawals-ziraatbank-withdraw-clien/ziraatbank-withdraw-client-v0.0.10.development.zip"
 }
 
 variable "lambda_artifact_bucket" {

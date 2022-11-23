@@ -14,6 +14,9 @@ resource "aws_api_gateway_rest_api" "bank_integration" {
 
   lifecycle {
     create_before_destroy = true
+    ignore_changes = [
+      endpoint_configuration
+    ]
   }
 
   tags = {
@@ -25,47 +28,42 @@ resource "aws_api_gateway_rest_api" "bank_integration" {
     # wait until all back-end network are ready 
     aws_nat_gateway.backend_natgw
   ]
+
 }
 
 
 resource "aws_api_gateway_rest_api_policy" "resource_policy" {
   rest_api_id = aws_api_gateway_rest_api.bank_integration.id
   policy      = <<EOF
-
 {
-  "Version": "2012-10-17",
-  "Statement": [
-      {
-        "Effect": "Deny",
-        "Principal": "*",
-        "Action": "execute-api:Invoke",
-        "Resource": "${aws_api_gateway_rest_api.bank_integration.execution_arn}/*",
-        "Condition": {
-          "StringNotEquals": {
-            "aws:SourceVpc": "${aws_vpc.aws_vpc.id}"
-          }
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Deny",
+            "Principal": "*",
+            "Action": "execute-api:Invoke",
+            "Resource": "${aws_api_gateway_rest_api.bank_integration.execution_arn}/*",
+            "Condition": {
+                "StringNotEquals": {
+                    "aws:sourceVpce": ${jsonencode(local.vpce_endpoints[terraform.workspace])}
+                }
+            }
+        },
+        {
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "execute-api:Invoke",
+            "Resource": "${aws_api_gateway_rest_api.bank_integration.execution_arn}/*"
         }
-      },
-      {
-        "Effect": "Deny",
-        "Principal": "*",
-        "Action": "execute-api:Invoke",
-        "Resource": "${aws_api_gateway_rest_api.bank_integration.execution_arn}/*",
-        "Condition": {
-          "NotIpAddress": {
-            "aws:VpcSourceIp": ${jsonencode([for subnet in aws_subnet.backend : subnet.cidr_block])}
-          }
-        }
-      },
-      {
-        "Effect": "Allow",
-        "Principal": "*",
-        "Action": "execute-api:Invoke",
-        "Resource": "${aws_api_gateway_rest_api.bank_integration.execution_arn}/*"
-      }
-  ]
+    ]
 }
 EOF
+
+  lifecycle {
+    ignore_changes = [
+      policy
+    ]
+  }
 }
 
 resource "aws_api_gateway_resource" "deposit_result" {
@@ -304,8 +302,14 @@ resource "aws_api_gateway_stage" "development" {
 
   depends_on = [aws_cloudwatch_log_group.api_gw_bank_integration]
 
-
+  lifecycle {
+    ignore_changes = [
+      cache_cluster_size,
+      deployment_id
+    ]
+  }
 }
+
 resource "aws_api_gateway_account" "bank_integration" {
   cloudwatch_role_arn = aws_iam_role.api_gateway_bank_integration.arn
 }

@@ -114,6 +114,10 @@ resource "aws_lambda_function" "vakifbank_statements_client" {
     NameSpace   = "bank-integration"
     Environment = "${local.environments[terraform.workspace]}"
   }
+
+  lifecycle {
+    ignore_changes = [s3_key]
+  }
 }
 
 

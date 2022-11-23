@@ -1,7 +1,7 @@
 
 #VPC
 resource "aws_vpc" "metamax_vpc" {
-  cidr_block           = var.cidr
+  cidr_block           = "11.0.0.0/20"
   enable_dns_hostnames = true
   enable_dns_support   = true
   tags = {
@@ -90,7 +90,7 @@ resource "aws_vpc" "metamax_vpc" {
 resource "aws_subnet" "backend" {
   count                   = length(var.availability_zones)
   availability_zone       = var.availability_zones[count.index]
-  cidr_block              = cidrsubnet(aws_vpc.metamax_vpc.cidr_block, 6, count.index + 3)
+  cidr_block              = cidrsubnet(aws_vpc.metamax_vpc.cidr_block, 5, count.index + 3)
   vpc_id                  = aws_vpc.metamax_vpc.id
   map_public_ip_on_launch = true
 

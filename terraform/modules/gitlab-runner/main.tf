@@ -61,6 +61,11 @@ resource "aws_instance" "gitlabrunner" {
   subnet_id              = aws_subnet.infra.id
   vpc_security_group_ids = [aws_security_group.runner_ssh.id]
   key_name = aws_key_pair.deployer.key_name
+
+  root_block_device {
+    volume_type = "gp2"
+    volume_size = "80"
+  }
   
   user_data = <<-EOF
     #!/bin/bash

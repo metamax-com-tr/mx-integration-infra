@@ -379,6 +379,7 @@ EOF
 }
 
 
+
 # ziraatbank_withdraw_client Policy attachment
 resource "aws_iam_role_policy_attachment" "ziraatbank_withdrawal_result_client_attachment" {
   role       = aws_iam_role.ziraatbank_withdrawal_result_client.name
@@ -389,7 +390,7 @@ resource "aws_lambda_function" "ziraatbank_withdrawal_result_client" {
   s3_bucket     = var.lambda_artifact_bucket
   s3_key        = var.ziraatbank_withdraw_client_default_artifact
   function_name = "ziraatbank-withdrawal-result-client"
-  role          = aws_iam_role.ziraatbank_withdraw_client.arn
+  role          = aws_iam_role.ziraatbank_withdrawal_result_client.arn
   handler       = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
   runtime       = "java11"
   timeout       = 20
@@ -397,7 +398,7 @@ resource "aws_lambda_function" "ziraatbank_withdrawal_result_client" {
 
   environment {
     variables = {
-      QUARKUS_LAMBDA_HANDLER                                              = "ziraatbank_withdrawal_result_client"
+      QUARKUS_LAMBDA_HANDLER                                              = "ziraatbank-withdrawal-result-client"
       APPLICATION_LOG_CATAGORY_ORG_JBOSS_RESTEASY_REACTIVE_CLIENT_LOGGING = "ERROR",
       # https://quarkus.io/guides/all-config#quarkus-vertx_quarkus.vertx.warning-exception-time
       QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME      = "5s"
@@ -411,7 +412,6 @@ resource "aws_lambda_function" "ziraatbank_withdrawal_result_client" {
       APPLICATION_BANK_ZIRAAT_TRANSFERENDTIME     = "16:25"
       APPLICATION_BANK_ZIRAAT_FASTLIMIT           = "5000"
       APPLICATION_BANK_ZIRAAT_MAXTRANSFERLIMIT    = "50000"
-
     }
   }
 

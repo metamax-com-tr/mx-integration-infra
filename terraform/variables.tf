@@ -37,11 +37,6 @@ variable "metamax_secret" {
   description = "All secrets for metamax project"
 }
 
-variable "metamax_integration_vakifbank_statements_client" {
-  sensitive   = true
-  description = "Vakifbank Client Secrets"
-}
-
 variable "ecs_task_default_image" {
   description = "Gateway default image for cold start on building infra"
   type        = string

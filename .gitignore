@@ -43,3 +43,5 @@ terraform/init.local.sh
 terraform/init.*.sh
 terraform/terraform.tfvars
 terraform/terraform.tfstate.d
+terraform.development.tfvars
+terraform.production.tfvars

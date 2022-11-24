@@ -25,22 +25,22 @@ EOF
 
 
 
-resource "aws_secretsmanager_secret" "ziraat_bank_statements_client" {
-  name = "${local.environments[terraform.workspace]}-${var.namespace}-ziraat_bank_statement"
-  # (Optional) Number of days that AWS Secrets Manager waits before it can delete the secret. This value can be 0 to force deletion without recovery or range from 7 to 30 days. The default value is 30.
-  # Link: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret
-  recovery_window_in_days = 0
-  tags = {
-    Name        = "ziraat_bank_statement"
-    NameSpace   = "${var.namespace}"
-    Environment = "${local.environments[terraform.workspace]}"
-  }
-}
+# resource "aws_secretsmanager_secret" "ziraat_bank_statements_client" {
+#   name = "${local.environments[terraform.workspace]}-${var.namespace}-ziraat_bank_statement"
+#   # (Optional) Number of days that AWS Secrets Manager waits before it can delete the secret. This value can be 0 to force deletion without recovery or range from 7 to 30 days. The default value is 30.
+#   # Link: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret
+#   recovery_window_in_days = 0
+#   tags = {
+#     Name        = "ziraat_bank_statement"
+#     NameSpace   = "${var.namespace}"
+#     Environment = "${local.environments[terraform.workspace]}"
+#   }
+# }
 
-resource "aws_secretsmanager_secret_version" "ziraat_bank_initial" {
-  secret_id     = aws_secretsmanager_secret.ziraat_bank_statements_client.id
-  secret_string = var.metamax_integration_vakifbank_statements_client
-}
+# resource "aws_secretsmanager_secret_version" "ziraat_bank_initial" {
+#   secret_id     = aws_secretsmanager_secret.ziraat_bank_statements_client.id
+#   secret_string = var.metamax_integration_vakifbank_statements_client
+# }
 
 
 resource "aws_iam_policy" "ziraatbank-statements-client_secret" {
@@ -51,13 +51,6 @@ resource "aws_iam_policy" "ziraatbank-statements-client_secret" {
 {
   "Version": "2012-10-17",
   "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "secretsmanager:GetSecretValue"
-      ],
-      "Resource": "${aws_secretsmanager_secret.ziraat_bank_statements_client.arn}"
-    },
     {
       "Sid": "",
       "Effect": "Allow",

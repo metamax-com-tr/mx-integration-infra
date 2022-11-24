@@ -181,6 +181,14 @@ locals {
     production  = ["vpce-0260925d3f35ee99a", "vpce-078a7524e67cbec8c"]
   }
 
+
+  metamax_gateway_host = {
+    default     = "metamax.work"
+    development = "metamax.work"
+    testing     = "metamax.work"
+    production  = "metamax.com.tr"
+  }
+
   # AKA: Firewall
   # Notes:
   # - "78.186.23.180/32" address belongs to Sophos Metamax VPN

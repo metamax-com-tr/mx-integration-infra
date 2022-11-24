@@ -97,7 +97,7 @@ resource "aws_lambda_function" "ziraatbank_withdraw_client" {
       # https://quarkus.io/guides/all-config#quarkus-vertx_quarkus.vertx.warning-exception-time
       QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME      = "5s"
       APPLICATION_BANK_WITHDRAWAL_RESULTQUEUE_URL    = "${aws_sqs_queue.bank_withdrawal_results.url}"
-      QUARKUS_REST_CLIENT_METAMAX_CLIENT_URL         = "https://api.${data.aws_route53_zone.app_zone.name}"
+      QUARKUS_REST_CLIENT_METAMAX_CLIENT_URL         = "https://api.${local.metamax_gateway_host[terraform.workspace]}"
       APPLICATION_BANK_ZIRAAT_TRANSFERSTARTTIME      = "08:35"
       APPLICATION_BANK_ZIRAAT_TRANSFERENDTIME        = "16:25"
       APPLICATION_BANK_ZIRAAT_FASTLIMIT              = "5000"
@@ -123,6 +123,12 @@ resource "aws_lambda_function" "ziraatbank_withdraw_client" {
   depends_on = [
     aws_sqs_queue.bank_integration_deposits
   ]
+
+  lifecycle {
+    ignore_changes = [
+      s3_key
+    ]
+  }
 }
 
 resource "aws_cloudwatch_log_group" "ziraatbank_withdraw_client" {
@@ -404,7 +410,7 @@ resource "aws_lambda_function" "ziraatbank_withdrawal_result_client" {
       QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME      = "5s"
       QUARKUS_REST_CLIENT_CONNECT_TIMEOUT            = 5000
       QUARKUS_REST_CLIENT_READ_TIMEOUT               = 10000
-      QUARKUS_REST_CLIENT_METAMAX_CLIENT_URL         = "https://api.${data.aws_route53_zone.app_zone.name}"
+      QUARKUS_REST_CLIENT_METAMAX_CLIENT_URL         = "https://api.${local.metamax_gateway_host[terraform.workspace]}"
       QUARKUS_REST_CLIENT_ZIRAAT_WITHDRAW_CLIENT_URL = "https://odm.ziraatbank.com.tr:12178/NKYParaTransferiWS/NKYParaTransferiWS.asmx?wsdl"
 
       APPLICATION_BANK_WITHDRAWAL_RESULTQUEUE_URL = "${aws_sqs_queue.bank_withdrawal_results.url}"
@@ -429,6 +435,12 @@ resource "aws_lambda_function" "ziraatbank_withdrawal_result_client" {
   depends_on = [
     aws_sqs_queue.bank_integration_deposits
   ]
+
+  lifecycle {
+    ignore_changes = [
+      s3_key
+    ]
+  }
 }
 
 resource "aws_cloudwatch_log_group" "ziraatbank_withdrawal_result_client" {
@@ -741,7 +753,7 @@ resource "aws_lambda_function" "resend_metamax_withdrawResult_client" {
       APPLICATION_LOG_CATAGORY_ORG_JBOSS_RESTEASY_REACTIVE_CLIENT_LOGGING = "ERROR",
       # https://quarkus.io/guides/all-config#quarkus-vertx_quarkus.vertx.warning-exception-time
       QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME = "5s"
-      QUARKUS_REST_CLIENT_METAMAX_CLIENT_URL    = "https://api.${data.aws_route53_zone.app_zone.name}"
+      QUARKUS_REST_CLIENT_METAMAX_CLIENT_URL    = "https://api.${local.metamax_gateway_host[terraform.workspace]}"
       QUARKUS_REST_CLIENT_CONNECT_TIMEOUT       = 5000
       QUARKUS_REST_CLIENT_READ_TIMEOUT          = 10000
 
@@ -767,6 +779,12 @@ resource "aws_lambda_function" "resend_metamax_withdrawResult_client" {
   depends_on = [
     aws_sqs_queue.bank_integration_deposits
   ]
+
+  lifecycle {
+    ignore_changes = [
+      s3_key
+    ]
+  }
 }
 
 resource "aws_cloudwatch_log_group" "resend_metamax_withdrawResult_client" {
@@ -1077,7 +1095,7 @@ resource "aws_lambda_function" "metamax_withdrawResult_client" {
       APPLICATION_LOG_CATAGORY_ORG_JBOSS_RESTEASY_REACTIVE_CLIENT_LOGGING = "ERROR",
       # https://quarkus.io/guides/all-config#quarkus-vertx_quarkus.vertx.warning-exception-time
       QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME = "5s"
-      QUARKUS_REST_CLIENT_METAMAX_CLIENT_URL    = "https://api.${data.aws_route53_zone.app_zone.name}"
+      QUARKUS_REST_CLIENT_METAMAX_CLIENT_URL    = "https://api.${local.metamax_gateway_host[terraform.workspace]}"
       QUARKUS_REST_CLIENT_CONNECT_TIMEOUT       = 5000
       QUARKUS_REST_CLIENT_READ_TIMEOUT          = 10000
 
@@ -1103,6 +1121,12 @@ resource "aws_lambda_function" "metamax_withdrawResult_client" {
   depends_on = [
     aws_sqs_queue.bank_withdrawal_results
   ]
+
+  lifecycle {
+    ignore_changes = [
+      s3_key
+    ]
+  }
 }
 
 resource "aws_cloudwatch_log_group" "metamax_withdrawResult_client" {

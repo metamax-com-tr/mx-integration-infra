@@ -27,10 +27,10 @@ data "aws_caller_identity" "current" {}
 
 
 # Gitlab Runner to run gitlab-ci
-module "gitlabrunner" {
-  source     = "./modules/gitlab-runner"
-  aws_region = var.aws_region
-}
+# module "gitlabrunner" {
+#   source     = "./modules/gitlab-runner"
+#   aws_region = var.aws_region
+# }
 
 
 # Matamax

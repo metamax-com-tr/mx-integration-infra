@@ -42,13 +42,13 @@ resource "aws_route" "internet_access" {
 # }
 
 
-## outbound ip for metamax gateway
-data "aws_eip" "backend_outbound" {
-  filter {
-    name   = "tag:Name"
-    values = ["metamax-outbound-1"]
-  }
-}
+# ## outbound ip for metamax gateway
+# data "aws_eip" "backend_outbound" {
+#   filter {
+#     name   = "tag:Name"
+#     values = ["metamax-outbound-1"]
+#   }
+# }
 
 
 ## outbound ip for bank intergation
@@ -56,7 +56,7 @@ data "aws_eip" "bank_integration_outbound" {
   filter {
     name = "tag:Name"
 
-    values = ["bank-integration-outbound-2"]
+    values = [local.bank_integration_outbound_name[terraform.workspace]]
   }
 }
 
@@ -77,19 +77,19 @@ data "aws_eip" "bank_integration_outbound" {
 
 # Back-end services need to access to internet, This is 
 # just outbound traffic. 
-resource "aws_nat_gateway" "backend_natgw" {
-  allocation_id = data.aws_eip.backend_outbound.id
-  subnet_id     = element(aws_subnet.firewall_subnet.*.id, 0)
-  depends_on = [
-    aws_internet_gateway.igw
-  ]
+# resource "aws_nat_gateway" "backend_natgw" {
+#   allocation_id = data.aws_eip.backend_outbound.id
+#   subnet_id     = element(aws_subnet.firewall_subnet.*.id, 0)
+#   depends_on = [
+#     aws_internet_gateway.igw
+#   ]
 
-  tags = {
-    Name        = "${local.environments[terraform.workspace]}-backend"
-    NameSpace   = "${var.namespace}"
-    Environment = "${local.environments[terraform.workspace]}"
-  }
-}
+#   tags = {
+#     Name        = "${local.environments[terraform.workspace]}-backend"
+#     NameSpace   = "${var.namespace}"
+#     Environment = "${local.environments[terraform.workspace]}"
+#   }
+# }
 
 # Back-end services need to access to internet, This is 
 # just outbound traffic. 
@@ -242,11 +242,11 @@ resource "aws_subnet" "db" {
 }
 
 #================ Route Table Association for Private
-resource "aws_route_table_association" "backend" {
-  count          = length(local.availability_zones[terraform.workspace])
-  subnet_id      = element(aws_subnet.backend.*.id, count.index)
-  route_table_id = element(aws_route_table.backend.*.id, count.index)
-}
+# resource "aws_route_table_association" "backend" {
+#   count          = length(local.availability_zones[terraform.workspace])
+#   subnet_id      = element(aws_subnet.backend.*.id, count.index)
+#   route_table_id = element(aws_route_table.backend.*.id, count.index)
+# }
 
 # ================ Route Table Association for Bank Integration Subnet
 resource "aws_route_table_association" "bank_integration" {
@@ -256,23 +256,23 @@ resource "aws_route_table_association" "bank_integration" {
 }
 
 # Create a new route table for the private subnets.
-resource "aws_route_table" "backend" {
-  vpc_id = aws_vpc.aws_vpc.id
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.backend_natgw.id
-  }
+# resource "aws_route_table" "backend" {
+#   vpc_id = aws_vpc.aws_vpc.id
+#   route {
+#     cidr_block     = "0.0.0.0/0"
+#     nat_gateway_id = aws_nat_gateway.backend_natgw.id
+#   }
 
-  tags = {
-    Name        = "${local.environments[terraform.workspace]}-${var.namespace}-backend"
-    NameSpace   = "${var.namespace}"
-    Environment = "${local.environments[terraform.workspace]}"
-  }
+#   tags = {
+#     Name        = "${local.environments[terraform.workspace]}-${var.namespace}-backend"
+#     NameSpace   = "${var.namespace}"
+#     Environment = "${local.environments[terraform.workspace]}"
+#   }
 
-  lifecycle {
-    create_before_destroy = true
-  }
-}
+#   lifecycle {
+#     create_before_destroy = true
+#   }
+# }
 
 
 # Create a new route table for the private subnets.

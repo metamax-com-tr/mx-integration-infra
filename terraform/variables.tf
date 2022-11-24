@@ -78,6 +78,13 @@ locals {
 
   }
 
+  bank_integration_outbound_name = {
+    default     = "not-set"
+    development = "bank-integration-outbound-2"
+    testing     = "not-set"
+    production  = "bank-integration-outbound-1"
+  }
+
   metamax_stage = {
     default     = "DEV"
     development = "DEV"

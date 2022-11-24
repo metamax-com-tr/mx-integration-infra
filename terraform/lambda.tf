@@ -33,13 +33,6 @@ resource "aws_iam_policy" "vakifbank_statements_client_secret" {
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Effect": "Allow",
-      "Action": [
-        "secretsmanager:GetSecretValue"
-      ],
-      "Resource": "${aws_secretsmanager_secret.vakifbank_statements_client.arn}"
-    },
-    {
       "Sid": "",
       "Effect": "Allow",
       "Action": [

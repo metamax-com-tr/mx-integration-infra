@@ -43,3 +43,5 @@ module "metamax" {
   availability_zones       = local.availability_zones[terraform.workspace]
   metamax_banckend_subnets = local.metamax_banckend_subnets[terraform.workspace]
 }
+
+

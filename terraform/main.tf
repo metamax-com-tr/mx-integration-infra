@@ -31,3 +31,15 @@ module "gitlabrunner" {
   source     = "./modules/gitlab-runner"
   aws_region = var.aws_region
 }
+
+
+# Matamax
+module "metamax" {
+  source                   = "./modules/metamax"
+  aws_region               = var.aws_region
+  cidr                     = var.cidr
+  namespace                = var.namespace
+  environment              = local.environments[terraform.workspace]
+  availability_zones       = local.availability_zones[terraform.workspace]
+  metamax_banckend_subnets = local.metamax_banckend_subnets[terraform.workspace]
+}

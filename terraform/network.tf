@@ -1,13 +1,12 @@
-
-#VPC
+#Bank Inregration VPC
 resource "aws_vpc" "aws_vpc" {
   cidr_block           = var.cidr
   enable_dns_hostnames = true
   enable_dns_support   = true
   tags = {
-    NameSpace   = "${var.namespace}"
+    NameSpace   = "bank-integration"
     Environment = "${local.environments[terraform.workspace]}"
-    Name        = "${local.environments[terraform.workspace]}-${var.namespace}"
+    Name        = "${local.environments[terraform.workspace]}-bank-integration"
   }
 }
 
@@ -35,12 +34,12 @@ resource "aws_route" "internet_access" {
 # Elastic IP For NAT
 # You first must allocate ip(s) on AWS console and you should add tag as the example follows
 # Name=development-metamax
-data "aws_eip" "elastic_ip" {
-  filter {
-    name   = "tag:Name"
-    values = ["${local.environments[terraform.workspace]}-${var.namespace}"]
-  }
-}
+# data "aws_eip" "elastic_ip" {
+#   filter {
+#     name   = "tag:Name"
+#     values = ["${local.environments[terraform.workspace]}-${var.namespace}"]
+#   }
+# }
 
 
 ## outbound ip for metamax gateway
@@ -61,20 +60,20 @@ data "aws_eip" "bank_integration_outbound" {
   }
 }
 
-#NAT
-resource "aws_nat_gateway" "aws_natgw" {
-  allocation_id = data.aws_eip.elastic_ip.id
-  subnet_id     = element(aws_subnet.public.*.id, 0)
-  depends_on = [
-    aws_internet_gateway.igw
-  ]
+# #NAT
+# resource "aws_nat_gateway" "aws_natgw" {
+#   allocation_id = data.aws_eip.elastic_ip.id
+#   subnet_id     = element(aws_subnet.public.*.id, 0)
+#   depends_on = [
+#     aws_internet_gateway.igw
+#   ]
 
-  tags = {
-    Name        = "${local.environments[terraform.workspace]}-load-balancer"
-    NameSpace   = "${var.namespace}"
-    Environment = "${local.environments[terraform.workspace]}"
-  }
-}
+#   tags = {
+#     Name        = "${local.environments[terraform.workspace]}-load-balancer"
+#     NameSpace   = "${var.namespace}"
+#     Environment = "${local.environments[terraform.workspace]}"
+#   }
+# }
 
 # Back-end services need to access to internet, This is 
 # just outbound traffic. 

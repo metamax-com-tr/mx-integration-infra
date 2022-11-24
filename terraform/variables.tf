@@ -63,6 +63,11 @@ variable "vakifbank-statements-client_default_artifact" {
   default     = "metamax-integrations-bank-deposits-vakifbank-statements-client/vakifbank-statements-client-v0.0.18.development.zip"
 }
 
+variable "ziraatbank_withdraw_client_default_artifact" {
+  description = "This is for cold-start"
+  default     = "metamax-integrations-bank-withdrawals-ziraatbank-withdraw-clien/ziraatbank-withdraw-client-v0.0.20.development.zip"
+}
+
 variable "lambda_artifact_bucket" {
   description = "This is for cold-start"
   default     = "artifacts-lbljkp"
@@ -158,6 +163,30 @@ locals {
     development = ["eu-central-1c", "eu-central-1b"]
     testing     = ["eu-central-1c", "eu-central-1b"]
     production  = ["eu-central-1c", "eu-central-1b", "eu-central-1a"]
+  }
+
+  metamax_banckend_subnets = {
+    default     = ["10.0.5.0/24", "10.0.4.0/24"]
+    development = ["10.0.5.0/24", "10.0.4.0/24"]
+    testing     = ["10.0.5.0/24", "10.0.4.0/24"]
+    production  = ["10.0.5.0/24", "10.0.4.0/24"]
+  }
+
+  # We dont manage VPC Endpoints by terraform !
+  # Maybe later :)
+  vpce_endpoints = {
+    default     = ["vpce-0260925d3f35ee99a", "vpce-078a7524e67cbec8c"]
+    development = ["vpce-0260925d3f35ee99a", "vpce-078a7524e67cbec8c"]
+    testing     = ["vpce-0260925d3f35ee99a", "vpce-078a7524e67cbec8c"]
+    production  = ["vpce-0260925d3f35ee99a", "vpce-078a7524e67cbec8c"]
+  }
+
+
+  metamax_gateway_host = {
+    default     = "metamax.work"
+    development = "metamax.work"
+    testing     = "metamax.work"
+    production  = "metamax.com.tr"
   }
 
   # AKA: Firewall

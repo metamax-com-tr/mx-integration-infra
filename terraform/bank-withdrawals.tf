@@ -81,14 +81,14 @@ resource "aws_iam_role_policy_attachment" "ziraatbank_withdraw_client_attachment
 
 
 resource "aws_lambda_function" "ziraatbank_withdraw_client" {
-  s3_bucket     = var.lambda_artifact_bucket
-  s3_key        = var.ziraatbank_withdraw_client_default_artifact
+  s3_bucket     = local.lambda_artifact_bucket[terraform.workspace]
+  s3_key        = local.ziraatbank_withdraw_client_default_artifact[terraform.workspace]
   function_name = "ziraatbank-withdraw-client"
   role          = aws_iam_role.ziraatbank_withdraw_client.arn
   handler       = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
-  runtime       = "java11"
-  timeout       = 20
-  memory_size   = 1024
+  runtime       = local.lambda_withdrawal_functions_profil[terraform.workspace].runtime
+  timeout       = local.lambda_withdrawal_functions_profil[terraform.workspace].timeout
+  memory_size   = local.lambda_withdrawal_functions_profil[terraform.workspace].memory_size
 
   environment {
     variables = {
@@ -330,8 +330,8 @@ resource "aws_iam_role_policy_attachment" "ziraatbank_withdrawal_result_client_a
 }
 
 resource "aws_lambda_function" "ziraatbank_withdrawal_result_client" {
-  s3_bucket     = var.lambda_artifact_bucket
-  s3_key        = var.ziraatbank_withdraw_client_default_artifact
+  s3_bucket     = local.lambda_artifact_bucket[terraform.workspace]
+  s3_key        = local.ziraatbank_withdraw_client_default_artifact[terraform.workspace]
   function_name = "ziraatbank-withdrawal-result-client"
   role          = aws_iam_role.ziraatbank_withdrawal_result_client.arn
   handler       = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
@@ -612,8 +612,8 @@ resource "aws_iam_role_policy_attachment" "resend_metamax_withdrawResult_client_
 }
 
 resource "aws_lambda_function" "resend_metamax_withdrawResult_client" {
-  s3_bucket     = var.lambda_artifact_bucket
-  s3_key        = var.ziraatbank_withdraw_client_default_artifact
+  s3_bucket     = local.lambda_artifact_bucket[terraform.workspace]
+  s3_key        = local.ziraatbank_withdraw_client_default_artifact[terraform.workspace]
   function_name = "resend-metamax-withdrawResult-client"
   role          = aws_iam_role.resend_metamax_withdrawResult_client.arn
   handler       = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
@@ -891,8 +891,8 @@ resource "aws_iam_role_policy_attachment" "metamax_withdrawResult_client_attachm
 }
 
 resource "aws_lambda_function" "metamax_withdrawResult_client" {
-  s3_bucket     = var.lambda_artifact_bucket
-  s3_key        = var.ziraatbank_withdraw_client_default_artifact
+  s3_bucket     = local.lambda_artifact_bucket[terraform.workspace]
+  s3_key        = local.ziraatbank_withdraw_client_default_artifact[terraform.workspace]
   function_name = "metamax-withdrawResult-client"
   role          = aws_iam_role.metamax_withdrawResult_client.arn
   handler       = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"

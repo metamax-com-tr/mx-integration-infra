@@ -74,14 +74,14 @@ resource "aws_iam_role_policy_attachment" "metamax_deposit_client_attachment" {
 
 # Metamax Deposit Client Lambda Function
 resource "aws_lambda_function" "metamax_deposit_client" {
-  s3_bucket     = var.lambda_artifact_bucket
-  s3_key        = var.bank_statement_handler_default_artifact
+  s3_bucket     = local.lambda_artifact_bucket[terraform.workspace]
+  s3_key        = local.bank_statement_handler_default_artifact[terraform.workspace]
   function_name = "metamax-deposit-client"
   role          = aws_iam_role.metamax_deposit_client.arn
   handler       = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
-  runtime       = "java11"
-  timeout       = 20
-  memory_size   = 1024
+  runtime       = local.lambda_withdrawal_functions_profil[terraform.workspace].runtime
+  timeout       = local.lambda_withdrawal_functions_profil[terraform.workspace].timeout
+  memory_size   = local.lambda_withdrawal_functions_profil[terraform.workspace].memory_size
 
   environment {
     variables = {

@@ -276,10 +276,41 @@ resource "aws_cloudwatch_log_group" "api_gw_bank_integration" {
 }
 
 resource "aws_api_gateway_stage" "development" {
-  deployment_id = "c2yo7p"
   rest_api_id   = aws_api_gateway_rest_api.bank_integration.id
   stage_name    = "development"
+  deployment_id = aws_api_gateway_deployment.default_deployment_trigger.id
 
+  access_log_settings {
+    destination_arn = aws_cloudwatch_log_group.api_gw_bank_integration.arn
+    format = jsonencode({
+      requestId               = "$context.requestId"
+      sourceIp                = "$context.identity.sourceIp"
+      requestTime             = "$context.requestTime"
+      protocol                = "$context.protocol"
+      httpMethod              = "$context.httpMethod"
+      resourcePath            = "$context.resourcePath"
+      routeKey                = "$context.routeKey"
+      status                  = "$context.status"
+      responseLength          = "$context.responseLength"
+      integrationErrorMessage = "$context.integrationErrorMessage"
+      }
+    )
+  }
+
+  depends_on = [aws_cloudwatch_log_group.api_gw_bank_integration]
+
+  lifecycle {
+    ignore_changes = [
+      cache_cluster_size,
+      deployment_id
+    ]
+  }
+}
+
+resource "aws_api_gateway_stage" "production" {
+  rest_api_id   = aws_api_gateway_rest_api.bank_integration.id
+  stage_name    = "production"
+  deployment_id = aws_api_gateway_deployment.default_deployment_trigger.id
 
   access_log_settings {
     destination_arn = aws_cloudwatch_log_group.api_gw_bank_integration.arn
@@ -362,6 +393,23 @@ EOF
 resource "aws_api_gateway_method_settings" "general_settings" {
   rest_api_id = aws_api_gateway_rest_api.bank_integration.id
   stage_name  = aws_api_gateway_stage.development.stage_name
+  method_path = "*/*"
+
+  settings {
+    # Enable CloudWatch logging and metrics
+    metrics_enabled    = true
+    data_trace_enabled = true
+    # logging_level          = "ERROR,INFO"
+
+    # Limit the rate of calls to prevent abuse and unwanted charges
+    throttling_rate_limit  = 100
+    throttling_burst_limit = 50
+  }
+}
+
+resource "aws_api_gateway_method_settings" "prod_settings" {
+  rest_api_id = aws_api_gateway_rest_api.bank_integration.id
+  stage_name  = aws_api_gateway_stage.production.stage_name
   method_path = "*/*"
 
   settings {

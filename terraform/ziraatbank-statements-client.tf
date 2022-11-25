@@ -122,14 +122,15 @@ resource "aws_iam_role_policy_attachment" "ziraat_bank_statements_sqs_destinatio
 
 
 resource "aws_lambda_function" "ziraatbank-statements-client" {
-  s3_bucket     = var.lambda_artifact_bucket
-  s3_key        = var.ziraatbank-statements-client_default_artifact
+  s3_bucket     = local.lambda_artifact_bucket[terraform.workspace]
+  s3_key        = local.ziraatbank_statements_client_default_artifact[terraform.workspace]
   function_name = "ziraatbank-statements-client"
   role          = aws_iam_role.ziraatbank-statements-client.arn
   handler       = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
-  runtime       = "java11"
-  timeout       = 20
-  memory_size   = 1024
+  runtime       = local.lambda_withdrawal_functions_profil[terraform.workspace].runtime
+  timeout       = local.lambda_withdrawal_functions_profil[terraform.workspace].timeout
+  memory_size   = local.lambda_withdrawal_functions_profil[terraform.workspace].memory_size
+
 
   environment {
     variables = {
@@ -171,8 +172,8 @@ resource "aws_lambda_function" "ziraatbank-statements-client" {
 
 
 resource "aws_cloudwatch_event_rule" "ziraat_statements_cron_every_five" {
-  name                = "ziraat-vakifbank-client"
-  description         = "Every N time ziraat Vakifbank Client"
+  name                = "ziraat-statements-client"
+  description         = "Every N time Ziraat Statements Client"
   schedule_expression = "rate(2 minutes)"
 
   tags = {

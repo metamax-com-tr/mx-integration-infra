@@ -63,10 +63,7 @@ variable "ziraatbank_withdraw_client_default_artifact" {
   default     = "metamax-integrations-bank-withdrawals-ziraatbank-withdraw-clien/ziraatbank-withdraw-client-v0.0.20.development.zip"
 }
 
-variable "lambda_artifact_bucket" {
-  description = "This is for cold-start"
-  default     = "artifacts-lbljkp"
-}
+
 
 # Metamax Resource profiles by environments
 locals {
@@ -77,6 +74,65 @@ locals {
     production  = "production"
 
   }
+
+  lambda_artifact_bucket = {
+    default     = "artifacts-lbljkp"
+    development = "artifacts-lbljkp"
+    testing     = "artifacts-lbljkp"
+    production  = "artifacts-lbljka"
+  }
+
+  ziraatbank_withdraw_client_default_artifact = {
+    default     = "metamax-integrations-bank-withdrawals-ziraatbank-withdraw-clien/ziraatbank-withdraw-client-v0.0.20.development.zip"
+    development = "metamax-integrations-bank-withdrawals-ziraatbank-withdraw-clien/ziraatbank-withdraw-client-v0.0.20.development.zip"
+    testing     = "metamax-integrations-bank-withdrawals-ziraatbank-withdraw-clien/ziraatbank-withdraw-client-v0.0.20.development.zip"
+    production  = "metamax-integrations-bank-withdrawals-ziraatbank-withdraw-clien/ziraatbank-withdraw-client-v0.0.1.production.zip"
+  }
+
+  vakifbank-statements-client_default_artifact = {
+    default     = "artifacts-lbljkp"
+    development = "artifacts-lbljkp"
+    testing     = "artifacts-lbljkp"
+    production  = "artifacts-lbljka"
+  }
+
+  bank_statement_handler_default_artifact = {
+    default     = "metamax-integrations-bank-deposits-bank-deposits-gateway/bank-deposits-gateway-v0.0.30.development.zip"
+    development = "metamax-integrations-bank-deposits-bank-deposits-gateway/bank-deposits-gateway-v0.0.30.development.zip"
+    testing     = "metamax-integrations-bank-deposits-bank-deposits-gateway/bank-deposits-gateway-v0.0.30.development.zip"
+    production  = "metamax-integrations-bank-deposits-bank-deposits-gateway/bank-deposits-gateway-v0.0.0.production.zip"
+  }
+  
+  ziraatbank_statements_client_default_artifact = {
+    default     = "metamax-integrations-bank-deposits-ziraatbank-statements-client/ziraatbank-statements-client-v0.0.39.development.zip"
+    development = "metamax-integrations-bank-deposits-ziraatbank-statements-client/ziraatbank-statements-client-v0.0.39.development.zip"
+    testing     = "metamax-integrations-bank-deposits-ziraatbank-statements-client/ziraatbank-statements-client-v0.0.39.development.zip"
+    production  = "metamax-integrations-bank-deposits-ziraatbank-statements-client/ziraatbank-statements-client-v0.0.0.production.zip"
+  }
+
+  lambda_withdrawal_functions_profil = {
+    default = {
+      runtime     = "java11"
+      timeout     = 20
+      memory_size = 1024
+    }
+    development = {
+      runtime     = "java11"
+      timeout     = 20
+      memory_size = 1024
+    }
+    testing = {
+      runtime     = "java11"
+      timeout     = 20
+      memory_size = 1024
+    }
+    production = {
+      runtime     = "java11"
+      timeout     = 20
+      memory_size = 2048
+    }
+  }
+
 
   bank_integration_outbound_name = {
     default     = "not-set"

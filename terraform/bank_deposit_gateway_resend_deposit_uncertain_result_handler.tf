@@ -79,14 +79,14 @@ resource "aws_iam_role_policy_attachment" "resend_deposit_uncertain_result_handl
 
 
 resource "aws_lambda_function" "resend_deposit_uncertain_result_handler" {
-  s3_bucket     = var.lambda_artifact_bucket
-  s3_key        = var.bank_statement_handler_default_artifact
+  s3_bucket     = local.lambda_artifact_bucket[terraform.workspace]
+  s3_key        = local.bank_statement_handler_default_artifact[terraform.workspace]
   function_name = "resend-deposit-uncertain-result-handler"
   role          = aws_iam_role.resend_deposit_uncertain_result_handler.arn
   handler       = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
-  runtime       = "java11"
-  timeout       = 20
-  memory_size   = 1024
+  runtime       = local.lambda_withdrawal_functions_profil[terraform.workspace].runtime
+  timeout       = local.lambda_withdrawal_functions_profil[terraform.workspace].timeout
+  memory_size   = local.lambda_withdrawal_functions_profil[terraform.workspace].memory_size
 
   environment {
     variables = {

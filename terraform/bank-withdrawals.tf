@@ -896,9 +896,10 @@ resource "aws_lambda_function" "metamax_withdrawResult_client" {
   function_name = "metamax-withdrawResult-client"
   role          = aws_iam_role.metamax_withdrawResult_client.arn
   handler       = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
-  runtime       = "java11"
-  timeout       = 20
-  memory_size   = 1024
+  runtime       = local.lambda_withdrawal_functions_profil[terraform.workspace].runtime
+  timeout       = local.lambda_withdrawal_functions_profil[terraform.workspace].timeout
+  memory_size   = local.lambda_withdrawal_functions_profil[terraform.workspace].memory_size
+
 
   environment {
     variables = {

@@ -15,11 +15,11 @@ resource "aws_memorydb_cluster" "metamax_integrations" {
   # TODO: each service has own user and pass to login the server
   acl_name                 = "open-access"
   name                     = "metamax-integrations"
-  node_type                = "db.t4g.small"
-  num_shards               = 1
-  num_replicas_per_shard   = 1
+  node_type                = local.memorydb_types[terraform.workspace].node_type
+  num_shards               = local.memorydb_types[terraform.workspace].num_shards
+  num_replicas_per_shard   = local.memorydb_types[terraform.workspace].num_replicas_per_shard
   security_group_ids       = [aws_security_group.memory_db_for_redis.id]
-  snapshot_retention_limit = 10
+  snapshot_retention_limit = local.memorydb_types[terraform.workspace].snapshot_retention_limit
   subnet_group_name        = aws_memorydb_subnet_group.metamax_integrations.id
   # TODO: enable tls
   tls_enabled = false

@@ -6,7 +6,7 @@ resource "aws_sqs_queue" "bank_integration_bank_statements" {
   fifo_queue = false
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.bank_integration_bank_statements_deadletter.arn
-    maxReceiveCount     = 3
+    maxReceiveCount     = 1
   })
   # 12 hours
   visibility_timeout_seconds = 30
@@ -69,7 +69,7 @@ resource "aws_sqs_queue" "bank_integration_deposits" {
   fifo_queue = false
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.bank_integration_deposits_deadletter.arn
-    maxReceiveCount     = 3
+    maxReceiveCount     = 1
   })
   # 12 hours
   visibility_timeout_seconds = 30
@@ -109,7 +109,7 @@ resource "aws_sqs_queue" "bank_withdrawal_withdrawal_request" {
   fifo_queue = false
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.bank_withdrawal_withdrawal_request_deadletter.arn
-    maxReceiveCount     = 3
+    maxReceiveCount     = 1
   })
   # 12 hours
   visibility_timeout_seconds = 30
@@ -147,7 +147,7 @@ resource "aws_sqs_queue" "bank_withdrawal_results" {
   fifo_queue = false
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.bank_withdrawal_results_deadletter.arn
-    maxReceiveCount     = 3
+    maxReceiveCount     = 1
   })
   # 12 hours
   visibility_timeout_seconds = 30

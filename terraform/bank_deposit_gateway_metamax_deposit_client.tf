@@ -90,7 +90,7 @@ resource "aws_lambda_function" "metamax_deposit_client" {
       APPLICATION_REST_CLIENT_LOGGING_BODY_LIMIT                          = "100000",
       APPLICATION_LOG_CATAGORY_ORG_JBOSS_RESTEASY_REACTIVE_CLIENT_LOGGING = "ERROR",
       QUARKUS_REDIS_HOSTS                                                 = "redis://${aws_memorydb_cluster.metamax_integrations.cluster_endpoint[0].address}:${aws_memorydb_cluster.metamax_integrations.cluster_endpoint[0].port}",
-      QUARKUS_REDIS_DATABASE                                              = 3
+      QUARKUS_REDIS_DATABASE                                              = 4
       QUARKUS_REDIS_TIMEOUT                                               = 3
       QUARKUS_REDIS_CLIENT_TYPE                                           = "cluster"
       QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_SCOPE                     = "javax.inject.Singleton"
@@ -186,112 +186,53 @@ resource "aws_iam_policy" "metamax_deposit_client_dynamodb" {
 
   policy = <<EOF
 {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Action": [
-                "dynamodb:*",
-                "dax:*",
-                "application-autoscaling:DeleteScalingPolicy",
-                "application-autoscaling:DeregisterScalableTarget",
-                "application-autoscaling:DescribeScalableTargets",
-                "application-autoscaling:DescribeScalingActivities",
-                "application-autoscaling:DescribeScalingPolicies",
-                "application-autoscaling:PutScalingPolicy",
-                "application-autoscaling:RegisterScalableTarget",
-                "cloudwatch:DeleteAlarms",
-                "cloudwatch:DescribeAlarmHistory",
-                "cloudwatch:DescribeAlarms",
-                "cloudwatch:DescribeAlarmsForMetric",
-                "cloudwatch:GetMetricStatistics",
-                "cloudwatch:ListMetrics",
-                "cloudwatch:PutMetricAlarm",
-                "cloudwatch:GetMetricData",
-                "datapipeline:ActivatePipeline",
-                "datapipeline:CreatePipeline",
-                "datapipeline:DeletePipeline",
-                "datapipeline:DescribeObjects",
-                "datapipeline:DescribePipelines",
-                "datapipeline:GetPipelineDefinition",
-                "datapipeline:ListPipelines",
-                "datapipeline:PutPipelineDefinition",
-                "datapipeline:QueryObjects",
-                "ec2:DescribeVpcs",
-                "ec2:DescribeSubnets",
-                "ec2:DescribeSecurityGroups",
-                "iam:GetRole",
-                "iam:ListRoles",
-                "kms:DescribeKey",
-                "kms:ListAliases",
-                "sns:CreateTopic",
-                "sns:DeleteTopic",
-                "sns:ListSubscriptions",
-                "sns:ListSubscriptionsByTopic",
-                "sns:ListTopics",
-                "sns:Subscribe",
-                "sns:Unsubscribe",
-                "sns:SetTopicAttributes",
-                "lambda:CreateFunction",
-                "lambda:ListFunctions",
-                "lambda:ListEventSourceMappings",
-                "lambda:CreateEventSourceMapping",
-                "lambda:DeleteEventSourceMapping",
-                "lambda:GetFunctionConfiguration",
-                "lambda:DeleteFunction",
-                "resource-groups:ListGroups",
-                "resource-groups:ListGroupResources",
-                "resource-groups:GetGroup",
-                "resource-groups:GetGroupQuery",
-                "resource-groups:DeleteGroup",
-                "resource-groups:CreateGroup",
-                "tag:GetResources",
-                "kinesis:ListStreams",
-                "kinesis:DescribeStream",
-                "kinesis:DescribeStreamSummary"
-            ],
-            "Effect": "Allow",
-            "Resource": "*"
-        },
-        {
-            "Action": "cloudwatch:GetInsightRuleReport",
-            "Effect": "Allow",
-            "Resource": "arn:aws:cloudwatch:*:*:insight-rule/DynamoDBContributorInsights*"
-        },
-        {
-            "Action": [
-                "iam:PassRole"
-            ],
-            "Effect": "Allow",
-            "Resource": "*",
-            "Condition": {
-                "StringLike": {
-                    "iam:PassedToService": [
-                        "application-autoscaling.amazonaws.com",
-                        "application-autoscaling.amazonaws.com.cn",
-                        "dax.amazonaws.com"
-                    ]
-                }
-            }
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "iam:CreateServiceLinkedRole"
-            ],
-            "Resource": "*",
-            "Condition": {
-                "StringEquals": {
-                    "iam:AWSServiceName": [
-                        "replication.dynamodb.amazonaws.com",
-                        "dax.amazonaws.com",
-                        "dynamodb.application-autoscaling.amazonaws.com",
-                        "contributorinsights.dynamodb.amazonaws.com",
-                        "kinesisreplication.dynamodb.amazonaws.com"
-                    ]
-                }
-            }
-        }
-    ]
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+        "Sid": "Read",
+        "Effect": "Allow",
+        "Action": [
+          "dynamodb:BatchGetItem",
+          "dynamodb:DescribeTimeToLive",
+          "dynamodb:DescribeGlobalTableSettings",
+          "dynamodb:PartiQLSelect",
+          "dynamodb:DescribeTable",
+          "dynamodb:GetShardIterator",
+          "dynamodb:DescribeGlobalTable",
+          "dynamodb:GetItem",
+          "dynamodb:DescribeBackup",
+          "dynamodb:GetRecords",
+          "dynamodb:Scan",
+          "dynamodb:*"
+        ],
+        "Resource": [
+          "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankStatement",
+          "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankDepositApprovalDetail"
+        ]
+    },
+    {
+      "Sid": "Write",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:PartiQLUpdate",
+        "dynamodb:DescribeContributorInsights",
+        "dynamodb:PutItem",
+        "dynamodb:Query",
+        "dynamodb:UpdateItem",
+        "dynamodb:DescribeTable",
+        "dynamodb:GetShardIterator",
+        "dynamodb:DescribeReservedCapacity",
+        "dynamodb:PartiQLInsert",
+        "dynamodb:*"
+      ],
+      "Resource": [
+        "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankStatement",
+        "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankDepositApprovalDetail"
+      ]
+    }
+  ]
 }
 EOF
 }

@@ -174,7 +174,7 @@ resource "aws_lambda_function" "ziraatbank-statements-client" {
 resource "aws_cloudwatch_event_rule" "ziraat_statements_cron_every_five" {
   name                = "ziraat-statements-client"
   description         = "Every N time Ziraat Statements Client"
-  schedule_expression = "rate(2 minutes)"
+  schedule_expression = "rate(5 minutes)"
 
   tags = {
     NameSpace   = "bank-integration"

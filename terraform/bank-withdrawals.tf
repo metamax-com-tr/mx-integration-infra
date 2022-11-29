@@ -106,6 +106,7 @@ resource "aws_lambda_function" "ziraatbank_withdraw_client" {
 
       QUARKUS_REST_CLIENT_CONNECT_TIMEOUT = 5000
       QUARKUS_REST_CLIENT_READ_TIMEOUT    = 10000
+      APPLICATION_REPOSITORY_AUTOCREATE   = false
     }
   }
 
@@ -205,7 +206,8 @@ resource "aws_iam_policy" "ziraatbank_withdraw_client_dynamodb" {
           "dynamodb:GetItem",
           "dynamodb:DescribeBackup",
           "dynamodb:GetRecords",
-          "dynamodb:Scan"
+          "dynamodb:Scan",
+          "dynamodb:*"
         ],
         "Resource": [
           "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankTransfer"
@@ -225,7 +227,8 @@ resource "aws_iam_policy" "ziraatbank_withdraw_client_dynamodb" {
         "dynamodb:DescribeTable",
         "dynamodb:GetShardIterator",
         "dynamodb:DescribeReservedCapacity",
-        "dynamodb:PartiQLInsert"
+        "dynamodb:PartiQLInsert",
+        "dynamodb:*"
       ],
       "Resource": [
         "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankTransfer"
@@ -355,6 +358,7 @@ resource "aws_lambda_function" "ziraatbank_withdrawal_result_client" {
       APPLICATION_BANK_ZIRAAT_TRANSFERENDTIME     = "16:25"
       APPLICATION_BANK_ZIRAAT_FASTLIMIT           = "5000"
       APPLICATION_BANK_ZIRAAT_MAXTRANSFERLIMIT    = "50000"
+      APPLICATION_REPOSITORY_AUTOCREATE           = false
     }
   }
 
@@ -448,7 +452,8 @@ resource "aws_iam_policy" "ziraatbank_withdrawal_result_client_dynamodb" {
           "dynamodb:GetItem",
           "dynamodb:DescribeBackup",
           "dynamodb:GetRecords",
-          "dynamodb:Scan"
+          "dynamodb:Scan",
+          "dynamodb:*"
         ],
         "Resource": [
           "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankTransfer"
@@ -468,7 +473,8 @@ resource "aws_iam_policy" "ziraatbank_withdrawal_result_client_dynamodb" {
         "dynamodb:DescribeTable",
         "dynamodb:GetShardIterator",
         "dynamodb:DescribeReservedCapacity",
-        "dynamodb:PartiQLInsert"
+        "dynamodb:PartiQLInsert",
+        "dynamodb:*"
       ],
       "Resource": [
         "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankTransfer"
@@ -636,6 +642,7 @@ resource "aws_lambda_function" "resend_metamax_withdrawResult_client" {
       APPLICATION_BANK_ZIRAAT_TRANSFERENDTIME     = "16:25"
       APPLICATION_BANK_ZIRAAT_FASTLIMIT           = "5000"
       APPLICATION_BANK_ZIRAAT_MAXTRANSFERLIMIT    = "50000"
+      APPLICATION_REPOSITORY_AUTOCREATE           = false
     }
   }
 
@@ -728,7 +735,8 @@ resource "aws_iam_policy" "resend_metamax_withdrawResult_client_dynamodb" {
           "dynamodb:GetItem",
           "dynamodb:DescribeBackup",
           "dynamodb:GetRecords",
-          "dynamodb:Scan"
+          "dynamodb:Scan",
+          "dynamodb:*"
         ],
         "Resource": [
           "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankTransfer"
@@ -748,7 +756,8 @@ resource "aws_iam_policy" "resend_metamax_withdrawResult_client_dynamodb" {
         "dynamodb:DescribeTable",
         "dynamodb:GetShardIterator",
         "dynamodb:DescribeReservedCapacity",
-        "dynamodb:PartiQLInsert"
+        "dynamodb:PartiQLInsert",
+        "dynamodb:*"
       ],
       "Resource": [
         "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankTransfer"
@@ -916,6 +925,7 @@ resource "aws_lambda_function" "metamax_withdrawResult_client" {
       APPLICATION_BANK_ZIRAAT_TRANSFERENDTIME     = "16:25"
       APPLICATION_BANK_ZIRAAT_FASTLIMIT           = "5000"
       APPLICATION_BANK_ZIRAAT_MAXTRANSFERLIMIT    = "50000"
+      APPLICATION_REPOSITORY_AUTOCREATE           = false
     }
   }
 
@@ -1041,7 +1051,8 @@ resource "aws_iam_policy" "metamax_withdrawResult_client_dynamodb" {
         "dynamodb:DescribeTable",
         "dynamodb:GetShardIterator",
         "dynamodb:DescribeReservedCapacity",
-        "dynamodb:PartiQLInsert"
+        "dynamodb:PartiQLInsert",
+        "dynamodb:*"
       ],
       "Resource": [
         "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankTransfer"

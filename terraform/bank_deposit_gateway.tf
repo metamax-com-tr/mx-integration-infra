@@ -50,8 +50,9 @@ resource "aws_lambda_function" "bank_statement_handler" {
       QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_READ_TIMEOUT              = 10000
       # We can't connect MemoryDb for redis in TLS connection on success.
       # The problem is not resolved!
-      QUARKUS_REDIS_TLS_ENABLED   = false
-      QUARKUS_REDIS_TLS_TRUST_ALL = false
+      QUARKUS_REDIS_TLS_ENABLED         = false
+      QUARKUS_REDIS_TLS_TRUST_ALL       = false
+      APPLICATION_REPOSITORY_AUTOCREATE = "true"
       # https://quarkus.io/guides/all-config#quarkus-vertx_quarkus.vertx.warning-exception-time
       QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME = "5s"
       APPLICATION_BANK_DEPOSIT_QUEUE_URL        = "${aws_sqs_queue.bank_integration_deposits.url}"
@@ -158,7 +159,8 @@ resource "aws_iam_policy" "bank_statement_handler_dynamodb" {
           "dynamodb:GetItem",
           "dynamodb:DescribeBackup",
           "dynamodb:GetRecords",
-          "dynamodb:Scan"
+          "dynamodb:Scan",
+          "dynamodb:*"
         ],
         "Resource": [
           "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankStatement",
@@ -179,7 +181,8 @@ resource "aws_iam_policy" "bank_statement_handler_dynamodb" {
         "dynamodb:DescribeTable",
         "dynamodb:GetShardIterator",
         "dynamodb:DescribeReservedCapacity",
-        "dynamodb:PartiQLInsert"
+        "dynamodb:PartiQLInsert",
+        "dynamodb:*"
       ],
       "Resource": [
         "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankStatement",

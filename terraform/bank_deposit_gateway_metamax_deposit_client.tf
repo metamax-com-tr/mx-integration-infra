@@ -96,6 +96,8 @@ resource "aws_lambda_function" "metamax_deposit_client" {
       QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_SCOPE                     = "javax.inject.Singleton"
       QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_CONNECT_TIMEOUT           = 5000
       QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_READ_TIMEOUT              = 10000
+      QUARKUS_REST_CLIENT_METAMAX_DEPOSIT_CLIENT_URL                      = "https://api.${local.metamax_gateway_host[terraform.workspace]}"
+
       # We can't connect MemoryDb for redis in TLS connection on success.
       # The problem is not resolved!
       QUARKUS_REDIS_TLS_ENABLED   = false
@@ -103,6 +105,7 @@ resource "aws_lambda_function" "metamax_deposit_client" {
       # https://quarkus.io/guides/all-config#quarkus-vertx_quarkus.vertx.warning-exception-time
       QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME = "5s"
       APPLICATION_BANK_DEPOSIT_QUEUE_URL        = "${aws_sqs_queue.bank_integration_deposits.url}"
+      APPLICATION_REPOSITORY_AUTOCREATE         = "false"
     }
   }
 

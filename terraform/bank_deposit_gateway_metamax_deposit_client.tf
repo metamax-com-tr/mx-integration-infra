@@ -122,6 +122,12 @@ resource "aws_lambda_function" "metamax_deposit_client" {
   depends_on = [
     aws_sqs_queue.bank_integration_deposits
   ]
+
+  lifecycle {
+    ignore_changes = [
+      s3_key
+    ]
+  }
 }
 
 resource "aws_cloudwatch_log_group" "metamax_deposit_client" {

@@ -168,6 +168,12 @@ resource "aws_lambda_function" "ziraatbank-statements-client" {
   depends_on = [
     aws_sqs_queue.bank_integration_bank_statements
   ]
+
+  lifecycle {
+    ignore_changes = [
+      s3_key
+    ]
+  }
 }
 
 

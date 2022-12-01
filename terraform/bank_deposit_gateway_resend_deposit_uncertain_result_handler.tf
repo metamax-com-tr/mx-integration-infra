@@ -113,6 +113,12 @@ resource "aws_lambda_function" "resend_deposit_uncertain_result_handler" {
   depends_on = [
     aws_sqs_queue.bank_integration_deposits
   ]
+
+  lifecycle {
+    ignore_changes = [
+      s3_key
+    ]
+  }
 }
 
 resource "aws_cloudwatch_log_group" "resend_deposit_uncertain_result_handler" {

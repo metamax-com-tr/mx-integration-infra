@@ -66,11 +66,6 @@ EOF
   }
 }
 
-resource "aws_api_gateway_resource" "deposit_result" {
-  parent_id   = aws_api_gateway_rest_api.bank_integration.root_resource_id
-  path_part   = "depositResult"
-  rest_api_id = aws_api_gateway_rest_api.bank_integration.id
-}
 
 resource "aws_api_gateway_resource" "bank" {
   parent_id   = aws_api_gateway_rest_api.bank_integration.root_resource_id
@@ -98,36 +93,6 @@ resource "aws_api_gateway_method" "post_withdrawals" {
   request_validator_id = aws_api_gateway_request_validator.post_withdrawals.id
 
 }
-
-# resource "aws_api_gateway_method" "get_deposit" {
-#   rest_api_id   = aws_api_gateway_rest_api.bank_integration.id
-#   resource_id   = aws_api_gateway_resource.deposit_result.id
-#   http_method   = "GET"
-#   authorization = "NONE"
-# }
-
-
-# data "aws_lambda_function" "demo" {
-#   function_name = "DepositResult"
-# }
-
-# resource "aws_api_gateway_integration" "get_deposit_lambda" {
-#   rest_api_id             = aws_api_gateway_rest_api.bank_integration.id
-#   resource_id             = aws_api_gateway_resource.deposit_result.id
-#   http_method             = aws_api_gateway_method.get_deposit.http_method
-#   integration_http_method = "GET"
-#   type                    = "AWS"
-#   uri                     = "arn:aws:apigateway:${var.aws_region}:lambda:path/2015-03-31/functions/${data.aws_lambda_function.demo.arn}/invocations"
-
-#   # How to handle request payload content type conversions. 
-#   # Supported values are CONVERT_TO_BINARY and CONVERT_TO_TEXT. 
-#   # If this property is not defined, the request payload will be passed 
-#   # through from the method request to integration request without modification,
-#   # provided that the passthroughBehaviors is configured to support payload pass-through.
-#   content_handling     = "CONVERT_TO_TEXT"
-#   passthrough_behavior = "WHEN_NO_MATCH"
-
-# }
 
 resource "aws_api_gateway_request_validator" "post_withdrawals" {
   name                  = "post_withdrawals"
@@ -253,7 +218,6 @@ resource "aws_api_gateway_deployment" "default_deployment_trigger" {
     #       resources will show a difference after the initial implementation.
     #       It will stabilize to only change when resources change afterwards.
     redeployment = sha1(jsonencode([
-      aws_api_gateway_resource.deposit_result.id,
       aws_api_gateway_method.post_withdrawals.id,
       aws_api_gateway_integration_response.post_success.id
     ]))
@@ -261,6 +225,9 @@ resource "aws_api_gateway_deployment" "default_deployment_trigger" {
 
   lifecycle {
     create_before_destroy = true
+    ignore_changes = [
+      triggers
+    ]
   }
 }
 

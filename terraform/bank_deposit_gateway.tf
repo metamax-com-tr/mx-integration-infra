@@ -72,6 +72,12 @@ resource "aws_lambda_function" "bank_statement_handler" {
   depends_on = [
     aws_sqs_queue.bank_integration_deposits
   ]
+
+  lifecycle {
+    ignore_changes = [
+      s3_key
+    ]
+  }
 }
 
 resource "aws_cloudwatch_log_group" "bank_statement_handler" {

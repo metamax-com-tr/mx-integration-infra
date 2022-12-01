@@ -206,8 +206,7 @@ resource "aws_iam_policy" "ziraatbank_withdraw_client_dynamodb" {
           "dynamodb:GetItem",
           "dynamodb:DescribeBackup",
           "dynamodb:GetRecords",
-          "dynamodb:Scan",
-          "dynamodb:*"
+          "dynamodb:Scan"
         ],
         "Resource": [
           "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankTransfer"
@@ -228,7 +227,7 @@ resource "aws_iam_policy" "ziraatbank_withdraw_client_dynamodb" {
         "dynamodb:GetShardIterator",
         "dynamodb:DescribeReservedCapacity",
         "dynamodb:PartiQLInsert",
-        "dynamodb:*"
+        "dynamodb:CreateTable"
       ],
       "Resource": [
         "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankTransfer"
@@ -452,8 +451,7 @@ resource "aws_iam_policy" "ziraatbank_withdrawal_result_client_dynamodb" {
           "dynamodb:GetItem",
           "dynamodb:DescribeBackup",
           "dynamodb:GetRecords",
-          "dynamodb:Scan",
-          "dynamodb:*"
+          "dynamodb:Scan"
         ],
         "Resource": [
           "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankTransfer"
@@ -474,7 +472,7 @@ resource "aws_iam_policy" "ziraatbank_withdrawal_result_client_dynamodb" {
         "dynamodb:GetShardIterator",
         "dynamodb:DescribeReservedCapacity",
         "dynamodb:PartiQLInsert",
-        "dynamodb:*"
+        "dynamodb:CreateTable"
       ],
       "Resource": [
         "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankTransfer"
@@ -735,8 +733,7 @@ resource "aws_iam_policy" "resend_metamax_withdrawResult_client_dynamodb" {
           "dynamodb:GetItem",
           "dynamodb:DescribeBackup",
           "dynamodb:GetRecords",
-          "dynamodb:Scan",
-          "dynamodb:*"
+          "dynamodb:Scan"
         ],
         "Resource": [
           "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankTransfer"
@@ -754,10 +751,11 @@ resource "aws_iam_policy" "resend_metamax_withdrawResult_client_dynamodb" {
         "dynamodb:Query",
         "dynamodb:UpdateItem",
         "dynamodb:DescribeTable",
+        "dynamodb:CreateTable",
         "dynamodb:GetShardIterator",
         "dynamodb:DescribeReservedCapacity",
         "dynamodb:PartiQLInsert",
-        "dynamodb:*"
+        "dynamodb:CreateTable"
       ],
       "Resource": [
         "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankTransfer"
@@ -1052,7 +1050,7 @@ resource "aws_iam_policy" "metamax_withdrawResult_client_dynamodb" {
         "dynamodb:GetShardIterator",
         "dynamodb:DescribeReservedCapacity",
         "dynamodb:PartiQLInsert",
-        "dynamodb:*"
+        "dynamodb:CreateTable"
       ],
       "Resource": [
         "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankTransfer"

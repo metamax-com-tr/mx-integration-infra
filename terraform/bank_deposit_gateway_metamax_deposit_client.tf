@@ -205,8 +205,7 @@ resource "aws_iam_policy" "metamax_deposit_client_dynamodb" {
           "dynamodb:GetItem",
           "dynamodb:DescribeBackup",
           "dynamodb:GetRecords",
-          "dynamodb:Scan",
-          "dynamodb:*"
+          "dynamodb:Scan"
         ],
         "Resource": [
           "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankStatement",
@@ -228,7 +227,7 @@ resource "aws_iam_policy" "metamax_deposit_client_dynamodb" {
         "dynamodb:GetShardIterator",
         "dynamodb:DescribeReservedCapacity",
         "dynamodb:PartiQLInsert",
-        "dynamodb:*"
+        "dynamodb:CreateTable"
       ],
       "Resource": [
         "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankStatement",

@@ -81,14 +81,14 @@ resource "aws_iam_role_policy_attachment" "ziraatbank_withdraw_client_attachment
 
 
 resource "aws_lambda_function" "ziraatbank_withdraw_client" {
-  s3_bucket     = var.lambda_artifact_bucket
-  s3_key        = var.ziraatbank_withdraw_client_default_artifact
+  s3_bucket     = local.lambda_artifact_bucket[terraform.workspace]
+  s3_key        = local.ziraatbank_withdraw_client_default_artifact[terraform.workspace]
   function_name = "ziraatbank-withdraw-client"
   role          = aws_iam_role.ziraatbank_withdraw_client.arn
   handler       = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
-  runtime       = "java11"
-  timeout       = 20
-  memory_size   = 1024
+  runtime       = local.lambda_withdrawal_functions_profil[terraform.workspace].runtime
+  timeout       = local.lambda_withdrawal_functions_profil[terraform.workspace].timeout
+  memory_size   = local.lambda_withdrawal_functions_profil[terraform.workspace].memory_size
 
   environment {
     variables = {
@@ -106,6 +106,7 @@ resource "aws_lambda_function" "ziraatbank_withdraw_client" {
 
       QUARKUS_REST_CLIENT_CONNECT_TIMEOUT = 5000
       QUARKUS_REST_CLIENT_READ_TIMEOUT    = 10000
+      APPLICATION_REPOSITORY_AUTOCREATE   = false
     }
   }
 
@@ -189,112 +190,50 @@ resource "aws_iam_policy" "ziraatbank_withdraw_client_dynamodb" {
 
   policy = <<EOF
 {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Action": [
-                "dynamodb:*",
-                "dax:*",
-                "application-autoscaling:DeleteScalingPolicy",
-                "application-autoscaling:DeregisterScalableTarget",
-                "application-autoscaling:DescribeScalableTargets",
-                "application-autoscaling:DescribeScalingActivities",
-                "application-autoscaling:DescribeScalingPolicies",
-                "application-autoscaling:PutScalingPolicy",
-                "application-autoscaling:RegisterScalableTarget",
-                "cloudwatch:DeleteAlarms",
-                "cloudwatch:DescribeAlarmHistory",
-                "cloudwatch:DescribeAlarms",
-                "cloudwatch:DescribeAlarmsForMetric",
-                "cloudwatch:GetMetricStatistics",
-                "cloudwatch:ListMetrics",
-                "cloudwatch:PutMetricAlarm",
-                "cloudwatch:GetMetricData",
-                "datapipeline:ActivatePipeline",
-                "datapipeline:CreatePipeline",
-                "datapipeline:DeletePipeline",
-                "datapipeline:DescribeObjects",
-                "datapipeline:DescribePipelines",
-                "datapipeline:GetPipelineDefinition",
-                "datapipeline:ListPipelines",
-                "datapipeline:PutPipelineDefinition",
-                "datapipeline:QueryObjects",
-                "ec2:DescribeVpcs",
-                "ec2:DescribeSubnets",
-                "ec2:DescribeSecurityGroups",
-                "iam:GetRole",
-                "iam:ListRoles",
-                "kms:DescribeKey",
-                "kms:ListAliases",
-                "sns:CreateTopic",
-                "sns:DeleteTopic",
-                "sns:ListSubscriptions",
-                "sns:ListSubscriptionsByTopic",
-                "sns:ListTopics",
-                "sns:Subscribe",
-                "sns:Unsubscribe",
-                "sns:SetTopicAttributes",
-                "lambda:CreateFunction",
-                "lambda:ListFunctions",
-                "lambda:ListEventSourceMappings",
-                "lambda:CreateEventSourceMapping",
-                "lambda:DeleteEventSourceMapping",
-                "lambda:GetFunctionConfiguration",
-                "lambda:DeleteFunction",
-                "resource-groups:ListGroups",
-                "resource-groups:ListGroupResources",
-                "resource-groups:GetGroup",
-                "resource-groups:GetGroupQuery",
-                "resource-groups:DeleteGroup",
-                "resource-groups:CreateGroup",
-                "tag:GetResources",
-                "kinesis:ListStreams",
-                "kinesis:DescribeStream",
-                "kinesis:DescribeStreamSummary"
-            ],
-            "Effect": "Allow",
-            "Resource": "*"
-        },
-        {
-            "Action": "cloudwatch:GetInsightRuleReport",
-            "Effect": "Allow",
-            "Resource": "arn:aws:cloudwatch:*:*:insight-rule/DynamoDBContributorInsights*"
-        },
-        {
-            "Action": [
-                "iam:PassRole"
-            ],
-            "Effect": "Allow",
-            "Resource": "*",
-            "Condition": {
-                "StringLike": {
-                    "iam:PassedToService": [
-                        "application-autoscaling.amazonaws.com",
-                        "application-autoscaling.amazonaws.com.cn",
-                        "dax.amazonaws.com"
-                    ]
-                }
-            }
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "iam:CreateServiceLinkedRole"
-            ],
-            "Resource": "*",
-            "Condition": {
-                "StringEquals": {
-                    "iam:AWSServiceName": [
-                        "replication.dynamodb.amazonaws.com",
-                        "dax.amazonaws.com",
-                        "dynamodb.application-autoscaling.amazonaws.com",
-                        "contributorinsights.dynamodb.amazonaws.com",
-                        "kinesisreplication.dynamodb.amazonaws.com"
-                    ]
-                }
-            }
-        }
-    ]
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+        "Sid": "Read",
+        "Effect": "Allow",
+        "Action": [
+          "dynamodb:BatchGetItem",
+          "dynamodb:DescribeTimeToLive",
+          "dynamodb:DescribeGlobalTableSettings",
+          "dynamodb:PartiQLSelect",
+          "dynamodb:DescribeTable",
+          "dynamodb:GetShardIterator",
+          "dynamodb:DescribeGlobalTable",
+          "dynamodb:GetItem",
+          "dynamodb:DescribeBackup",
+          "dynamodb:GetRecords",
+          "dynamodb:Scan"
+        ],
+        "Resource": [
+          "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankTransfer"
+        ]
+    },
+    {
+      "Sid": "Write",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:PartiQLUpdate",
+        "dynamodb:DescribeContributorInsights",
+        "dynamodb:PutItem",
+        "dynamodb:Query",
+        "dynamodb:UpdateItem",
+        "dynamodb:DescribeTable",
+        "dynamodb:GetShardIterator",
+        "dynamodb:DescribeReservedCapacity",
+        "dynamodb:PartiQLInsert",
+        "dynamodb:CreateTable"
+      ],
+      "Resource": [
+        "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankTransfer"
+      ]
+    }
+  ]
 }
 EOF
 }
@@ -393,8 +332,8 @@ resource "aws_iam_role_policy_attachment" "ziraatbank_withdrawal_result_client_a
 }
 
 resource "aws_lambda_function" "ziraatbank_withdrawal_result_client" {
-  s3_bucket     = var.lambda_artifact_bucket
-  s3_key        = var.ziraatbank_withdraw_client_default_artifact
+  s3_bucket     = local.lambda_artifact_bucket[terraform.workspace]
+  s3_key        = local.ziraatbank_withdraw_client_default_artifact[terraform.workspace]
   function_name = "ziraatbank-withdrawal-result-client"
   role          = aws_iam_role.ziraatbank_withdrawal_result_client.arn
   handler       = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
@@ -418,6 +357,7 @@ resource "aws_lambda_function" "ziraatbank_withdrawal_result_client" {
       APPLICATION_BANK_ZIRAAT_TRANSFERENDTIME     = "16:25"
       APPLICATION_BANK_ZIRAAT_FASTLIMIT           = "5000"
       APPLICATION_BANK_ZIRAAT_MAXTRANSFERLIMIT    = "50000"
+      APPLICATION_REPOSITORY_AUTOCREATE           = false
     }
   }
 
@@ -495,112 +435,50 @@ resource "aws_iam_policy" "ziraatbank_withdrawal_result_client_dynamodb" {
 
   policy = <<EOF
 {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Action": [
-                "dynamodb:*",
-                "dax:*",
-                "application-autoscaling:DeleteScalingPolicy",
-                "application-autoscaling:DeregisterScalableTarget",
-                "application-autoscaling:DescribeScalableTargets",
-                "application-autoscaling:DescribeScalingActivities",
-                "application-autoscaling:DescribeScalingPolicies",
-                "application-autoscaling:PutScalingPolicy",
-                "application-autoscaling:RegisterScalableTarget",
-                "cloudwatch:DeleteAlarms",
-                "cloudwatch:DescribeAlarmHistory",
-                "cloudwatch:DescribeAlarms",
-                "cloudwatch:DescribeAlarmsForMetric",
-                "cloudwatch:GetMetricStatistics",
-                "cloudwatch:ListMetrics",
-                "cloudwatch:PutMetricAlarm",
-                "cloudwatch:GetMetricData",
-                "datapipeline:ActivatePipeline",
-                "datapipeline:CreatePipeline",
-                "datapipeline:DeletePipeline",
-                "datapipeline:DescribeObjects",
-                "datapipeline:DescribePipelines",
-                "datapipeline:GetPipelineDefinition",
-                "datapipeline:ListPipelines",
-                "datapipeline:PutPipelineDefinition",
-                "datapipeline:QueryObjects",
-                "ec2:DescribeVpcs",
-                "ec2:DescribeSubnets",
-                "ec2:DescribeSecurityGroups",
-                "iam:GetRole",
-                "iam:ListRoles",
-                "kms:DescribeKey",
-                "kms:ListAliases",
-                "sns:CreateTopic",
-                "sns:DeleteTopic",
-                "sns:ListSubscriptions",
-                "sns:ListSubscriptionsByTopic",
-                "sns:ListTopics",
-                "sns:Subscribe",
-                "sns:Unsubscribe",
-                "sns:SetTopicAttributes",
-                "lambda:CreateFunction",
-                "lambda:ListFunctions",
-                "lambda:ListEventSourceMappings",
-                "lambda:CreateEventSourceMapping",
-                "lambda:DeleteEventSourceMapping",
-                "lambda:GetFunctionConfiguration",
-                "lambda:DeleteFunction",
-                "resource-groups:ListGroups",
-                "resource-groups:ListGroupResources",
-                "resource-groups:GetGroup",
-                "resource-groups:GetGroupQuery",
-                "resource-groups:DeleteGroup",
-                "resource-groups:CreateGroup",
-                "tag:GetResources",
-                "kinesis:ListStreams",
-                "kinesis:DescribeStream",
-                "kinesis:DescribeStreamSummary"
-            ],
-            "Effect": "Allow",
-            "Resource": "*"
-        },
-        {
-            "Action": "cloudwatch:GetInsightRuleReport",
-            "Effect": "Allow",
-            "Resource": "arn:aws:cloudwatch:*:*:insight-rule/DynamoDBContributorInsights*"
-        },
-        {
-            "Action": [
-                "iam:PassRole"
-            ],
-            "Effect": "Allow",
-            "Resource": "*",
-            "Condition": {
-                "StringLike": {
-                    "iam:PassedToService": [
-                        "application-autoscaling.amazonaws.com",
-                        "application-autoscaling.amazonaws.com.cn",
-                        "dax.amazonaws.com"
-                    ]
-                }
-            }
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "iam:CreateServiceLinkedRole"
-            ],
-            "Resource": "*",
-            "Condition": {
-                "StringEquals": {
-                    "iam:AWSServiceName": [
-                        "replication.dynamodb.amazonaws.com",
-                        "dax.amazonaws.com",
-                        "dynamodb.application-autoscaling.amazonaws.com",
-                        "contributorinsights.dynamodb.amazonaws.com",
-                        "kinesisreplication.dynamodb.amazonaws.com"
-                    ]
-                }
-            }
-        }
-    ]
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+        "Sid": "Read",
+        "Effect": "Allow",
+        "Action": [
+          "dynamodb:BatchGetItem",
+          "dynamodb:DescribeTimeToLive",
+          "dynamodb:DescribeGlobalTableSettings",
+          "dynamodb:PartiQLSelect",
+          "dynamodb:DescribeTable",
+          "dynamodb:GetShardIterator",
+          "dynamodb:DescribeGlobalTable",
+          "dynamodb:GetItem",
+          "dynamodb:DescribeBackup",
+          "dynamodb:GetRecords",
+          "dynamodb:Scan"
+        ],
+        "Resource": [
+          "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankTransfer"
+        ]
+    },
+    {
+      "Sid": "Write",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:PartiQLUpdate",
+        "dynamodb:DescribeContributorInsights",
+        "dynamodb:PutItem",
+        "dynamodb:Query",
+        "dynamodb:UpdateItem",
+        "dynamodb:DescribeTable",
+        "dynamodb:GetShardIterator",
+        "dynamodb:DescribeReservedCapacity",
+        "dynamodb:PartiQLInsert",
+        "dynamodb:CreateTable"
+      ],
+      "Resource": [
+        "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankTransfer"
+      ]
+    }
+  ]
 }
 EOF
 }
@@ -738,8 +616,8 @@ resource "aws_iam_role_policy_attachment" "resend_metamax_withdrawResult_client_
 }
 
 resource "aws_lambda_function" "resend_metamax_withdrawResult_client" {
-  s3_bucket     = var.lambda_artifact_bucket
-  s3_key        = var.ziraatbank_withdraw_client_default_artifact
+  s3_bucket     = local.lambda_artifact_bucket[terraform.workspace]
+  s3_key        = local.ziraatbank_withdraw_client_default_artifact[terraform.workspace]
   function_name = "resend-metamax-withdrawResult-client"
   role          = aws_iam_role.resend_metamax_withdrawResult_client.arn
   handler       = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
@@ -762,6 +640,7 @@ resource "aws_lambda_function" "resend_metamax_withdrawResult_client" {
       APPLICATION_BANK_ZIRAAT_TRANSFERENDTIME     = "16:25"
       APPLICATION_BANK_ZIRAAT_FASTLIMIT           = "5000"
       APPLICATION_BANK_ZIRAAT_MAXTRANSFERLIMIT    = "50000"
+      APPLICATION_REPOSITORY_AUTOCREATE           = false
     }
   }
 
@@ -838,112 +717,51 @@ resource "aws_iam_policy" "resend_metamax_withdrawResult_client_dynamodb" {
 
   policy = <<EOF
 {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Action": [
-                "dynamodb:*",
-                "dax:*",
-                "application-autoscaling:DeleteScalingPolicy",
-                "application-autoscaling:DeregisterScalableTarget",
-                "application-autoscaling:DescribeScalableTargets",
-                "application-autoscaling:DescribeScalingActivities",
-                "application-autoscaling:DescribeScalingPolicies",
-                "application-autoscaling:PutScalingPolicy",
-                "application-autoscaling:RegisterScalableTarget",
-                "cloudwatch:DeleteAlarms",
-                "cloudwatch:DescribeAlarmHistory",
-                "cloudwatch:DescribeAlarms",
-                "cloudwatch:DescribeAlarmsForMetric",
-                "cloudwatch:GetMetricStatistics",
-                "cloudwatch:ListMetrics",
-                "cloudwatch:PutMetricAlarm",
-                "cloudwatch:GetMetricData",
-                "datapipeline:ActivatePipeline",
-                "datapipeline:CreatePipeline",
-                "datapipeline:DeletePipeline",
-                "datapipeline:DescribeObjects",
-                "datapipeline:DescribePipelines",
-                "datapipeline:GetPipelineDefinition",
-                "datapipeline:ListPipelines",
-                "datapipeline:PutPipelineDefinition",
-                "datapipeline:QueryObjects",
-                "ec2:DescribeVpcs",
-                "ec2:DescribeSubnets",
-                "ec2:DescribeSecurityGroups",
-                "iam:GetRole",
-                "iam:ListRoles",
-                "kms:DescribeKey",
-                "kms:ListAliases",
-                "sns:CreateTopic",
-                "sns:DeleteTopic",
-                "sns:ListSubscriptions",
-                "sns:ListSubscriptionsByTopic",
-                "sns:ListTopics",
-                "sns:Subscribe",
-                "sns:Unsubscribe",
-                "sns:SetTopicAttributes",
-                "lambda:CreateFunction",
-                "lambda:ListFunctions",
-                "lambda:ListEventSourceMappings",
-                "lambda:CreateEventSourceMapping",
-                "lambda:DeleteEventSourceMapping",
-                "lambda:GetFunctionConfiguration",
-                "lambda:DeleteFunction",
-                "resource-groups:ListGroups",
-                "resource-groups:ListGroupResources",
-                "resource-groups:GetGroup",
-                "resource-groups:GetGroupQuery",
-                "resource-groups:DeleteGroup",
-                "resource-groups:CreateGroup",
-                "tag:GetResources",
-                "kinesis:ListStreams",
-                "kinesis:DescribeStream",
-                "kinesis:DescribeStreamSummary"
-            ],
-            "Effect": "Allow",
-            "Resource": "*"
-        },
-        {
-            "Action": "cloudwatch:GetInsightRuleReport",
-            "Effect": "Allow",
-            "Resource": "arn:aws:cloudwatch:*:*:insight-rule/DynamoDBContributorInsights*"
-        },
-        {
-            "Action": [
-                "iam:PassRole"
-            ],
-            "Effect": "Allow",
-            "Resource": "*",
-            "Condition": {
-                "StringLike": {
-                    "iam:PassedToService": [
-                        "application-autoscaling.amazonaws.com",
-                        "application-autoscaling.amazonaws.com.cn",
-                        "dax.amazonaws.com"
-                    ]
-                }
-            }
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "iam:CreateServiceLinkedRole"
-            ],
-            "Resource": "*",
-            "Condition": {
-                "StringEquals": {
-                    "iam:AWSServiceName": [
-                        "replication.dynamodb.amazonaws.com",
-                        "dax.amazonaws.com",
-                        "dynamodb.application-autoscaling.amazonaws.com",
-                        "contributorinsights.dynamodb.amazonaws.com",
-                        "kinesisreplication.dynamodb.amazonaws.com"
-                    ]
-                }
-            }
-        }
-    ]
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+        "Sid": "Read",
+        "Effect": "Allow",
+        "Action": [
+          "dynamodb:BatchGetItem",
+          "dynamodb:DescribeTimeToLive",
+          "dynamodb:DescribeGlobalTableSettings",
+          "dynamodb:PartiQLSelect",
+          "dynamodb:DescribeTable",
+          "dynamodb:GetShardIterator",
+          "dynamodb:DescribeGlobalTable",
+          "dynamodb:GetItem",
+          "dynamodb:DescribeBackup",
+          "dynamodb:GetRecords",
+          "dynamodb:Scan"
+        ],
+        "Resource": [
+          "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankTransfer"
+        ]
+    },
+    {
+      "Sid": "Write",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:PartiQLUpdate",
+        "dynamodb:DescribeContributorInsights",
+        "dynamodb:PutItem",
+        "dynamodb:Query",
+        "dynamodb:UpdateItem",
+        "dynamodb:DescribeTable",
+        "dynamodb:CreateTable",
+        "dynamodb:GetShardIterator",
+        "dynamodb:DescribeReservedCapacity",
+        "dynamodb:PartiQLInsert",
+        "dynamodb:CreateTable"
+      ],
+      "Resource": [
+        "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankTransfer"
+      ]
+    }
+  ]
 }
 EOF
 }
@@ -1080,14 +898,15 @@ resource "aws_iam_role_policy_attachment" "metamax_withdrawResult_client_attachm
 }
 
 resource "aws_lambda_function" "metamax_withdrawResult_client" {
-  s3_bucket     = var.lambda_artifact_bucket
-  s3_key        = var.ziraatbank_withdraw_client_default_artifact
+  s3_bucket     = local.lambda_artifact_bucket[terraform.workspace]
+  s3_key        = local.ziraatbank_withdraw_client_default_artifact[terraform.workspace]
   function_name = "metamax-withdrawResult-client"
   role          = aws_iam_role.metamax_withdrawResult_client.arn
   handler       = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
-  runtime       = "java11"
-  timeout       = 20
-  memory_size   = 1024
+  runtime       = local.lambda_withdrawal_functions_profil[terraform.workspace].runtime
+  timeout       = local.lambda_withdrawal_functions_profil[terraform.workspace].timeout
+  memory_size   = local.lambda_withdrawal_functions_profil[terraform.workspace].memory_size
+
 
   environment {
     variables = {
@@ -1104,6 +923,7 @@ resource "aws_lambda_function" "metamax_withdrawResult_client" {
       APPLICATION_BANK_ZIRAAT_TRANSFERENDTIME     = "16:25"
       APPLICATION_BANK_ZIRAAT_FASTLIMIT           = "5000"
       APPLICATION_BANK_ZIRAAT_MAXTRANSFERLIMIT    = "50000"
+      APPLICATION_REPOSITORY_AUTOCREATE           = false
     }
   }
 
@@ -1124,7 +944,8 @@ resource "aws_lambda_function" "metamax_withdrawResult_client" {
 
   lifecycle {
     ignore_changes = [
-      s3_key
+      s3_key,
+      environment
     ]
   }
 }
@@ -1192,112 +1013,50 @@ resource "aws_iam_policy" "metamax_withdrawResult_client_dynamodb" {
 
   policy = <<EOF
 {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Action": [
-                "dynamodb:*",
-                "dax:*",
-                "application-autoscaling:DeleteScalingPolicy",
-                "application-autoscaling:DeregisterScalableTarget",
-                "application-autoscaling:DescribeScalableTargets",
-                "application-autoscaling:DescribeScalingActivities",
-                "application-autoscaling:DescribeScalingPolicies",
-                "application-autoscaling:PutScalingPolicy",
-                "application-autoscaling:RegisterScalableTarget",
-                "cloudwatch:DeleteAlarms",
-                "cloudwatch:DescribeAlarmHistory",
-                "cloudwatch:DescribeAlarms",
-                "cloudwatch:DescribeAlarmsForMetric",
-                "cloudwatch:GetMetricStatistics",
-                "cloudwatch:ListMetrics",
-                "cloudwatch:PutMetricAlarm",
-                "cloudwatch:GetMetricData",
-                "datapipeline:ActivatePipeline",
-                "datapipeline:CreatePipeline",
-                "datapipeline:DeletePipeline",
-                "datapipeline:DescribeObjects",
-                "datapipeline:DescribePipelines",
-                "datapipeline:GetPipelineDefinition",
-                "datapipeline:ListPipelines",
-                "datapipeline:PutPipelineDefinition",
-                "datapipeline:QueryObjects",
-                "ec2:DescribeVpcs",
-                "ec2:DescribeSubnets",
-                "ec2:DescribeSecurityGroups",
-                "iam:GetRole",
-                "iam:ListRoles",
-                "kms:DescribeKey",
-                "kms:ListAliases",
-                "sns:CreateTopic",
-                "sns:DeleteTopic",
-                "sns:ListSubscriptions",
-                "sns:ListSubscriptionsByTopic",
-                "sns:ListTopics",
-                "sns:Subscribe",
-                "sns:Unsubscribe",
-                "sns:SetTopicAttributes",
-                "lambda:CreateFunction",
-                "lambda:ListFunctions",
-                "lambda:ListEventSourceMappings",
-                "lambda:CreateEventSourceMapping",
-                "lambda:DeleteEventSourceMapping",
-                "lambda:GetFunctionConfiguration",
-                "lambda:DeleteFunction",
-                "resource-groups:ListGroups",
-                "resource-groups:ListGroupResources",
-                "resource-groups:GetGroup",
-                "resource-groups:GetGroupQuery",
-                "resource-groups:DeleteGroup",
-                "resource-groups:CreateGroup",
-                "tag:GetResources",
-                "kinesis:ListStreams",
-                "kinesis:DescribeStream",
-                "kinesis:DescribeStreamSummary"
-            ],
-            "Effect": "Allow",
-            "Resource": "*"
-        },
-        {
-            "Action": "cloudwatch:GetInsightRuleReport",
-            "Effect": "Allow",
-            "Resource": "arn:aws:cloudwatch:*:*:insight-rule/DynamoDBContributorInsights*"
-        },
-        {
-            "Action": [
-                "iam:PassRole"
-            ],
-            "Effect": "Allow",
-            "Resource": "*",
-            "Condition": {
-                "StringLike": {
-                    "iam:PassedToService": [
-                        "application-autoscaling.amazonaws.com",
-                        "application-autoscaling.amazonaws.com.cn",
-                        "dax.amazonaws.com"
-                    ]
-                }
-            }
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "iam:CreateServiceLinkedRole"
-            ],
-            "Resource": "*",
-            "Condition": {
-                "StringEquals": {
-                    "iam:AWSServiceName": [
-                        "replication.dynamodb.amazonaws.com",
-                        "dax.amazonaws.com",
-                        "dynamodb.application-autoscaling.amazonaws.com",
-                        "contributorinsights.dynamodb.amazonaws.com",
-                        "kinesisreplication.dynamodb.amazonaws.com"
-                    ]
-                }
-            }
-        }
-    ]
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+        "Sid": "Read",
+        "Effect": "Allow",
+        "Action": [
+          "dynamodb:BatchGetItem",
+          "dynamodb:DescribeTimeToLive",
+          "dynamodb:DescribeGlobalTableSettings",
+          "dynamodb:PartiQLSelect",
+          "dynamodb:DescribeTable",
+          "dynamodb:GetShardIterator",
+          "dynamodb:DescribeGlobalTable",
+          "dynamodb:GetItem",
+          "dynamodb:DescribeBackup",
+          "dynamodb:GetRecords",
+          "dynamodb:Scan"
+        ],
+        "Resource": [
+          "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankTransfer"
+        ]
+    },
+    {
+      "Sid": "Write",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:PartiQLUpdate",
+        "dynamodb:DescribeContributorInsights",
+        "dynamodb:PutItem",
+        "dynamodb:Query",
+        "dynamodb:UpdateItem",
+        "dynamodb:DescribeTable",
+        "dynamodb:GetShardIterator",
+        "dynamodb:DescribeReservedCapacity",
+        "dynamodb:PartiQLInsert",
+        "dynamodb:CreateTable"
+      ],
+      "Resource": [
+        "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/BankTransfer"
+      ]
+    }
+  ]
 }
 EOF
 }

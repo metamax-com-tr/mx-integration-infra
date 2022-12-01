@@ -25,22 +25,22 @@ EOF
 
 
 
-resource "aws_secretsmanager_secret" "ziraat_bank_statements_client" {
-  name = "${local.environments[terraform.workspace]}-${var.namespace}-ziraat_bank_statement"
-  # (Optional) Number of days that AWS Secrets Manager waits before it can delete the secret. This value can be 0 to force deletion without recovery or range from 7 to 30 days. The default value is 30.
-  # Link: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret
-  recovery_window_in_days = 0
-  tags = {
-    Name        = "ziraat_bank_statement"
-    NameSpace   = "${var.namespace}"
-    Environment = "${local.environments[terraform.workspace]}"
-  }
-}
+# resource "aws_secretsmanager_secret" "ziraat_bank_statements_client" {
+#   name = "${local.environments[terraform.workspace]}-${var.namespace}-ziraat_bank_statement"
+#   # (Optional) Number of days that AWS Secrets Manager waits before it can delete the secret. This value can be 0 to force deletion without recovery or range from 7 to 30 days. The default value is 30.
+#   # Link: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret
+#   recovery_window_in_days = 0
+#   tags = {
+#     Name        = "ziraat_bank_statement"
+#     NameSpace   = "${var.namespace}"
+#     Environment = "${local.environments[terraform.workspace]}"
+#   }
+# }
 
-resource "aws_secretsmanager_secret_version" "ziraat_bank_initial" {
-  secret_id     = aws_secretsmanager_secret.ziraat_bank_statements_client.id
-  secret_string = var.metamax_integration_vakifbank_statements_client
-}
+# resource "aws_secretsmanager_secret_version" "ziraat_bank_initial" {
+#   secret_id     = aws_secretsmanager_secret.ziraat_bank_statements_client.id
+#   secret_string = var.metamax_integration_vakifbank_statements_client
+# }
 
 
 resource "aws_iam_policy" "ziraatbank-statements-client_secret" {
@@ -51,13 +51,6 @@ resource "aws_iam_policy" "ziraatbank-statements-client_secret" {
 {
   "Version": "2012-10-17",
   "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "secretsmanager:GetSecretValue"
-      ],
-      "Resource": "${aws_secretsmanager_secret.ziraat_bank_statements_client.arn}"
-    },
     {
       "Sid": "",
       "Effect": "Allow",
@@ -129,14 +122,15 @@ resource "aws_iam_role_policy_attachment" "ziraat_bank_statements_sqs_destinatio
 
 
 resource "aws_lambda_function" "ziraatbank-statements-client" {
-  s3_bucket     = var.lambda_artifact_bucket
-  s3_key        = var.ziraatbank-statements-client_default_artifact
+  s3_bucket     = local.lambda_artifact_bucket[terraform.workspace]
+  s3_key        = local.ziraatbank_statements_client_default_artifact[terraform.workspace]
   function_name = "ziraatbank-statements-client"
   role          = aws_iam_role.ziraatbank-statements-client.arn
   handler       = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
-  runtime       = "java11"
-  timeout       = 20
-  memory_size   = 1024
+  runtime       = local.lambda_withdrawal_functions_profil[terraform.workspace].runtime
+  timeout       = local.lambda_withdrawal_functions_profil[terraform.workspace].timeout
+  memory_size   = local.lambda_withdrawal_functions_profil[terraform.workspace].memory_size
+
 
   environment {
     variables = {
@@ -178,9 +172,9 @@ resource "aws_lambda_function" "ziraatbank-statements-client" {
 
 
 resource "aws_cloudwatch_event_rule" "ziraat_statements_cron_every_five" {
-  name                = "ziraat-vakifbank-client"
-  description         = "Every N time ziraat Vakifbank Client"
-  schedule_expression = "rate(2 minutes)"
+  name                = "ziraat-statements-client"
+  description         = "Every N time Ziraat Statements Client"
+  schedule_expression = "rate(5 minutes)"
 
   tags = {
     NameSpace   = "bank-integration"

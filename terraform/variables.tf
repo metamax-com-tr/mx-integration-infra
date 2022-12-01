@@ -37,11 +37,6 @@ variable "metamax_secret" {
   description = "All secrets for metamax project"
 }
 
-variable "metamax_integration_vakifbank_statements_client" {
-  sensitive   = true
-  description = "Vakifbank Client Secrets"
-}
-
 variable "ecs_task_default_image" {
   description = "Gateway default image for cold start on building infra"
   type        = string
@@ -68,10 +63,7 @@ variable "ziraatbank_withdraw_client_default_artifact" {
   default     = "metamax-integrations-bank-withdrawals-ziraatbank-withdraw-clien/ziraatbank-withdraw-client-v0.0.20.development.zip"
 }
 
-variable "lambda_artifact_bucket" {
-  description = "This is for cold-start"
-  default     = "artifacts-lbljkp"
-}
+
 
 # Metamax Resource profiles by environments
 locals {
@@ -81,6 +73,72 @@ locals {
     testing     = "testing"
     production  = "production"
 
+  }
+
+  lambda_artifact_bucket = {
+    default     = "artifacts-lbljkp"
+    development = "artifacts-lbljkp"
+    testing     = "artifacts-lbljkp"
+    production  = "artifacts-lbljka"
+  }
+
+  ziraatbank_withdraw_client_default_artifact = {
+    default     = "metamax-integrations-bank-withdrawals-ziraatbank-withdraw-clien/ziraatbank-withdraw-client-v0.0.20.development.zip"
+    development = "metamax-integrations-bank-withdrawals-ziraatbank-withdraw-clien/ziraatbank-withdraw-client-v0.0.20.development.zip"
+    testing     = "metamax-integrations-bank-withdrawals-ziraatbank-withdraw-clien/ziraatbank-withdraw-client-v0.0.20.development.zip"
+    production  = "metamax-integrations-bank-withdrawals-ziraatbank-withdraw-clien/ziraatbank-withdraw-client-v0.0.1.production.zip"
+  }
+
+  vakifbank-statements-client_default_artifact = {
+    default     = "artifacts-lbljkp"
+    development = "artifacts-lbljkp"
+    testing     = "artifacts-lbljkp"
+    production  = "artifacts-lbljka"
+  }
+
+  bank_statement_handler_default_artifact = {
+    default     = "metamax-integrations-bank-deposits-bank-deposits-gateway/bank-deposits-gateway-v0.0.30.development.zip"
+    development = "metamax-integrations-bank-deposits-bank-deposits-gateway/bank-deposits-gateway-v0.0.30.development.zip"
+    testing     = "metamax-integrations-bank-deposits-bank-deposits-gateway/bank-deposits-gateway-v0.0.30.development.zip"
+    production  = "metamax-integrations-bank-deposits-bank-deposits-gateway/bank-deposits-gateway-v0.0.0.production.zip"
+  }
+
+  ziraatbank_statements_client_default_artifact = {
+    default     = "metamax-integrations-bank-deposits-ziraatbank-statements-client/ziraatbank-statements-client-v0.0.39.development.zip"
+    development = "metamax-integrations-bank-deposits-ziraatbank-statements-client/ziraatbank-statements-client-v0.0.39.development.zip"
+    testing     = "metamax-integrations-bank-deposits-ziraatbank-statements-client/ziraatbank-statements-client-v0.0.39.development.zip"
+    production  = "metamax-integrations-bank-deposits-ziraatbank-statements-client/ziraatbank-statements-client-v0.0.0.production.zip"
+  }
+
+  lambda_withdrawal_functions_profil = {
+    default = {
+      runtime     = "java11"
+      timeout     = 20
+      memory_size = 1024
+    }
+    development = {
+      runtime     = "java11"
+      timeout     = 20
+      memory_size = 1024
+    }
+    testing = {
+      runtime     = "java11"
+      timeout     = 20
+      memory_size = 1024
+    }
+    production = {
+      runtime     = "java11"
+      timeout     = 120
+      memory_size = 2048
+    }
+  }
+
+
+  bank_integration_outbound_name = {
+    default     = "not-set"
+    development = "bank-integration-outbound-2"
+    testing     = "not-set"
+    production  = "bank-integration-outbound-1"
   }
 
   metamax_stage = {
@@ -95,6 +153,33 @@ locals {
     development = "cache.t3.micro"
     testing     = "cache.t3.micro"
     production  = "cache.t3.micro"
+  }
+
+  memorydb_types = {
+    default = {
+      snapshot_retention_limit = 0
+      node_type                = "db.t4g.small"
+      num_shards               = 1
+      num_replicas_per_shard   = 1
+    }
+    development = {
+      snapshot_retention_limit = 0
+      node_type                = "db.t4g.small"
+      num_shards               = 1
+      num_replicas_per_shard   = 1
+    }
+    testing = {
+      snapshot_retention_limit = 0
+      node_type                = "db.t4g.small"
+      num_shards               = 1
+      num_replicas_per_shard   = 1
+    }
+    production = {
+      snapshot_retention_limit = 15
+      node_type                = "db.t4g.medium"
+      num_shards               = 1
+      num_replicas_per_shard   = 1
+    }
   }
 
   # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html#fargate-tasks-size
@@ -169,7 +254,10 @@ locals {
     default     = ["10.0.5.0/24", "10.0.4.0/24"]
     development = ["10.0.5.0/24", "10.0.4.0/24"]
     testing     = ["10.0.5.0/24", "10.0.4.0/24"]
-    production  = ["10.0.5.0/24", "10.0.4.0/24"]
+    production = [
+      "11.0.1.128/25", "11.0.2.128/25", "11.0.2.0/25",
+      "10.0.3.0/24", "10.0.5.0/24", "10.0.4.0/24"
+    ]
   }
 
   # We dont manage VPC Endpoints by terraform !
@@ -178,7 +266,7 @@ locals {
     default     = ["vpce-0260925d3f35ee99a", "vpce-078a7524e67cbec8c"]
     development = ["vpce-0260925d3f35ee99a", "vpce-078a7524e67cbec8c"]
     testing     = ["vpce-0260925d3f35ee99a", "vpce-078a7524e67cbec8c"]
-    production  = ["vpce-0260925d3f35ee99a", "vpce-078a7524e67cbec8c"]
+    production  = ["vpce-01b80a33b3fbbd63b", "vpce-05f0d7cb1d9217bb3"]
   }
 
 

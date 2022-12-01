@@ -26,7 +26,7 @@ resource "aws_api_gateway_rest_api" "bank_integration" {
 
   depends_on = [
     # wait until all back-end network are ready 
-    aws_nat_gateway.backend_natgw
+    aws_subnet.backend
   ]
 
 }
@@ -99,35 +99,35 @@ resource "aws_api_gateway_method" "post_withdrawals" {
 
 }
 
-resource "aws_api_gateway_method" "get_deposit" {
-  rest_api_id   = aws_api_gateway_rest_api.bank_integration.id
-  resource_id   = aws_api_gateway_resource.deposit_result.id
-  http_method   = "GET"
-  authorization = "NONE"
-}
+# resource "aws_api_gateway_method" "get_deposit" {
+#   rest_api_id   = aws_api_gateway_rest_api.bank_integration.id
+#   resource_id   = aws_api_gateway_resource.deposit_result.id
+#   http_method   = "GET"
+#   authorization = "NONE"
+# }
 
 
-data "aws_lambda_function" "demo" {
-  function_name = "DepositResult"
-}
+# data "aws_lambda_function" "demo" {
+#   function_name = "DepositResult"
+# }
 
-resource "aws_api_gateway_integration" "get_deposit_lambda" {
-  rest_api_id             = aws_api_gateway_rest_api.bank_integration.id
-  resource_id             = aws_api_gateway_resource.deposit_result.id
-  http_method             = aws_api_gateway_method.get_deposit.http_method
-  integration_http_method = "GET"
-  type                    = "AWS"
-  uri                     = "arn:aws:apigateway:${var.aws_region}:lambda:path/2015-03-31/functions/${data.aws_lambda_function.demo.arn}/invocations"
+# resource "aws_api_gateway_integration" "get_deposit_lambda" {
+#   rest_api_id             = aws_api_gateway_rest_api.bank_integration.id
+#   resource_id             = aws_api_gateway_resource.deposit_result.id
+#   http_method             = aws_api_gateway_method.get_deposit.http_method
+#   integration_http_method = "GET"
+#   type                    = "AWS"
+#   uri                     = "arn:aws:apigateway:${var.aws_region}:lambda:path/2015-03-31/functions/${data.aws_lambda_function.demo.arn}/invocations"
 
-  # How to handle request payload content type conversions. 
-  # Supported values are CONVERT_TO_BINARY and CONVERT_TO_TEXT. 
-  # If this property is not defined, the request payload will be passed 
-  # through from the method request to integration request without modification,
-  # provided that the passthroughBehaviors is configured to support payload pass-through.
-  content_handling     = "CONVERT_TO_TEXT"
-  passthrough_behavior = "WHEN_NO_MATCH"
+#   # How to handle request payload content type conversions. 
+#   # Supported values are CONVERT_TO_BINARY and CONVERT_TO_TEXT. 
+#   # If this property is not defined, the request payload will be passed 
+#   # through from the method request to integration request without modification,
+#   # provided that the passthroughBehaviors is configured to support payload pass-through.
+#   content_handling     = "CONVERT_TO_TEXT"
+#   passthrough_behavior = "WHEN_NO_MATCH"
 
-}
+# }
 
 resource "aws_api_gateway_request_validator" "post_withdrawals" {
   name                  = "post_withdrawals"
@@ -254,9 +254,7 @@ resource "aws_api_gateway_deployment" "default_deployment_trigger" {
     #       It will stabilize to only change when resources change afterwards.
     redeployment = sha1(jsonencode([
       aws_api_gateway_resource.deposit_result.id,
-      aws_api_gateway_method.get_deposit.id,
       aws_api_gateway_method.post_withdrawals.id,
-      aws_api_gateway_integration.get_deposit_lambda.id,
       aws_api_gateway_integration_response.post_success.id
     ]))
   }
@@ -278,10 +276,41 @@ resource "aws_cloudwatch_log_group" "api_gw_bank_integration" {
 }
 
 resource "aws_api_gateway_stage" "development" {
-  deployment_id = "c2yo7p"
   rest_api_id   = aws_api_gateway_rest_api.bank_integration.id
   stage_name    = "development"
+  deployment_id = aws_api_gateway_deployment.default_deployment_trigger.id
 
+  access_log_settings {
+    destination_arn = aws_cloudwatch_log_group.api_gw_bank_integration.arn
+    format = jsonencode({
+      requestId               = "$context.requestId"
+      sourceIp                = "$context.identity.sourceIp"
+      requestTime             = "$context.requestTime"
+      protocol                = "$context.protocol"
+      httpMethod              = "$context.httpMethod"
+      resourcePath            = "$context.resourcePath"
+      routeKey                = "$context.routeKey"
+      status                  = "$context.status"
+      responseLength          = "$context.responseLength"
+      integrationErrorMessage = "$context.integrationErrorMessage"
+      }
+    )
+  }
+
+  depends_on = [aws_cloudwatch_log_group.api_gw_bank_integration]
+
+  lifecycle {
+    ignore_changes = [
+      cache_cluster_size,
+      deployment_id
+    ]
+  }
+}
+
+resource "aws_api_gateway_stage" "production" {
+  rest_api_id   = aws_api_gateway_rest_api.bank_integration.id
+  stage_name    = "production"
+  deployment_id = aws_api_gateway_deployment.default_deployment_trigger.id
 
   access_log_settings {
     destination_arn = aws_cloudwatch_log_group.api_gw_bank_integration.arn
@@ -364,6 +393,23 @@ EOF
 resource "aws_api_gateway_method_settings" "general_settings" {
   rest_api_id = aws_api_gateway_rest_api.bank_integration.id
   stage_name  = aws_api_gateway_stage.development.stage_name
+  method_path = "*/*"
+
+  settings {
+    # Enable CloudWatch logging and metrics
+    metrics_enabled    = true
+    data_trace_enabled = true
+    # logging_level          = "ERROR,INFO"
+
+    # Limit the rate of calls to prevent abuse and unwanted charges
+    throttling_rate_limit  = 100
+    throttling_burst_limit = 50
+  }
+}
+
+resource "aws_api_gateway_method_settings" "prod_settings" {
+  rest_api_id = aws_api_gateway_rest_api.bank_integration.id
+  stage_name  = aws_api_gateway_stage.production.stage_name
   method_path = "*/*"
 
   settings {

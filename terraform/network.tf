@@ -344,7 +344,7 @@ resource "aws_network_acl_rule" "ziraatbank_statment_secure_web" {
   rule_number    = 100
   egress         = true
   protocol       = "-1"
-  rule_action    = "deny"
+  rule_action    = "allow"
   cidr_block     = "0.0.0.0/0"
   from_port      = 1024
   to_port        = 65535

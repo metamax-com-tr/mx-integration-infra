@@ -76,9 +76,9 @@ locals {
   }
 
   lambda_artifact_bucket = {
-    default     = "artifacts-lbljkp"
-    development = "artifacts-lbljkp"
-    testing     = "artifacts-lbljkp"
+    default     = "artifacts-lbljk"
+    development = "artifacts-lbljk"
+    testing     = "artifacts-lbljk"
     production  = "artifacts-lbljka"
   }
 
@@ -90,9 +90,9 @@ locals {
   }
 
   vakifbank-statements-client_default_artifact = {
-    default     = "artifacts-lbljkp"
-    development = "artifacts-lbljkp"
-    testing     = "artifacts-lbljkp"
+    default     = "artifacts-lbljk"
+    development = "artifacts-lbljk"
+    testing     = "artifacts-lbljk"
     production  = "artifacts-lbljka"
   }
 

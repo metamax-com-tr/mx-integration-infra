@@ -25,14 +25,6 @@ provider "aws" {
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity
 data "aws_caller_identity" "current" {}
 
-
-# Gitlab Runner to run gitlab-ci
-module "gitlabrunner" {
-  source     = "./modules/gitlab-runner"
-  aws_region = var.aws_region
-}
-
-
 # Matamax
 module "metamax" {
   source                   = "./modules/metamax"

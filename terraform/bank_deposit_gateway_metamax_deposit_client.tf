@@ -105,7 +105,7 @@ resource "aws_lambda_function" "metamax_deposit_client" {
       # https://quarkus.io/guides/all-config#quarkus-vertx_quarkus.vertx.warning-exception-time
       QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME = "5s"
       APPLICATION_BANK_DEPOSIT_QUEUE_URL        = "${aws_sqs_queue.bank_integration_deposits.url}"
-      APPLICATION_REPOSITORY_AUTOCREATE         = "false"
+      APPLICATION_REPOSITORY_AUTOCREATE         = false
     }
   }
 

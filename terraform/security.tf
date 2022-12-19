@@ -43,8 +43,8 @@ resource "aws_security_group" "bank_statements" {
 
 }
 
-resource "aws_security_group" "accounting_integration_deposit_processor" {
-  name        = "accounting_integration_deposit_processor"
+resource "aws_security_group" "accounting_integration_processor" {
+  name        = "accounting_integration_processor"
   description = "Account integration security"
   vpc_id      = aws_vpc.aws_vpc.id
 
@@ -62,25 +62,6 @@ resource "aws_security_group" "accounting_integration_deposit_processor" {
   }
 }
 
-
-resource "aws_security_group" "accounting_integration_withdrawal_processor" {
-  name        = "accounting_integration_withdrawal_processor"
-  description = "Account integration security"
-  vpc_id      = aws_vpc.aws_vpc.id
-
-
-  egress {
-    from_port        = 0
-    to_port          = 65535
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
 
 
 resource "aws_security_group" "memory_db_for_redis" {

@@ -96,6 +96,18 @@ resource "aws_security_group" "memory_db_for_redis" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    cidr_blocks      = []
+    description      = "This is for accessing form ubuntu-2204 EC2"
+    from_port        = 0
+    to_port          = 0
+    ipv6_cidr_blocks = []
+    prefix_list_ids  = []
+    protocol         = "tcp"
+    security_groups  = local.memorydb_types[terraform.workspace].allow_acces_from_sg
+    self             = false
+  }
+
   egress {
     from_port        = 0
     to_port          = 65535

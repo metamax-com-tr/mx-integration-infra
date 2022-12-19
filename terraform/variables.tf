@@ -161,24 +161,33 @@ locals {
       node_type                = "db.t4g.small"
       num_shards               = 1
       num_replicas_per_shard   = 1
+      allow_acces_from_sg = [
+        "sg-06d2e770d81bd839d"
+      ]
     }
     development = {
       snapshot_retention_limit = 0
       node_type                = "db.t4g.small"
       num_shards               = 1
       num_replicas_per_shard   = 1
+      allow_acces_from_sg = [
+        # https://eu-central-1.console.aws.amazon.com/ec2/home?region=eu-central-1#InstanceDetails:instanceId=i-0339791fc37f1b4c7
+        "sg-06d2e770d81bd839d"
+      ]
     }
     testing = {
       snapshot_retention_limit = 0
       node_type                = "db.t4g.small"
       num_shards               = 1
       num_replicas_per_shard   = 1
+      allow_acces_from_sg      = []
     }
     production = {
       snapshot_retention_limit = 15
       node_type                = "db.t4g.medium"
       num_shards               = 1
       num_replicas_per_shard   = 1
+      allow_acces_from_sg      = []
     }
   }
 

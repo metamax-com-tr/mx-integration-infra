@@ -49,6 +49,8 @@ resource "aws_lambda_function" "accounting_integration_processor" {
       QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_READ_TIMEOUT              = 10000
       # https://quarkus.io/guides/all-config#quarkus-vertx_quarkus.vertx.warning-exception-time
       QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME = "5s"
+      APPLICATION_REPOSITORY_AUTOCREATE         = false
+
     }
   }
 
@@ -205,6 +207,37 @@ resource "aws_iam_role_policy_attachment" "accounting_integration_processor_dyna
 }
 
 
+resource "aws_iam_policy" "accounting_integration_processor_sqs_destination" {
+  name        = "${local.environments[terraform.workspace]}-accounting-integration-processor-sqs-destination"
+  description = "Ziraat Bank Client Policy"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [   
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Action": [
+        "sqs:SendMessage"
+      ],
+      "Resource": [
+        "${aws_sqs_queue.accounting_integration_fails.arn}"
+      ]
+    }
+  ]
+}
+EOF
+
+}
+
+# Fails Destination policy attachment
+resource "aws_iam_role_policy_attachment" "accounting_integration_processor_sqs" {
+  role       = aws_iam_role.accounting_integration_processor.name
+  policy_arn = aws_iam_policy.accounting_integration_processor_sqs_destination.arn
+}
+
+
 
 # END accounting-integration-processor
 
@@ -237,6 +270,7 @@ resource "aws_iam_role_policy_attachment" "accounting_integration_processor_dyna
 # aws sns add-permission --label lambda-access --aws-account-id 639300795004 \
 # --topic-arn arn:aws:sns:eu-central-1:694552987607:staging-matamax-presales \
 # --action-name Subscribe ListSubscriptionsByTopic --profile prod-metamax
+
 
 
 

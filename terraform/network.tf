@@ -54,26 +54,11 @@ resource "aws_route" "internet_access" {
 ## outbound ip for bank intergation
 data "aws_eip" "bank_integration_outbound" {
   filter {
-    name = "tag:Name"
-
+    name   = "tag:Name"
     values = [local.bank_integration_outbound_name[terraform.workspace]]
   }
 }
 
-# #NAT
-# resource "aws_nat_gateway" "aws_natgw" {
-#   allocation_id = data.aws_eip.elastic_ip.id
-#   subnet_id     = element(aws_subnet.public.*.id, 0)
-#   depends_on = [
-#     aws_internet_gateway.igw
-#   ]
-
-#   tags = {
-#     Name        = "${local.environments[terraform.workspace]}-load-balancer"
-#     NameSpace   = "${var.namespace}"
-#     Environment = "${local.environments[terraform.workspace]}"
-#   }
-# }
 
 # Back-end services need to access to internet, This is 
 # just outbound traffic. 
@@ -104,27 +89,6 @@ resource "aws_nat_gateway" "bank_integration_natgw" {
     Name        = "${local.environments[terraform.workspace]}-bank-integration"
     NameSpace   = "${var.namespace}"
     Environment = "${local.environments[terraform.workspace]}"
-  }
-}
-
-
-# PRIVATE SUBNET
-resource "aws_subnet" "backend" {
-  count                   = length(local.availability_zones[terraform.workspace])
-  availability_zone       = local.availability_zones[terraform.workspace][count.index]
-  cidr_block              = cidrsubnet(aws_vpc.aws_vpc.cidr_block, 6, count.index + 3)
-  vpc_id                  = aws_vpc.aws_vpc.id
-  map_public_ip_on_launch = true
-
-
-  tags = {
-    Name        = "${local.environments[terraform.workspace]}-${var.namespace}-backend"
-    NameSpace   = "${var.namespace}"
-    Environment = "${local.environments[terraform.workspace]}"
-  }
-
-  lifecycle {
-    create_before_destroy = true
   }
 }
 
@@ -241,12 +205,6 @@ resource "aws_subnet" "db" {
   }
 }
 
-#================ Route Table Association for Private
-# resource "aws_route_table_association" "backend" {
-#   count          = length(local.availability_zones[terraform.workspace])
-#   subnet_id      = element(aws_subnet.backend.*.id, count.index)
-#   route_table_id = element(aws_route_table.backend.*.id, count.index)
-# }
 
 # ================ Route Table Association for Bank Integration Subnet
 resource "aws_route_table_association" "bank_integration" {
@@ -255,24 +213,73 @@ resource "aws_route_table_association" "bank_integration" {
   route_table_id = element(aws_route_table.bank_integration.*.id, count.index)
 }
 
-# Create a new route table for the private subnets.
-# resource "aws_route_table" "backend" {
-#   vpc_id = aws_vpc.aws_vpc.id
-#   route {
-#     cidr_block     = "0.0.0.0/0"
-#     nat_gateway_id = aws_nat_gateway.backend_natgw.id
-#   }
 
-#   tags = {
-#     Name        = "${local.environments[terraform.workspace]}-${var.namespace}-backend"
-#     NameSpace   = "${var.namespace}"
-#     Environment = "${local.environments[terraform.workspace]}"
-#   }
 
-#   lifecycle {
-#     create_before_destroy = true
-#   }
-# }
+# This is default static ip for outbounded traffics
+data "aws_eip" "default" {
+  filter {
+    name   = "tag:Name"
+    values = ["default-outbound"]
+  }
+}
+
+#NAT
+resource "aws_nat_gateway" "default" {
+  allocation_id = data.aws_eip.default.id
+  subnet_id     = element(aws_subnet.public.*.id, 0)
+  depends_on = [
+    aws_internet_gateway.igw
+  ]
+
+  tags = {
+    Name        = "${local.environments[terraform.workspace]}-default"
+    NameSpace   = "${var.namespace}"
+    Environment = "${local.environments[terraform.workspace]}"
+  }
+}
+
+# Create a new route table for the private subnets
+resource "aws_route_table" "backend" {
+  vpc_id = aws_vpc.aws_vpc.id
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.default.id
+  }
+
+  tags = {
+    Name        = "${local.environments[terraform.workspace]}-${var.namespace}-backend"
+    NameSpace   = "${var.namespace}"
+    Environment = "${local.environments[terraform.workspace]}"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# PRIVATE SUBNET
+resource "aws_subnet" "backend" {
+  count             = length(local.availability_zones[terraform.workspace])
+  availability_zone = local.availability_zones[terraform.workspace][count.index]
+  cidr_block        = cidrsubnet(aws_vpc.aws_vpc.cidr_block, 6, count.index + 3)
+  vpc_id            = aws_vpc.aws_vpc.id
+
+  tags = {
+    Name        = "${local.environments[terraform.workspace]}-${var.namespace}-backend"
+    NameSpace   = "${var.namespace}"
+    Environment = "${local.environments[terraform.workspace]}"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+# ================ Route Table Association for Private
+resource "aws_route_table_association" "backend" {
+  count          = length(local.availability_zones[terraform.workspace])
+  subnet_id      = element(aws_subnet.backend.*.id, count.index)
+  route_table_id = element(aws_route_table.backend.*.id, count.index)
+}
 
 
 # Create a new route table for the private subnets.

@@ -1,14 +1,11 @@
 
-
-
-
 resource "aws_api_gateway_rest_api" "bank_integration" {
   name        = "bank-integration"
   description = "This is API endpoint to serve bank integration rest services"
 
   endpoint_configuration {
     types            = ["PRIVATE"]
-    vpc_endpoint_ids = [aws_vpc_endpoint.api_gateway.id]
+    vpc_endpoint_ids = [module.metamax.aws_vpc_endpoint]
   }
 
 

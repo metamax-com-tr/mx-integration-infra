@@ -1,33 +1,33 @@
-resource "aws_vpc_endpoint" "api_gateway" {
-  vpc_id            = aws_vpc.aws_vpc.id
-  service_name      = "com.amazonaws.${var.aws_region}.execute-api"
-  vpc_endpoint_type = "Interface"
+# resource "aws_vpc_endpoint" "api_gateway" {
+#   vpc_id            = aws_vpc.aws_vpc.id
+#   service_name      = "com.amazonaws.${var.aws_region}.execute-api"
+#   vpc_endpoint_type = "Interface"
 
-  security_group_ids = [
-    aws_security_group.api_gateway_end_point.id,
-  ]
+#   security_group_ids = [
+#     aws_security_group.api_gateway_end_point.id,
+#   ]
 
-  private_dns_enabled = true
-  ip_address_type     = "ipv4"
-  subnet_ids          = [for subnet in aws_subnet.backend : subnet.id]
+#   private_dns_enabled = true
+#   ip_address_type     = "ipv4"
+#   subnet_ids          = [for subnet in aws_subnet.backend : subnet.id]
 
-  policy = jsonencode({
-    "Statement" : [
-      {
-        "Action" : "*",
-        "Effect" : "Allow",
-        "Principal" : "*",
-        "Resource" : "*"
-      }
-  ] })
+#   policy = jsonencode({
+#     "Statement" : [
+#       {
+#         "Action" : "*",
+#         "Effect" : "Allow",
+#         "Principal" : "*",
+#         "Resource" : "*"
+#       }
+#   ] })
 
-  tags = {
-    NameSpace   = "Bank Integration Gateway"
-    Environment = "${local.environments[terraform.workspace]}"
-    Name        = "Internal Api Gateway For Access testing"
-  }
+#   tags = {
+#     NameSpace   = "Bank Integration Gateway"
+#     Environment = "${local.environments[terraform.workspace]}"
+#     Name        = "Internal Api Gateway For Access testing"
+#   }
 
-}
+# }
 
 # For API Gateway VPC Endpoint
 resource "aws_security_group" "api_gateway_end_point" {

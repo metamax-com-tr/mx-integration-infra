@@ -43,33 +43,25 @@ resource "aws_security_group" "bank_statements" {
 
 }
 
+resource "aws_security_group" "accounting_integration_processor" {
+  name        = "accounting_integration_processor"
+  description = "Account integration security"
+  vpc_id      = aws_vpc.aws_vpc.id
 
-# resource "aws_security_group" "lambda" {
-#   name        = "lambda_vpc_security-${local.environments[terraform.workspace]}-${var.namespace}"
-#   description = "allow inbound access to rds from ecs cluster"
-#   vpc_id      = aws_vpc.aws_vpc.id
 
-#   ingress {
-#     description     = "tcp"
-#     from_port       = 0
-#     to_port         = 65535
-#     protocol        = "tcp"
-#     security_groups = [aws_security_group.lb.id]
-#   }
+  egress {
+    from_port        = 0
+    to_port          = 65535
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
 
-#   egress {
-#     from_port        = 0
-#     to_port          = 65535
-#     protocol         = "tcp"
-#     cidr_blocks      = ["0.0.0.0/0"]
-#     ipv6_cidr_blocks = ["::/0"]
-#   }
+  lifecycle {
+    create_before_destroy = true
+  }
+}
 
-#   lifecycle {
-#     create_before_destroy = true
-#   }
-
-# }
 
 
 resource "aws_security_group" "memory_db_for_redis" {
@@ -83,6 +75,18 @@ resource "aws_security_group" "memory_db_for_redis" {
     to_port     = 6379
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    cidr_blocks      = []
+    description      = "This is for accessing form ubuntu-2204 EC2"
+    from_port        = 0
+    to_port          = 0
+    ipv6_cidr_blocks = []
+    prefix_list_ids  = []
+    protocol         = "tcp"
+    security_groups  = local.memorydb_types[terraform.workspace].allow_acces_from_sg
+    self             = false
   }
 
   egress {

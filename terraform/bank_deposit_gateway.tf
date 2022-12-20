@@ -52,7 +52,7 @@ resource "aws_lambda_function" "bank_statement_handler" {
       # The problem is not resolved!
       QUARKUS_REDIS_TLS_ENABLED         = false
       QUARKUS_REDIS_TLS_TRUST_ALL       = false
-      APPLICATION_REPOSITORY_AUTOCREATE = "true"
+      APPLICATION_REPOSITORY_AUTOCREATE = false
       # https://quarkus.io/guides/all-config#quarkus-vertx_quarkus.vertx.warning-exception-time
       QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME = "5s"
       APPLICATION_BANK_DEPOSIT_QUEUE_URL        = "${aws_sqs_queue.bank_integration_deposits.url}"

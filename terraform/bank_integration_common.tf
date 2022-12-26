@@ -178,3 +178,42 @@ resource "aws_sqs_queue" "bank_withdrawal_results_deadletter" {
     Environment = "${local.environments[terraform.workspace]}"
   }
 }
+
+
+# https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_CreateQueue.html#API_CreateQueue_RequestParameters
+resource "aws_sqs_queue" "bank_integration_bank_withdrawal_checkstatus" {
+  name       = "bank-integration-bank-withdrawal-checkstatus"
+  fifo_queue = false
+  redrive_policy = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.bank_integration_bank_withdrawal_checkstatus_deadletter.arn
+    maxReceiveCount     = 5
+  })
+  # 12 hours
+  visibility_timeout_seconds = 30
+  receive_wait_time_seconds  = 0
+
+  # 6 hours
+  message_retention_seconds = 60*10
+
+  tags = {
+    NameSpace   = "bank-withdrawal"
+    Environment = "${local.environments[terraform.workspace]}"
+  }
+
+  depends_on = [
+    aws_sqs_queue.bank_integration_bank_withdrawal_checkstatus_deadletter
+  ]
+}
+
+resource "aws_sqs_queue" "bank_integration_bank_withdrawal_checkstatus_deadletter" {
+  name       = "bank-integration-bank-withdrawal-checkstatus-deadletter"
+  fifo_queue = false
+
+  # 14 days
+  message_retention_seconds = 1209600
+
+  tags = {
+    NameSpace   = "bank-withdrawal"
+    Environment = "${local.environments[terraform.workspace]}"
+  }
+}

@@ -95,14 +95,15 @@ resource "aws_lambda_function" "ziraatbank_withdraw_client" {
       QUARKUS_LAMBDA_HANDLER                                              = "ziraatbank-withdraw-client"
       APPLICATION_LOG_CATAGORY_ORG_JBOSS_RESTEASY_REACTIVE_CLIENT_LOGGING = "ERROR",
       # https://quarkus.io/guides/all-config#quarkus-vertx_quarkus.vertx.warning-exception-time
-      QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME      = "5s"
-      APPLICATION_BANK_WITHDRAWAL_RESULTQUEUE_URL    = "${aws_sqs_queue.bank_withdrawal_results.url}"
-      QUARKUS_REST_CLIENT_METAMAX_CLIENT_URL         = "https://api.${local.metamax_gateway_host[terraform.workspace]}"
-      APPLICATION_BANK_ZIRAAT_TRANSFERSTARTTIME      = "08:35"
-      APPLICATION_BANK_ZIRAAT_TRANSFERENDTIME        = "16:25"
-      APPLICATION_BANK_ZIRAAT_FASTLIMIT              = "5000"
-      APPLICATION_BANK_ZIRAAT_MAXTRANSFERLIMIT       = "50000"
-      QUARKUS_REST_CLIENT_ZIRAAT_WITHDRAW_CLIENT_URL = "https://odm.ziraatbank.com.tr:12178/NKYParaTransferiWS/NKYParaTransferiWS.asmx?wsdl"
+      QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME        = "5s"
+      APPLICATION_BANK_WITHDRAWAL_RESULTQUEUE_URL      = "${aws_sqs_queue.bank_withdrawal_results.url}"
+      APPLICATION_BANK_WITHDRAWAL_CHECKSTATUSQUEUE_URL = "${aws_sqs_queue.bank_integration_bank_withdrawal_checkstatus.url}"
+      QUARKUS_REST_CLIENT_METAMAX_CLIENT_URL           = "https://api.${local.metamax_gateway_host[terraform.workspace]}"
+      APPLICATION_BANK_ZIRAAT_TRANSFER_START_TIME      = "08:35"
+      APPLICATION_BANK_ZIRAAT_TRANSFER_END_TIME        = "16:25"
+      APPLICATION_BANK_ZIRAAT_FAST_LIMIT               = "5000"
+      APPLICATION_BANK_ZIRAAT_MAX_TRANSFER_LIMIT       = "50000"
+      QUARKUS_REST_CLIENT_ZIRAAT_WITHDRAW_CLIENT_URL   = "https://odm.ziraatbank.com.tr:12178/NKYParaTransferiWS/NKYParaTransferiWS.asmx?wsdl"
 
       QUARKUS_REST_CLIENT_CONNECT_TIMEOUT = 5000
       QUARKUS_REST_CLIENT_READ_TIMEOUT    = 10000
@@ -161,7 +162,7 @@ resource "aws_iam_policy" "ziraatbank_withdraw_client_sqs_read" {
   policy = <<EOF
 {
   "Version": "2012-10-17",
-  "Statement": [   
+  "Statement": [
     {
       "Sid": "",
       "Effect": "Allow",
@@ -182,6 +183,35 @@ EOF
 resource "aws_iam_role_policy_attachment" "ziraatbank_withdraw_client_sqs_read" {
   role       = aws_iam_role.ziraatbank_withdraw_client.name
   policy_arn = aws_iam_policy.ziraatbank_withdraw_client_sqs_read.arn
+}
+
+resource "aws_iam_policy" "ziraatbank_withdraw_client_sqs_write" {
+  name        = "${local.environments[terraform.workspace]}-${var.namespace}-ziraatbank-withdraw-client-sqs-write"
+  description = "Ziraat Bank Withdraw Client must to have write access from SQS"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Action": [
+        "sqs:SendMessage"
+      ],
+      "Resource": [
+        "${aws_sqs_queue.bank_integration_bank_withdrawal_checkstatus.arn}",
+        "${aws_sqs_queue.bank_withdrawal_results.arn}"
+      ]
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "ziraatbank_withdraw_client_sqs_write" {
+  role       = aws_iam_role.ziraatbank_withdraw_client.name
+  policy_arn = aws_iam_policy.ziraatbank_withdraw_client_sqs_write.arn
 }
 
 resource "aws_iam_policy" "ziraatbank_withdraw_client_dynamodb" {
@@ -354,10 +384,10 @@ resource "aws_lambda_function" "ziraatbank_withdrawal_result_client" {
 
       APPLICATION_BANK_WITHDRAWAL_RESULTQUEUE_URL      = "${aws_sqs_queue.bank_withdrawal_results.url}"
       APPLICATION_BANK_WITHDRAWAL_CHECKSTATUSQUEUE_URL = "${aws_sqs_queue.bank_integration_bank_withdrawal_checkstatus.url}"
-      APPLICATION_BANK_ZIRAAT_TRANSFERSTARTTIME        = "08:35"
-      APPLICATION_BANK_ZIRAAT_TRANSFERENDTIME          = "16:25"
-      APPLICATION_BANK_ZIRAAT_FASTLIMIT                = "5000"
-      APPLICATION_BANK_ZIRAAT_MAXTRANSFERLIMIT         = "50000"
+      APPLICATION_BANK_ZIRAAT_TRANSFER_START_TIME      = "08:35"
+      APPLICATION_BANK_ZIRAAT_TRANSFER_END_TIME        = "16:25"
+      APPLICATION_BANK_ZIRAAT_FAST_LIMIT               = "5000"
+      APPLICATION_BANK_ZIRAAT_MAX_TRANSFER_LIMIT       = "50000"
       APPLICATION_REPOSITORY_AUTOCREATE                = false
     }
   }
@@ -408,7 +438,7 @@ resource "aws_iam_policy" "ziraatbank_withdrawal_result_client_sqs_write" {
   policy = <<EOF
 {
   "Version": "2012-10-17",
-  "Statement": [   
+  "Statement": [
     {
       "Sid": "",
       "Effect": "Allow",
@@ -436,7 +466,7 @@ resource "aws_iam_policy" "ziraatbank_withdrawal_result_client_sqs_read" {
   policy = <<EOF
 {
   "Version": "2012-10-17",
-  "Statement": [   
+  "Statement": [
     {
       "Sid": "",
       "Effect": "Allow",
@@ -638,12 +668,13 @@ resource "aws_lambda_function" "metamax_withdrawResult_client" {
       QUARKUS_REST_CLIENT_CONNECT_TIMEOUT       = 5000
       QUARKUS_REST_CLIENT_READ_TIMEOUT          = 10000
 
-      APPLICATION_BANK_WITHDRAWAL_RESULTQUEUE_URL = "${aws_sqs_queue.bank_withdrawal_results.url}"
-      APPLICATION_BANK_ZIRAAT_TRANSFERSTARTTIME   = "08:35"
-      APPLICATION_BANK_ZIRAAT_TRANSFERENDTIME     = "16:25"
-      APPLICATION_BANK_ZIRAAT_FASTLIMIT           = "5000"
-      APPLICATION_BANK_ZIRAAT_MAXTRANSFERLIMIT    = "50000"
-      APPLICATION_REPOSITORY_AUTOCREATE           = false
+      APPLICATION_BANK_WITHDRAWAL_RESULTQUEUE_URL      = "${aws_sqs_queue.bank_withdrawal_results.url}"
+      APPLICATION_BANK_WITHDRAWAL_CHECKSTATUSQUEUE_URL = "${aws_sqs_queue.bank_integration_bank_withdrawal_checkstatus.url}"
+      APPLICATION_BANK_ZIRAAT_TRANSFER_START_TIME      = "08:35"
+      APPLICATION_BANK_ZIRAAT_TRANSFER_END_TIME        = "16:25"
+      APPLICATION_BANK_ZIRAAT_FAST_LIMIT               = "5000"
+      APPLICATION_BANK_ZIRAAT_MAX_TRANSFER_LIMIT       = "50000"
+      APPLICATION_REPOSITORY_AUTOCREATE                = false
     }
   }
 

@@ -193,7 +193,7 @@ resource "aws_sqs_queue" "bank_integration_bank_withdrawal_checkstatus" {
   receive_wait_time_seconds  = 0
 
   # 6 hours
-  message_retention_seconds = 60*10
+  message_retention_seconds = 60 * 10
 
   tags = {
     NameSpace   = "bank-withdrawal"

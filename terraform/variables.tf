@@ -187,7 +187,7 @@ locals {
       node_type                = "db.t4g.medium"
       num_shards               = 1
       num_replicas_per_shard   = 1
-      allow_acces_from_sg      = [
+      allow_acces_from_sg = [
         "sg-0d42458967c8eeff0"
       ]
     }

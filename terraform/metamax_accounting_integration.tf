@@ -253,6 +253,9 @@ resource "aws_iam_role_policy_attachment" "accounting_integration_processor_sqs"
 # - arn:aws:sns:eu-central-1:694552987607:staging-matamax-bank-statements
 # - arn:aws:sns:eu-central-1:694552987607:staging-matamax-bank-withdrawals
 # - arn:aws:sns:eu-central-1:694552987607:staging-matamax-presales
+# - arn:aws:sns:eu-central-1:694552987607:staging-matamax-presale-cancels
+# - arn:aws:sns:eu-central-1:694552987607:staging-matamax-fills
+
 
 
 #
@@ -269,6 +272,14 @@ resource "aws_iam_role_policy_attachment" "accounting_integration_processor_sqs"
 
 # aws sns add-permission --label lambda-access --aws-account-id 639300795004 \
 # --topic-arn arn:aws:sns:eu-central-1:694552987607:staging-matamax-presales \
+# --action-name Subscribe ListSubscriptionsByTopic --profile prod-metamax
+
+# aws sns add-permission --label lambda-access --aws-account-id 639300795004 \
+# --topic-arn arn:aws:sns:eu-central-1:694552987607:staging-matamax-fills \
+# --action-name Subscribe ListSubscriptionsByTopic --profile prod-metamax
+
+# aws sns add-permission --label lambda-access --aws-account-id 639300795004 \
+# --topic-arn arn:aws:sns:eu-central-1:694552987607:staging-matamax-presale-cancels \
 # --action-name Subscribe ListSubscriptionsByTopic --profile prod-metamax
 
 
@@ -293,6 +304,16 @@ resource "aws_iam_role_policy_attachment" "accounting_integration_processor_sqs"
 # --statement-id staging-matamax-presales --action "lambda:InvokeFunction" \
 # --principal sns.amazonaws.com --profile metamax-dev-terraform-ci
 
+# aws lambda add-permission --function-name  accounting-integration-processor \
+# --source-arn arn:aws:sns:eu-central-1:694552987607:staging-matamax-fills \
+# --statement-id staging-matamax-fills --action "lambda:InvokeFunction" \
+# --principal sns.amazonaws.com --profile metamax-dev-terraform-ci
+
+# aws lambda add-permission --function-name  accounting-integration-processor \
+# --source-arn arn:aws:sns:eu-central-1:694552987607:staging-matamax-presale-cancels \
+# --statement-id staging-matamax-presale-cancels  --action "lambda:InvokeFunction" \
+# --principal sns.amazonaws.com --profile metamax-dev-terraform-ci
+
 
 # aws sns subscribe --protocol lambda \
 # --topic-arn arn:aws:sns:eu-central-1:694552987607:staging-matamax-bank-statements \
@@ -309,4 +330,12 @@ resource "aws_iam_role_policy_attachment" "accounting_integration_processor_sqs"
 # --notification-endpoint arn:aws:lambda:eu-central-1:639300795004:function:accounting-integration-processor \
 # --profile metamax-dev-terraform-ci
 
+# aws sns subscribe --protocol lambda \
+# --topic-arn arn:aws:sns:eu-central-1:694552987607:staging-matamax-fills \
+# --notification-endpoint arn:aws:lambda:eu-central-1:639300795004:function:accounting-integration-processor \
+# --profile metamax-dev-terraform-ci
 
+# aws sns subscribe --protocol lambda \
+# --topic-arn arn:aws:sns:eu-central-1:694552987607:staging-matamax-presale-cancels \
+# --notification-endpoint arn:aws:lambda:eu-central-1:639300795004:function:accounting-integration-processor \
+# --profile metamax-dev-terraform-ci

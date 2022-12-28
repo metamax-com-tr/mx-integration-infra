@@ -187,7 +187,9 @@ locals {
       node_type                = "db.t4g.medium"
       num_shards               = 1
       num_replicas_per_shard   = 1
-      allow_acces_from_sg      = []
+      allow_acces_from_sg = [
+        "sg-0d42458967c8eeff0"
+      ]
     }
   }
 
@@ -261,12 +263,9 @@ locals {
 
   metamax_banckend_subnets = {
     default     = ["10.0.5.0/24", "10.0.4.0/24"]
-    development = ["10.0.5.0/24", "10.0.4.0/24"]
-    testing     = ["10.0.5.0/24", "10.0.4.0/24"]
-    production = [
-      "11.0.1.128/25", "11.0.2.128/25", "11.0.2.0/25",
-      "10.0.3.0/24", "10.0.5.0/24", "10.0.4.0/24"
-    ]
+    development = ["10.0.5.0/24", "10.0.4.0/24", "10.0.3.0/24"]
+    testing     = ["10.0.5.0/24", "10.0.4.0/24", "10.0.3.0/24"]
+    production  = ["10.0.3.0/24", "10.0.5.0/24", "10.0.4.0/24"]
   }
 
   # We dont manage VPC Endpoints by terraform !

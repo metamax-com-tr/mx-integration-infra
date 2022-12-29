@@ -29,7 +29,7 @@ EOF
 
 resource "aws_lambda_function" "accounting_integration_processor" {
   s3_bucket     = local.lambda_artifact_bucket[terraform.workspace]
-  s3_key        = local.ziraatbank_statements_client_default_artifact[terraform.workspace]
+  s3_key        = local.metamax_accounting_integration_default_artifact[terraform.workspace]
   function_name = "accounting-integration-processor"
   role          = aws_iam_role.accounting_integration_processor.arn
   handler       = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"

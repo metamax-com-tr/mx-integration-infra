@@ -108,7 +108,15 @@ locals {
     development = "metamax-integrations-bank-deposits-ziraatbank-statements-client/ziraatbank-statements-client-v0.0.39.development.zip"
     testing     = "metamax-integrations-bank-deposits-ziraatbank-statements-client/ziraatbank-statements-client-v0.0.39.development.zip"
     production  = "metamax-integrations-bank-deposits-ziraatbank-statements-client/ziraatbank-statements-client-v0.0.0.production.zip"
+  
+
+  metamax_accounting_integration_default_artifact = {
+    default     = "metamax-integrations-accounting-metamax-accounting-integration/metamax-accounting-integration-production-da304494.zip"
+    development = "metamax-integrations-accounting-metamax-accounting-integration/metamax-accounting-integration-production-da304494.zip"
+    testing     = "metamax-integrations-accounting-metamax-accounting-integration/metamax-accounting-integration-production-da304494.zip"
+    production  = "metamax-integrations-accounting-metamax-accounting-integration/metamax-accounting-integration-production-da304494.zip"
   }
+
 
   lambda_withdrawal_functions_profil = {
     default = {

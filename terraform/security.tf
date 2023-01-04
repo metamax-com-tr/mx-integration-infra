@@ -23,6 +23,42 @@ resource "aws_security_group" "vakifbank_statements_client" {
 
 
 # Traffic to ECS cluster only comes from the ALB
+resource "aws_security_group" "resend_deposit_uncertain_result_handler" {
+  name        = "resend_deposit_uncertain_result_handler"
+  description = "allow inbound access from ALB only"
+  vpc_id      = aws_vpc.aws_vpc.id
+
+  egress {
+    from_port        = 443
+    to_port          = 443
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+}
+
+# Traffic to ECS cluster only comes from the ALB
+resource "aws_security_group" "metamax_deposit_client" {
+  name        = "metamax_deposit_client"
+  description = "allow inbound access from ALB only"
+  vpc_id      = aws_vpc.aws_vpc.id
+
+
+  egress  = local.aws_security_group_metamax_deposit_client[terraform.workspace].egress
+  ingress = local.aws_security_group_metamax_deposit_client[terraform.workspace].ingress
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# Traffic to ECS cluster only comes from the ALB
 resource "aws_security_group" "bank_statements" {
   name        = "All_bank_statements_statements_client"
   description = "allow inbound access from ALB only"
@@ -35,7 +71,6 @@ resource "aws_security_group" "bank_statements" {
   lifecycle {
     create_before_destroy = true
   }
-
 }
 
 resource "aws_security_group" "accounting_integration_processor" {

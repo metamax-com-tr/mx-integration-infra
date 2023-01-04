@@ -231,6 +231,58 @@ locals {
   }
 
 
+  aws_security_group_metamax_deposit_client = {
+
+    default = {
+      egress  = []
+      ingress = []
+    }
+
+    development = {
+      egress = [
+        {
+          cidr_blocks = [
+            "0.0.0.0/0"
+          ]
+          description      = "Only HTTPS"
+          from_port        = 443
+          ipv6_cidr_blocks = []
+          prefix_list_ids  = []
+          protocol         = "tcp"
+          security_groups  = []
+          self             = false
+          to_port          = 443
+        }
+      ]
+      ingress = []
+    }
+
+    testing = {
+      egress  = []
+      ingress = []
+    }
+
+    production = {
+      egress = [
+        {
+          cidr_blocks = [
+            "0.0.0.0/0"
+          ]
+          description      = "Only HTTPS"
+          from_port        = 443
+          ipv6_cidr_blocks = []
+          prefix_list_ids  = []
+          protocol         = "tcp"
+          security_groups  = []
+          self             = false
+          to_port          = 443
+        }
+      ]
+      ingress = []
+    }
+  }
+
+
   bank_integration_outbound_name = {
     default     = "not-set"
     development = "bank-integration-outbound-2"

@@ -110,7 +110,7 @@ resource "aws_lambda_function" "metamax_deposit_client" {
   }
 
   vpc_config {
-    security_group_ids = [aws_security_group.bank_statements.id]
+    security_group_ids = [aws_security_group.metamax_deposit_client.id]
     subnet_ids         = aws_subnet.bank_integration.*.id
   }
 

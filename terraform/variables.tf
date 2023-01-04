@@ -141,6 +141,89 @@ locals {
     }
   }
 
+  aws_security_group_accounting_integration_processor = {
+
+    default = {
+      egress = [
+        {
+          cidr_blocks = [
+            "85.111.1.49/32",
+          ]
+          description      = "Luca Test Server"
+          from_port        = 57007
+          ipv6_cidr_blocks = []
+          prefix_list_ids  = []
+          protocol         = "tcp"
+          security_groups  = []
+          self             = false
+          to_port          = 57007
+        }
+      ]
+      ingress = []
+    }
+
+    development = {
+      egress = [
+        {
+          cidr_blocks = [
+            "85.111.1.49/32",
+          ]
+          description      = "Luca Test Server"
+          from_port        = 57007
+          ipv6_cidr_blocks = []
+          prefix_list_ids  = []
+          protocol         = "tcp"
+          security_groups  = []
+          self             = false
+          to_port          = 57007
+        }
+      ]
+      ingress = []
+    }
+
+    testing = {
+      egress = [
+        {
+          cidr_blocks = [
+            "85.111.1.49/32",
+          ]
+          description      = "Luca Test Server"
+          from_port        = 57007
+          ipv6_cidr_blocks = []
+          prefix_list_ids  = []
+          protocol         = "tcp"
+          security_groups  = []
+          self             = false
+          to_port          = 57007
+        }
+      ]
+      ingress = []
+    }
+
+    production = {
+      egress = [
+        {
+          cidr_blocks = [
+            "85.111.1.49/32",
+          ]
+          description      = "Luca Test Server"
+          from_port        = 57007
+          ipv6_cidr_blocks = []
+          prefix_list_ids  = []
+          protocol         = "tcp"
+          security_groups  = []
+          self             = false
+          to_port          = 57007
+        }
+      ]
+      ingress = []
+    }
+  }
+
+
+
+
+
 
   bank_integration_outbound_name = {
     default     = "not-set"

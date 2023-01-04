@@ -48,14 +48,8 @@ resource "aws_security_group" "accounting_integration_processor" {
   description = "Account integration security"
   vpc_id      = aws_vpc.aws_vpc.id
 
-
-  egress {
-    from_port        = 0
-    to_port          = 65535
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
+  egress  = local.aws_security_group_accounting_integration_processor[terraform.workspace].egress
+  ingress = local.aws_security_group_accounting_integration_processor[terraform.workspace].ingress
 
   lifecycle {
     create_before_destroy = true

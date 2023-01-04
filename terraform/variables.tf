@@ -144,21 +144,7 @@ locals {
   aws_security_group_accounting_integration_processor = {
 
     default = {
-      egress = [
-        {
-          cidr_blocks = [
-            "85.111.1.49/32",
-          ]
-          description      = "Luca Test Server"
-          from_port        = 57007
-          ipv6_cidr_blocks = []
-          prefix_list_ids  = []
-          protocol         = "tcp"
-          security_groups  = []
-          self             = false
-          to_port          = 57007
-        }
-      ]
+      egress  = []
       ingress = []
     }
 
@@ -182,21 +168,45 @@ locals {
     }
 
     testing = {
+      egress  = []
+      ingress = []
+    }
+
+    production = {
+      egress  = []
+      ingress = []
+    }
+  }
+
+
+  aws_security_group_bank_statements = {
+
+    default = {
+      egress  = []
+      ingress = []
+    }
+
+    development = {
       egress = [
         {
           cidr_blocks = [
-            "85.111.1.49/32",
+            "195.177.206.43/32",
           ]
-          description      = "Luca Test Server"
-          from_port        = 57007
+          description      = "Ziraat Bank API Server IP"
+          from_port        = 443
           ipv6_cidr_blocks = []
           prefix_list_ids  = []
           protocol         = "tcp"
           security_groups  = []
           self             = false
-          to_port          = 57007
+          to_port          = 443
         }
       ]
+      ingress = []
+    }
+
+    testing = {
+      egress  = []
       ingress = []
     }
 
@@ -204,25 +214,21 @@ locals {
       egress = [
         {
           cidr_blocks = [
-            "85.111.1.49/32",
+            "195.177.206.43/32",
           ]
-          description      = "Luca Test Server"
-          from_port        = 57007
+          description      = "Ziraat Bank API Server IP"
+          from_port        = 443
           ipv6_cidr_blocks = []
           prefix_list_ids  = []
           protocol         = "tcp"
           security_groups  = []
           self             = false
-          to_port          = 57007
+          to_port          = 443
         }
       ]
       ingress = []
     }
   }
-
-
-
-
 
 
   bank_integration_outbound_name = {

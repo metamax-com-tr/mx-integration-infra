@@ -29,13 +29,8 @@ resource "aws_security_group" "bank_statements" {
   vpc_id      = aws_vpc.aws_vpc.id
 
 
-  egress {
-    from_port        = 0
-    to_port          = 65535
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
+  egress  = local.aws_security_group_bank_statements[terraform.workspace].egress
+  ingress = local.aws_security_group_bank_statements[terraform.workspace].ingress
 
   lifecycle {
     create_before_destroy = true
@@ -63,13 +58,6 @@ resource "aws_security_group" "memory_db_for_redis" {
   description = "allow inbound access to redis from VPC"
   vpc_id      = aws_vpc.aws_vpc.id
 
-  ingress {
-    description = "redis access from within VPC"
-    from_port   = 6379
-    to_port     = 6379
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
 
   ingress {
     cidr_blocks      = []
@@ -80,6 +68,18 @@ resource "aws_security_group" "memory_db_for_redis" {
     prefix_list_ids  = []
     protocol         = "tcp"
     security_groups  = local.memorydb_types[terraform.workspace].allow_acces_from_sg
+    self             = false
+  }
+
+  ingress {
+    cidr_blocks      = []
+    description      = "Ziraat Bank Statements Client Lambda access"
+    from_port        = 0
+    to_port          = 0
+    ipv6_cidr_blocks = []
+    prefix_list_ids  = []
+    protocol         = "tcp"
+    security_groups  = [aws_security_group.bank_statements.id]
     self             = false
   }
 

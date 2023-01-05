@@ -162,6 +162,19 @@ locals {
           security_groups  = []
           self             = false
           to_port          = 57007
+        },
+        {
+          cidr_blocks = [
+            "0.0.0.0/0",
+          ]
+          description      = "Access to AWS DynamoDB"
+          from_port        = 443
+          ipv6_cidr_blocks = []
+          prefix_list_ids  = []
+          protocol         = "tcp"
+          security_groups  = []
+          self             = false
+          to_port          = 443
         }
       ]
       ingress = []
@@ -173,62 +186,91 @@ locals {
     }
 
     production = {
-      egress  = []
+      egress = [
+        {
+          cidr_blocks = [
+            "85.111.1.49/32",
+          ]
+          description      = "Luca Test Server"
+          from_port        = 57007
+          ipv6_cidr_blocks = []
+          prefix_list_ids  = []
+          protocol         = "tcp"
+          security_groups  = []
+          self             = false
+          to_port          = 57007
+        },
+        {
+          cidr_blocks = [
+            "0.0.0.0/0",
+          ]
+          description      = "Access to AWS DynamoDB"
+          from_port        = 443
+          ipv6_cidr_blocks = []
+          prefix_list_ids  = []
+          protocol         = "tcp"
+          security_groups  = []
+          self             = false
+          to_port          = 443
+        }
+      ]
       ingress = []
     }
   }
 
 
-  aws_security_group_bank_statements = {
+  aws_security_group_ziraat_bank_statement_host = {
 
-    default = {
-      egress  = []
-      ingress = []
-    }
+    default = []
 
     development = {
-      egress = [
-        {
-          cidr_blocks = [
-            "195.177.206.43/32",
-          ]
-          description      = "Ziraat Bank API Server IP"
-          from_port        = 443
-          ipv6_cidr_blocks = []
-          prefix_list_ids  = []
-          protocol         = "tcp"
-          security_groups  = []
-          self             = false
-          to_port          = 443
-        }
+      cidr_blocks = [
+        "195.177.206.43/32",
       ]
-      ingress = []
+      port = 443
     }
 
     testing = {
-      egress  = []
-      ingress = []
+      cidr_blocks = [
+        "195.177.206.43/32",
+      ]
+      port = 443
     }
 
     production = {
-      egress = [
-        {
-          cidr_blocks = [
-            "195.177.206.43/32",
-          ]
-          description      = "Ziraat Bank API Server IP"
-          from_port        = 443
-          ipv6_cidr_blocks = []
-          prefix_list_ids  = []
-          protocol         = "tcp"
-          security_groups  = []
-          self             = false
-          to_port          = 443
-        }
+      cidr_blocks = [
+        "195.177.206.43/32",
       ]
-      ingress = []
+      port = 443
     }
   }
+
+
+  aws_security_group_ziraatbank_withdrawal_host = {
+
+    default = []
+    development = {
+      cidr_blocks = [
+        "195.177.206.168/32",
+      ]
+      port = 12178
+    }
+
+    testing = {
+      cidr_blocks = [
+        "195.177.206.168/32",
+      ]
+      port = 12178
+    }
+
+    production = {
+      cidr_blocks = [
+        "195.177.206.168/32",
+      ]
+      port = 12178
+    }
+  }
+
 
 
   aws_security_group_metamax_deposit_client = {

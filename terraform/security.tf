@@ -63,15 +63,120 @@ resource "aws_security_group" "bank_statements" {
   name        = "All_bank_statements_statements_client"
   description = "allow inbound access from ALB only"
   vpc_id      = aws_vpc.aws_vpc.id
-
-
-  egress  = local.aws_security_group_bank_statements[terraform.workspace].egress
-  ingress = local.aws_security_group_bank_statements[terraform.workspace].ingress
-
   lifecycle {
     create_before_destroy = true
   }
 }
+
+resource "aws_security_group_rule" "access_memory_db_for_redis" {
+  type                     = "egress"
+  security_group_id        = aws_security_group.bank_statements.id
+  description              = "Redis Access"
+  from_port                = 6379
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.memory_db_for_redis.id
+  to_port                  = 6379
+}
+
+resource "aws_security_group_rule" "ziraat_bank_statement_access" {
+  type              = "egress"
+  security_group_id = aws_security_group.bank_statements.id
+  cidr_blocks       = local.aws_security_group_ziraat_bank_statement_host[terraform.workspace].cidr_blocks
+  description       = "Ziraat Bank API Server IP"
+  from_port         = local.aws_security_group_ziraat_bank_statement_host[terraform.workspace].port
+  ipv6_cidr_blocks  = []
+  prefix_list_ids   = []
+  protocol          = "tcp"
+  to_port           = local.aws_security_group_ziraat_bank_statement_host[terraform.workspace].port
+}
+
+resource "aws_security_group_rule" "ziraat_bank_statement_aws_service_acccess" {
+  security_group_id = aws_security_group.bank_statements.id
+
+  type = "egress"
+  cidr_blocks = [
+    "0.0.0.0/0",
+  ]
+  description              = "Access to AWS service over the Internet"
+  from_port                = 443
+  ipv6_cidr_blocks         = []
+  prefix_list_ids          = []
+  protocol                 = "tcp"
+  source_security_group_id = null
+  to_port                  = 443
+}
+
+resource "aws_security_group" "ziraatbank_withdraw_client" {
+  name        = "ziraatbank_withdraw_client"
+  description = "allow outbound access to ZiraatBank"
+  vpc_id      = aws_vpc.aws_vpc.id
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_security_group_rule" "ziraatbank_withdrawal_client_access_ziraat_bank" {
+  security_group_id = aws_security_group.ziraatbank_withdraw_client.id
+  type              = "egress"
+  cidr_blocks       = local.aws_security_group_ziraatbank_withdrawal_host[terraform.workspace].cidr_blocks
+  description       = "Access to Ziraat Bank service over the Internet"
+  from_port         = local.aws_security_group_ziraatbank_withdrawal_host[terraform.workspace].port
+  protocol          = "tcp"
+  to_port           = local.aws_security_group_ziraatbank_withdrawal_host[terraform.workspace].port
+}
+
+resource "aws_security_group_rule" "ziraatbank_withdrawal_client_aws_service_acccess" {
+  security_group_id = aws_security_group.ziraatbank_withdraw_client.id
+
+  type = "egress"
+  cidr_blocks = [
+    "0.0.0.0/0",
+  ]
+  description              = "Access to AWS service over the Internet"
+  from_port                = 443
+  ipv6_cidr_blocks         = []
+  prefix_list_ids          = []
+  protocol                 = "tcp"
+  source_security_group_id = null
+  to_port                  = 443
+}
+
+resource "aws_security_group" "ziraatbank_withdrawal_result_client" {
+  name        = "ziraatbank_withdrawal_result_client"
+  description = "allow outbound access to ZiraatBank"
+  vpc_id      = aws_vpc.aws_vpc.id
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_security_group_rule" "ziraatbank_withdrawal_result_client_access_ziraat_bank" {
+  security_group_id = aws_security_group.ziraatbank_withdrawal_result_client.id
+  type              = "egress"
+  cidr_blocks       = local.aws_security_group_ziraatbank_withdrawal_host[terraform.workspace].cidr_blocks
+  description       = "Access to Ziraat Bank service over the Internet"
+  from_port         = local.aws_security_group_ziraatbank_withdrawal_host[terraform.workspace].port
+  protocol          = "tcp"
+  to_port           = local.aws_security_group_ziraatbank_withdrawal_host[terraform.workspace].port
+}
+
+
+resource "aws_security_group_rule" "ziraatbank_withdrawal_result_client_aws_service_acccess" {
+  security_group_id = aws_security_group.ziraatbank_withdrawal_result_client.id
+
+  type = "egress"
+  cidr_blocks = [
+    "0.0.0.0/0",
+  ]
+  description              = "Access to AWS service over the Internet"
+  from_port                = 443
+  ipv6_cidr_blocks         = []
+  prefix_list_ids          = []
+  protocol                 = "tcp"
+  source_security_group_id = null
+  to_port                  = 443
+}
+
 
 resource "aws_security_group" "accounting_integration_processor" {
   name        = "accounting_integration_processor"
@@ -97,8 +202,8 @@ resource "aws_security_group" "memory_db_for_redis" {
   ingress {
     cidr_blocks      = []
     description      = "This is for accessing form ubuntu-2204 EC2"
-    from_port        = 0
-    to_port          = 0
+    from_port        = 6379
+    to_port          = 6379
     ipv6_cidr_blocks = []
     prefix_list_ids  = []
     protocol         = "tcp"
@@ -109,8 +214,8 @@ resource "aws_security_group" "memory_db_for_redis" {
   ingress {
     cidr_blocks      = []
     description      = "Ziraat Bank Statements Client Lambda access"
-    from_port        = 0
-    to_port          = 0
+    from_port        = 6379
+    to_port          = 6379
     ipv6_cidr_blocks = []
     prefix_list_ids  = []
     protocol         = "tcp"

@@ -112,7 +112,7 @@ resource "aws_lambda_function" "ziraatbank_withdraw_client" {
   }
 
   vpc_config {
-    security_group_ids = [aws_security_group.bank_statements.id]
+    security_group_ids = [aws_security_group.ziraatbank_withdraw_client.id]
     subnet_ids         = aws_subnet.bank_integration.*.id
   }
 
@@ -393,7 +393,7 @@ resource "aws_lambda_function" "ziraatbank_withdrawal_result_client" {
   }
 
   vpc_config {
-    security_group_ids = [aws_security_group.bank_statements.id]
+    security_group_ids = [aws_security_group.ziraatbank_withdrawal_result_client.id]
     subnet_ids         = aws_subnet.bank_integration.*.id
   }
 

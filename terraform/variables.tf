@@ -218,7 +218,6 @@ locals {
     }
   }
 
-
   aws_security_group_ziraat_bank_statement_host = {
 
     default = []
@@ -245,7 +244,7 @@ locals {
     }
   }
 
-
+  # Ziraat Bank Withdraw Host
   aws_security_group_ziraatbank_withdrawal_host = {
 
     default = []
@@ -270,8 +269,6 @@ locals {
       port = 12178
     }
   }
-
-
 
   aws_security_group_metamax_deposit_client = {
 

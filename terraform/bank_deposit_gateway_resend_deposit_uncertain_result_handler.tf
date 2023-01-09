@@ -101,7 +101,7 @@ resource "aws_lambda_function" "resend_deposit_uncertain_result_handler" {
   }
 
   vpc_config {
-    security_group_ids = [aws_security_group.bank_statements.id]
+    security_group_ids = [aws_security_group.resend_deposit_uncertain_result_handler.id]
     subnet_ids         = aws_subnet.bank_integration.*.id
   }
 

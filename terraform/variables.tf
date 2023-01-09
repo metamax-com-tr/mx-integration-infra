@@ -141,6 +141,186 @@ locals {
     }
   }
 
+  aws_security_group_accounting_integration_processor = {
+
+    default = {
+      egress  = []
+      ingress = []
+    }
+
+    development = {
+      egress = [
+        {
+          cidr_blocks = [
+            "85.111.1.49/32",
+          ]
+          description      = "Luca Test Server"
+          from_port        = 57007
+          ipv6_cidr_blocks = []
+          prefix_list_ids  = []
+          protocol         = "tcp"
+          security_groups  = []
+          self             = false
+          to_port          = 57007
+        },
+        {
+          cidr_blocks = [
+            "0.0.0.0/0",
+          ]
+          description      = "Access to AWS DynamoDB"
+          from_port        = 443
+          ipv6_cidr_blocks = []
+          prefix_list_ids  = []
+          protocol         = "tcp"
+          security_groups  = []
+          self             = false
+          to_port          = 443
+        }
+      ]
+      ingress = []
+    }
+
+    testing = {
+      egress  = []
+      ingress = []
+    }
+
+    production = {
+      egress = [
+        {
+          cidr_blocks = [
+            "85.111.1.49/32",
+          ]
+          description      = "Luca Test Server"
+          from_port        = 57007
+          ipv6_cidr_blocks = []
+          prefix_list_ids  = []
+          protocol         = "tcp"
+          security_groups  = []
+          self             = false
+          to_port          = 57007
+        },
+        {
+          cidr_blocks = [
+            "0.0.0.0/0",
+          ]
+          description      = "Access to AWS DynamoDB"
+          from_port        = 443
+          ipv6_cidr_blocks = []
+          prefix_list_ids  = []
+          protocol         = "tcp"
+          security_groups  = []
+          self             = false
+          to_port          = 443
+        }
+      ]
+      ingress = []
+    }
+  }
+
+  aws_security_group_ziraat_bank_statement_host = {
+
+    default = []
+
+    development = {
+      cidr_blocks = [
+        "195.177.206.43/32",
+      ]
+      port = 443
+    }
+
+    testing = {
+      cidr_blocks = [
+        "195.177.206.43/32",
+      ]
+      port = 443
+    }
+
+    production = {
+      cidr_blocks = [
+        "195.177.206.43/32",
+      ]
+      port = 443
+    }
+  }
+
+  # Ziraat Bank Withdraw Host
+  aws_security_group_ziraatbank_withdrawal_host = {
+
+    default = []
+    development = {
+      cidr_blocks = [
+        "195.177.206.168/32",
+      ]
+      port = 12178
+    }
+
+    testing = {
+      cidr_blocks = [
+        "195.177.206.168/32",
+      ]
+      port = 12178
+    }
+
+    production = {
+      cidr_blocks = [
+        "195.177.206.168/32",
+      ]
+      port = 12178
+    }
+  }
+
+  aws_security_group_metamax_deposit_client = {
+
+    default = {
+      egress  = []
+      ingress = []
+    }
+
+    development = {
+      egress = [
+        {
+          cidr_blocks = [
+            "0.0.0.0/0"
+          ]
+          description      = "Only HTTPS"
+          from_port        = 443
+          ipv6_cidr_blocks = []
+          prefix_list_ids  = []
+          protocol         = "tcp"
+          security_groups  = []
+          self             = false
+          to_port          = 443
+        }
+      ]
+      ingress = []
+    }
+
+    testing = {
+      egress  = []
+      ingress = []
+    }
+
+    production = {
+      egress = [
+        {
+          cidr_blocks = [
+            "0.0.0.0/0"
+          ]
+          description      = "Only HTTPS"
+          from_port        = 443
+          ipv6_cidr_blocks = []
+          prefix_list_ids  = []
+          protocol         = "tcp"
+          security_groups  = []
+          self             = false
+          to_port          = 443
+        }
+      ]
+      ingress = []
+    }
+  }
+
 
   bank_integration_outbound_name = {
     default     = "not-set"

@@ -465,6 +465,13 @@ locals {
     production  = ["vpce-01b80a33b3fbbd63b", "vpce-05f0d7cb1d9217bb3"]
   }
 
+  s3_log_bucket_name = {
+    default     = "network-logs"
+    development = "network-logs"
+    testing     = "network-logs"
+    production  = "network-logs-22"
+  }
+
 
   metamax_gateway_host = {
     default     = "metamax.work"

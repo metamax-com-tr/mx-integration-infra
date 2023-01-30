@@ -37,7 +37,6 @@ resource "aws_lambda_function" "accounting_integration_processor" {
   timeout       = local.lambda_withdrawal_functions_profil[terraform.workspace].timeout
   memory_size   = local.lambda_withdrawal_functions_profil[terraform.workspace].memory_size
 
-
   environment {
     variables = {
       QUARKUS_LAMBDA_HANDLER                                              = "accounting-processor"
@@ -50,7 +49,13 @@ resource "aws_lambda_function" "accounting_integration_processor" {
       # https://quarkus.io/guides/all-config#quarkus-vertx_quarkus.vertx.warning-exception-time
       QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME = "5s"
       APPLICATION_REPOSITORY_AUTOCREATE         = false
-
+      
+      # Luca configurations
+      LUCA_KULLANICI_MUSTERI       = 10000000
+      LUCA_KULLANICI_FIRMA         = 3782
+      LUCA_KULLANICI_KULLANICI_ADI = "metamax"
+      LUCA_KULLANICI_PAROLA        = "metamax"
+      LUCA_REST_CLIENT_LUCA_URL    = "http://85.111.1.49:57007"
     }
   }
 

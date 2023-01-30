@@ -220,7 +220,12 @@ locals {
 
   aws_security_group_ziraat_bank_statement_host = {
 
-    default = []
+    default = {
+      cidr_blocks = [
+        "195.177.206.43/32",
+      ]
+      port = 443
+    }
 
     development = {
       cidr_blocks = [
@@ -247,7 +252,12 @@ locals {
   # Ziraat Bank Withdraw Host
   aws_security_group_ziraatbank_withdrawal_host = {
 
-    default = []
+    default = {
+      cidr_blocks = [
+        "195.177.206.168/32",
+      ],
+      port = 12178
+    }
     development = {
       cidr_blocks = [
         "195.177.206.168/32",

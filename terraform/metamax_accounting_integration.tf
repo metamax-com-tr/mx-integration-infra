@@ -257,10 +257,10 @@ resource "aws_iam_policy" "accounting_integration_processor_secret" {
     Version = "2012-10-17"
     Statement = [
       {
-        "Action" : [
+        Action = [
           "secretsmanager:GetSecretValue",
           "secretsmanager:ListSecretVersionIds"
-        ],
+        ]
         Effect = "Allow"
         Resource = [
           aws_secretsmanager_secret.accounting_integration_processor.arn

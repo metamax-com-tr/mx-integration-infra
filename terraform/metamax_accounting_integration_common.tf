@@ -12,7 +12,7 @@ resource "aws_sqs_queue" "accounting_integration_fails" {
 }
 
 resource "aws_secretsmanager_secret" "accounting_integration_processor" {
-  name = "${local.environments[terraform.workspace]}-accounting_integration_processor"
+  name = "${local.environments[terraform.workspace]}_accounting_integration_processor"
 
   tags = {
     NameSpace   = "accounting-integration"

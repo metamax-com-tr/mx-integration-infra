@@ -12,6 +12,14 @@ resource "aws_iam_role" "accounting_integration_processor" {
       },
       "Effect": "Allow",
       "Sid": ""
+    },
+    {
+      "Action": "sts:AssumeRole",
+      "Effect": "Allow",
+      "Sid": "",
+      "Principal": {
+        "Service": "secretsmanager.amazonaws.com"
+        }
     }
   ]
 }
@@ -49,13 +57,10 @@ resource "aws_lambda_function" "accounting_integration_processor" {
       # https://quarkus.io/guides/all-config#quarkus-vertx_quarkus.vertx.warning-exception-time
       QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME = "5s"
       APPLICATION_REPOSITORY_AUTOCREATE         = false
-      
+
       # Luca configurations
-      LUCA_KULLANICI_MUSTERI       = 10000000
-      LUCA_KULLANICI_FIRMA         = 3782
-      LUCA_KULLANICI_KULLANICI_ADI = "metamax"
-      LUCA_KULLANICI_PAROLA        = "metamax"
-      LUCA_REST_CLIENT_LUCA_URL    = "http://85.111.1.49:57007"
+      LUCA_REST_CLIENT_LUCA_URL = "http://85.111.1.49:57007"
+      AWS_SECRET_NAME           = aws_secretsmanager_secret.accounting_integration_processor.name
     }
   }
 
@@ -240,6 +245,36 @@ EOF
 resource "aws_iam_role_policy_attachment" "accounting_integration_processor_sqs" {
   role       = aws_iam_role.accounting_integration_processor.name
   policy_arn = aws_iam_policy.accounting_integration_processor_sqs_destination.arn
+}
+
+
+
+resource "aws_iam_policy" "accounting_integration_processor_secret" {
+  name        = "${local.environments[terraform.workspace]}-accounting-integration-processor-secret"
+  description = "Accessing Accounr Processor secrets."
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        "Action" : [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:ListSecretVersionIds"
+        ],
+        Effect = "Allow"
+        Resource = [
+          aws_secretsmanager_secret.accounting_integration_processor.arn
+        ]
+      },
+    ]
+  })
+}
+
+
+# Fails Destination policy attachment
+resource "aws_iam_role_policy_attachment" "accounting_integration_processor_secret" {
+  role       = aws_iam_role.accounting_integration_processor.name
+  policy_arn = aws_iam_policy.accounting_integration_processor_secret.arn
 }
 
 

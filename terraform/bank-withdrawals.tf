@@ -96,18 +96,19 @@ resource "aws_lambda_function" "ziraatbank_withdraw_client" {
       APPLICATION_LOG_CATAGORY_ORG_JBOSS_RESTEASY_REACTIVE_CLIENT_LOGGING = "ERROR",
       # https://quarkus.io/guides/all-config#quarkus-vertx_quarkus.vertx.warning-exception-time
       QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME        = "5s"
-      APPLICATION_BANK_WITHDRAWAL_RESULTQUEUE_URL      = "${aws_sqs_queue.bank_withdrawal_results.url}"
-      APPLICATION_BANK_WITHDRAWAL_CHECKSTATUSQUEUE_URL = "${aws_sqs_queue.bank_integration_bank_withdrawal_checkstatus.url}"
-      QUARKUS_REST_CLIENT_METAMAX_CLIENT_URL           = "https://api.${local.metamax_gateway_host[terraform.workspace]}"
-      APPLICATION_BANK_ZIRAAT_TRANSFER_START_TIME      = "08:35"
-      APPLICATION_BANK_ZIRAAT_TRANSFER_END_TIME        = "16:25"
-      APPLICATION_BANK_ZIRAAT_FAST_LIMIT               = "5000"
-      APPLICATION_BANK_ZIRAAT_MAX_TRANSFER_LIMIT       = "50000"
+      RESULTQUEUE_URL      = "${aws_sqs_queue.bank_withdrawal_results.url}"
+      CHECKSTATUSQUEUE_URL = "${aws_sqs_queue.bank_integration_bank_withdrawal_checkstatus.url}"
+      METAMAX_CLIENT_URL       = "https://api.${local.metamax_gateway_host[terraform.workspace]}"
+      TRANSFER_START_TIME      = "08:35"
+      TRANSFER_END_TIME        = "16:25"
+      FAST_LIMIT               = "5000"
+      MAX_TRANSFER_LIMIT       = "50000"
       QUARKUS_REST_CLIENT_ZIRAAT_WITHDRAW_CLIENT_URL   = "https://odm.ziraatbank.com.tr:12178/NKYParaTransferiWS/NKYParaTransferiWS.asmx?wsdl"
 
       QUARKUS_REST_CLIENT_CONNECT_TIMEOUT = 5000
       QUARKUS_REST_CLIENT_READ_TIMEOUT    = 10000
       APPLICATION_REPOSITORY_AUTOCREATE   = false
+      REST_CLIENT_DEBUG                   = "INFO"
     }
   }
 

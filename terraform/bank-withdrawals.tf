@@ -103,10 +103,13 @@ resource "aws_lambda_function" "ziraatbank_withdraw_client" {
       TRANSFER_END_TIME        = "16:25"
       FAST_LIMIT               = "5000"
       MAX_TRANSFER_LIMIT       = "50000"
-      QUARKUS_REST_CLIENT_ZIRAAT_WITHDRAW_CLIENT_URL   = "https://odm.ziraatbank.com.tr:12178/NKYParaTransferiWS/NKYParaTransferiWS.asmx?wsdl"
-
+      ZIRAATBANK_IBAN = "TR300001002148975452095007"
+      ZIRAATBANK_BANK_CODE = "0010"
+      ZIRAATBANK_BANK = "Türkiye Cumhuriyeti Ziraat Bankası A.Ş."
+      ZIRAAT_WITHDRAW_CLIENT_URL   = "https://odm.ziraatbank.com.tr:12178/NKYParaTransferiWS/NKYParaTransferiWS.asmx?wsdl"
       QUARKUS_REST_CLIENT_CONNECT_TIMEOUT = 5000
       QUARKUS_REST_CLIENT_READ_TIMEOUT    = 10000
+      
       APPLICATION_REPOSITORY_AUTOCREATE   = false
       REST_CLIENT_DEBUG                   = "INFO"
     }
@@ -386,7 +389,10 @@ resource "aws_lambda_function" "ziraatbank_withdrawal_result_client" {
       TRANSFER_END_TIME        = "16:25"
       FAST_LIMIT               = "5000"
       MAX_TRANSFER_LIMIT       = "50000"
-      QUARKUS_REST_CLIENT_ZIRAAT_WITHDRAW_CLIENT_URL   = "https://odm.ziraatbank.com.tr:12178/NKYParaTransferiWS/NKYParaTransferiWS.asmx?wsdl"
+      ZIRAATBANK_IBAN = "TR300001002148975452095007"
+      ZIRAATBANK_BANK_CODE = "0010"
+      ZIRAATBANK_BANK = "Türkiye Cumhuriyeti Ziraat Bankası A.Ş."
+      ZIRAAT_WITHDRAW_CLIENT_URL   = "https://odm.ziraatbank.com.tr:12178/NKYParaTransferiWS/NKYParaTransferiWS.asmx?wsdl"
 
       QUARKUS_REST_CLIENT_CONNECT_TIMEOUT = 5000
       QUARKUS_REST_CLIENT_READ_TIMEOUT    = 10000
@@ -674,7 +680,10 @@ resource "aws_lambda_function" "metamax_withdrawResult_client" {
       TRANSFER_END_TIME        = "16:25"
       FAST_LIMIT               = "5000"
       MAX_TRANSFER_LIMIT       = "50000"
-      QUARKUS_REST_CLIENT_ZIRAAT_WITHDRAW_CLIENT_URL   = "https://odm.ziraatbank.com.tr:12178/NKYParaTransferiWS/NKYParaTransferiWS.asmx?wsdl"
+      ZIRAATBANK_IBAN = "TR300001002148975452095007"
+      ZIRAATBANK_BANK_CODE = "0010"
+      ZIRAATBANK_BANK = "Türkiye Cumhuriyeti Ziraat Bankası A.Ş."
+      ZIRAAT_WITHDRAW_CLIENT_URL   = "https://odm.ziraatbank.com.tr:12178/NKYParaTransferiWS/NKYParaTransferiWS.asmx?wsdl"
 
       QUARKUS_REST_CLIENT_CONNECT_TIMEOUT = 5000
       QUARKUS_REST_CLIENT_READ_TIMEOUT    = 10000

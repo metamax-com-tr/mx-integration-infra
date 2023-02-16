@@ -26,7 +26,7 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "ziraatbank_withdraw_client_secret" {
-  role       =  aws_iam_role.ziraatbank_withdraw_client.name
+  role       = aws_iam_role.ziraatbank_withdraw_client.name
   policy_arn = aws_iam_policy.bank_withdraw_secret.arn
 }
 
@@ -100,24 +100,24 @@ resource "aws_lambda_function" "ziraatbank_withdraw_client" {
       QUARKUS_LAMBDA_HANDLER                                              = "ziraatbank-withdraw-client"
       APPLICATION_LOG_CATAGORY_ORG_JBOSS_RESTEASY_REACTIVE_CLIENT_LOGGING = "ERROR",
       # https://quarkus.io/guides/all-config#quarkus-vertx_quarkus.vertx.warning-exception-time
-      QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME        = "5s"
-      RESULTQUEUE_URL      = "${aws_sqs_queue.bank_withdrawal_results.url}"
-      CHECKSTATUSQUEUE_URL = "${aws_sqs_queue.bank_integration_bank_withdrawal_checkstatus.url}"
-      METAMAX_CLIENT_URL       = "https://api.${local.metamax_gateway_host[terraform.workspace]}"
-      TRANSFER_START_TIME      = "08:35"
-      TRANSFER_END_TIME        = "16:25"
-      FAST_LIMIT               = "5000"
-      MAX_TRANSFER_LIMIT       = "50000"
-      ZIRAATBANK_IBAN = "TR300001002148975452095007"
-      ZIRAATBANK_BANK_CODE = "0010"
-      ZIRAATBANK_BANK = "Türkiye Cumhuriyeti Ziraat Bankası A.Ş."
-      ZIRAAT_WITHDRAW_CLIENT_URL   = "https://odm.ziraatbank.com.tr:12178/NKYParaTransferiWS/NKYParaTransferiWS.asmx?wsdl"
-      QUARKUS_REST_CLIENT_CONNECT_TIMEOUT = 5000
-      QUARKUS_REST_CLIENT_READ_TIMEOUT    = 10000
-      APPLICATION_REPOSITORY_AUTOCREATE   = false
-      REST_CLIENT_DEBUG                   = "INFO"
-      AWS_SECRET_PRIVATE_RSA_KEY = aws_secretsmanager_secret.bank_integrations_rsa_private_key.name
-      AWS_SECRET_NAME = aws_secretsmanager_secret.accounting_integration_processor.name
+      QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME = "5s"
+      RESULTQUEUE_URL                           = "${aws_sqs_queue.bank_withdrawal_results.url}"
+      CHECKSTATUSQUEUE_URL                      = "${aws_sqs_queue.bank_integration_bank_withdrawal_checkstatus.url}"
+      METAMAX_CLIENT_URL                        = "https://api.${local.metamax_gateway_host[terraform.workspace]}"
+      TRANSFER_START_TIME                       = "08:35"
+      TRANSFER_END_TIME                         = "16:25"
+      FAST_LIMIT                                = "5000"
+      MAX_TRANSFER_LIMIT                        = "50000"
+      ZIRAATBANK_IBAN                           = "TR300001002148975452095007"
+      ZIRAATBANK_BANK_CODE                      = "0010"
+      ZIRAATBANK_BANK                           = "Türkiye Cumhuriyeti Ziraat Bankası A.Ş."
+      ZIRAAT_WITHDRAW_CLIENT_URL                = "https://odm.ziraatbank.com.tr:12178/NKYParaTransferiWS/NKYParaTransferiWS.asmx?wsdl"
+      QUARKUS_REST_CLIENT_CONNECT_TIMEOUT       = 5000
+      QUARKUS_REST_CLIENT_READ_TIMEOUT          = 10000
+      APPLICATION_REPOSITORY_AUTOCREATE         = false
+      REST_CLIENT_DEBUG                         = "INFO"
+      AWS_SECRET_PRIVATE_RSA_KEY                = aws_secretsmanager_secret.bank_integrations_rsa_private_key.name
+      AWS_SECRET_NAME                           = aws_secretsmanager_secret.accounting_integration_processor.name
     }
   }
 
@@ -316,7 +316,7 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "ziraatbank_withdrawal_result_client_secret" {
-  role       =  aws_iam_role.ziraatbank_withdrawal_result_client.name
+  role       = aws_iam_role.ziraatbank_withdrawal_result_client.name
   policy_arn = aws_iam_policy.bank_withdraw_secret.arn
 }
 
@@ -391,19 +391,19 @@ resource "aws_lambda_function" "ziraatbank_withdrawal_result_client" {
       QUARKUS_LAMBDA_HANDLER                                              = "ziraatbank-withdrawal-result-client"
       APPLICATION_LOG_CATAGORY_ORG_JBOSS_RESTEASY_REACTIVE_CLIENT_LOGGING = "ERROR",
       # https://quarkus.io/guides/all-config#quarkus-vertx_quarkus.vertx.warning-exception-time
-      QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME      = "5s"
+      QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME = "5s"
 
-      RESULTQUEUE_URL      = "${aws_sqs_queue.bank_withdrawal_results.url}"
-      CHECKSTATUSQUEUE_URL = "${aws_sqs_queue.bank_integration_bank_withdrawal_checkstatus.url}"
-      METAMAX_CLIENT_URL       = "https://api.${local.metamax_gateway_host[terraform.workspace]}"
-      TRANSFER_START_TIME      = "08:35"
-      TRANSFER_END_TIME        = "16:25"
-      FAST_LIMIT               = "5000"
-      MAX_TRANSFER_LIMIT       = "50000"
-      ZIRAATBANK_IBAN = "TR300001002148975452095007"
-      ZIRAATBANK_BANK_CODE = "0010"
-      ZIRAATBANK_BANK = "Türkiye Cumhuriyeti Ziraat Bankası A.Ş."
-      ZIRAAT_WITHDRAW_CLIENT_URL   = "https://odm.ziraatbank.com.tr:12178/NKYParaTransferiWS/NKYParaTransferiWS.asmx?wsdl"
+      RESULTQUEUE_URL            = "${aws_sqs_queue.bank_withdrawal_results.url}"
+      CHECKSTATUSQUEUE_URL       = "${aws_sqs_queue.bank_integration_bank_withdrawal_checkstatus.url}"
+      METAMAX_CLIENT_URL         = "https://api.${local.metamax_gateway_host[terraform.workspace]}"
+      TRANSFER_START_TIME        = "08:35"
+      TRANSFER_END_TIME          = "16:25"
+      FAST_LIMIT                 = "5000"
+      MAX_TRANSFER_LIMIT         = "50000"
+      ZIRAATBANK_IBAN            = "TR300001002148975452095007"
+      ZIRAATBANK_BANK_CODE       = "0010"
+      ZIRAATBANK_BANK            = "Türkiye Cumhuriyeti Ziraat Bankası A.Ş."
+      ZIRAAT_WITHDRAW_CLIENT_URL = "https://odm.ziraatbank.com.tr:12178/NKYParaTransferiWS/NKYParaTransferiWS.asmx?wsdl"
 
       QUARKUS_REST_CLIENT_CONNECT_TIMEOUT = 5000
       QUARKUS_REST_CLIENT_READ_TIMEOUT    = 10000
@@ -411,7 +411,7 @@ resource "aws_lambda_function" "ziraatbank_withdrawal_result_client" {
       REST_CLIENT_DEBUG                   = "INFO"
 
       AWS_SECRET_PRIVATE_RSA_KEY = aws_secretsmanager_secret.bank_integrations_rsa_private_key.name
-      AWS_SECRET_NAME = aws_secretsmanager_secret.accounting_integration_processor.name
+      AWS_SECRET_NAME            = aws_secretsmanager_secret.accounting_integration_processor.name
     }
   }
 
@@ -617,7 +617,7 @@ EOF
 
 
 resource "aws_iam_role_policy_attachment" "metamax_withdrawResult_client_secret" {
-  role       =  aws_iam_role.metamax_withdrawResult_client.name
+  role       = aws_iam_role.metamax_withdrawResult_client.name
   policy_arn = aws_iam_policy.bank_withdraw_secret.arn
 }
 
@@ -692,17 +692,17 @@ resource "aws_lambda_function" "metamax_withdrawResult_client" {
       QUARKUS_LAMBDA_HANDLER                                              = "metamax-withdrawResult-client"
       APPLICATION_LOG_CATAGORY_ORG_JBOSS_RESTEASY_REACTIVE_CLIENT_LOGGING = "ERROR",
       # https://quarkus.io/guides/all-config#quarkus-vertx_quarkus.vertx.warning-exception-time
-      RESULTQUEUE_URL      = "${aws_sqs_queue.bank_withdrawal_results.url}"
-      CHECKSTATUSQUEUE_URL = "${aws_sqs_queue.bank_integration_bank_withdrawal_checkstatus.url}"
-      METAMAX_CLIENT_URL       = "https://api.${local.metamax_gateway_host[terraform.workspace]}"
-      TRANSFER_START_TIME      = "08:35"
-      TRANSFER_END_TIME        = "16:25"
-      FAST_LIMIT               = "5000"
-      MAX_TRANSFER_LIMIT       = "50000"
-      ZIRAATBANK_IBAN = "TR300001002148975452095007"
-      ZIRAATBANK_BANK_CODE = "0010"
-      ZIRAATBANK_BANK = "Türkiye Cumhuriyeti Ziraat Bankası A.Ş."
-      ZIRAAT_WITHDRAW_CLIENT_URL   = "https://odm.ziraatbank.com.tr:12178/NKYParaTransferiWS/NKYParaTransferiWS.asmx?wsdl"
+      RESULTQUEUE_URL            = "${aws_sqs_queue.bank_withdrawal_results.url}"
+      CHECKSTATUSQUEUE_URL       = "${aws_sqs_queue.bank_integration_bank_withdrawal_checkstatus.url}"
+      METAMAX_CLIENT_URL         = "https://api.${local.metamax_gateway_host[terraform.workspace]}"
+      TRANSFER_START_TIME        = "08:35"
+      TRANSFER_END_TIME          = "16:25"
+      FAST_LIMIT                 = "5000"
+      MAX_TRANSFER_LIMIT         = "50000"
+      ZIRAATBANK_IBAN            = "TR300001002148975452095007"
+      ZIRAATBANK_BANK_CODE       = "0010"
+      ZIRAATBANK_BANK            = "Türkiye Cumhuriyeti Ziraat Bankası A.Ş."
+      ZIRAAT_WITHDRAW_CLIENT_URL = "https://odm.ziraatbank.com.tr:12178/NKYParaTransferiWS/NKYParaTransferiWS.asmx?wsdl"
 
       QUARKUS_REST_CLIENT_CONNECT_TIMEOUT = 5000
       QUARKUS_REST_CLIENT_READ_TIMEOUT    = 10000
@@ -710,7 +710,7 @@ resource "aws_lambda_function" "metamax_withdrawResult_client" {
       REST_CLIENT_DEBUG                   = "INFO"
 
       AWS_SECRET_PRIVATE_RSA_KEY = aws_secretsmanager_secret.bank_integrations_rsa_private_key.name
-      AWS_SECRET_NAME = aws_secretsmanager_secret.accounting_integration_processor.name
+      AWS_SECRET_NAME            = aws_secretsmanager_secret.accounting_integration_processor.name
     }
   }
 
@@ -867,7 +867,7 @@ resource "aws_secretsmanager_secret" "bank_withdraw_client" {
   }
 }
 
-resource "aws_secretsmanager_secret_version" "latest" {
+resource "aws_secretsmanager_secret_version" "bank_withdraw_client_latest" {
   secret_id     = aws_secretsmanager_secret.bank_withdraw_client.id
   secret_string = <<EOF
 {

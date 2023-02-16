@@ -24,7 +24,7 @@ resource "aws_secretsmanager_secret" "bank_integrations_rsa_private_key" {
 # 4 -rw------- 1 mo mo 1704 Oca 27 15:58 private.pem
 # 4 -rw-rw-r-- 1 mo mo  451 Oca 27 15:58 public.pem
 # ```
-resource "aws_secretsmanager_secret_version" "latest" {
+resource "aws_secretsmanager_secret_version" "bank_integrations_rsa_private_key_latest" {
   secret_id     = aws_secretsmanager_secret.bank_integrations_rsa_private_key.id
   secret_string = <<EOF
 {

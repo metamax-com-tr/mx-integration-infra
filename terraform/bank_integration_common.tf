@@ -217,3 +217,26 @@ resource "aws_sqs_queue" "bank_integration_bank_withdrawal_checkstatus_deadlette
     Environment = "${local.environments[terraform.workspace]}"
   }
 }
+
+# https://gitlab.orema.com.tr/metamax-integrations/bank-withdrawals/ziraatbank-withdraw-client projects uses this policy.
+resource "aws_iam_policy" "bank_withdraw_secret" {
+  name        = "${local.environments[terraform.workspace]}-bank-withdraw-secret"
+  description = "Accessing the secrets for bank-withdraw services."
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:ListSecretVersionIds"
+        ]
+        Effect = "Allow"
+        Resource = [
+          aws_secretsmanager_secret.bank_withdraw_client.arn,
+          aws_secretsmanager_secret.bank_integrations_rsa_private_key.arn
+        ]
+      },
+    ]
+  })
+}

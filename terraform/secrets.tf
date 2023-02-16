@@ -11,7 +11,10 @@ resource "aws_secretsmanager_secret" "bank_integrations_rsa_private_key" {
 
 # Change this private key after calling terraform apply! This key just the sample of.
 # You must set new private key and update it on AWS Console or via AWS CLI. 
-# The private key used on production or development must not be shared on git!
+# New private key must be used on production or development and this new private key must not be shared on git!
+#
+# In a result don't use this private pem on production or development.
+#
 # # How to generare RSA 512bit Private and Public Key
 # ```sh
 # $ openssl genrsa -out private.pem 1024

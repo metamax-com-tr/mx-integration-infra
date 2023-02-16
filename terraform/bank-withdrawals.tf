@@ -25,6 +25,11 @@ EOF
   }
 }
 
+resource "aws_iam_role_policy_attachment" "ziraatbank_withdraw_client_secret" {
+  role       =  aws_iam_role.ziraatbank_withdraw_client.name
+  policy_arn = aws_iam_policy.bank_withdraw_secret.arn
+}
+
 resource "aws_iam_policy" "ziraatbank_withdraw_client" {
   name        = "${local.environments[terraform.workspace]}-${var.namespace}-ziraatbank-withdraw-client"
   description = "Ziraatbank Withdraw Client Policy"
@@ -308,6 +313,11 @@ EOF
     NameSpace   = "${var.namespace}"
     Environment = "${local.environments[terraform.workspace]}"
   }
+}
+
+resource "aws_iam_role_policy_attachment" "ziraatbank_withdrawal_result_client_secret" {
+  role       =  aws_iam_role.ziraatbank_withdrawal_result_client.name
+  policy_arn = aws_iam_policy.bank_withdraw_secret.arn
 }
 
 resource "aws_iam_policy" "ziraatbank_withdrawal_result_client" {
@@ -603,6 +613,12 @@ EOF
     NameSpace   = "${var.namespace}"
     Environment = "${local.environments[terraform.workspace]}"
   }
+}
+
+
+resource "aws_iam_role_policy_attachment" "metamax_withdrawResult_client_secret" {
+  role       =  aws_iam_role.metamax_withdrawResult_client.name
+  policy_arn = aws_iam_policy.bank_withdraw_secret.arn
 }
 
 resource "aws_iam_policy" "metamax_withdrawResult_client" {

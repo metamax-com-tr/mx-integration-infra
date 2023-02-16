@@ -111,6 +111,8 @@ resource "aws_lambda_function" "ziraatbank_withdraw_client" {
       QUARKUS_REST_CLIENT_READ_TIMEOUT    = 10000
       APPLICATION_REPOSITORY_AUTOCREATE   = false
       REST_CLIENT_DEBUG                   = "INFO"
+      AWS_SECRET_PRIVATE_RSA_KEY = aws_secretsmanager_secret.bank_integrations_rsa_private_key.name
+      AWS_SECRET_NAME = aws_secretsmanager_secret.accounting_integration_processor.name
     }
   }
 
@@ -397,6 +399,9 @@ resource "aws_lambda_function" "ziraatbank_withdrawal_result_client" {
       QUARKUS_REST_CLIENT_READ_TIMEOUT    = 10000
       APPLICATION_REPOSITORY_AUTOCREATE   = false
       REST_CLIENT_DEBUG                   = "INFO"
+
+      AWS_SECRET_PRIVATE_RSA_KEY = aws_secretsmanager_secret.bank_integrations_rsa_private_key.name
+      AWS_SECRET_NAME = aws_secretsmanager_secret.accounting_integration_processor.name
     }
   }
 
@@ -687,6 +692,9 @@ resource "aws_lambda_function" "metamax_withdrawResult_client" {
       QUARKUS_REST_CLIENT_READ_TIMEOUT    = 10000
       APPLICATION_REPOSITORY_AUTOCREATE   = false
       REST_CLIENT_DEBUG                   = "INFO"
+
+      AWS_SECRET_PRIVATE_RSA_KEY = aws_secretsmanager_secret.bank_integrations_rsa_private_key.name
+      AWS_SECRET_NAME = aws_secretsmanager_secret.accounting_integration_processor.name
     }
   }
 
@@ -831,3 +839,29 @@ resource "aws_iam_role_policy_attachment" "metamax_withdrawResult_client_dynamod
 }
 
 # #========== End of Metamax Withdrawal Result Client ===========
+
+#========== Start The secret of Metamax Withdrawal Result Cliet ===========
+
+resource "aws_secretsmanager_secret" "bank_withdraw_client" {
+  name = "${local.environments[terraform.workspace]}_bank_withdraw_client"
+
+  tags = {
+    NameSpace   = "bank-withdrawal"
+    Environment = "${local.environments[terraform.workspace]}"
+  }
+}
+
+resource "aws_secretsmanager_secret_version" "latest" {
+  secret_id     = aws_secretsmanager_secret.bank_withdraw_client.id
+  secret_string = <<EOF
+{
+  "username": "username",
+  "password" : "password",
+  "customerNumber": "customerNumber",
+  "corporationCode": "corporationCode"
+}
+
+EOF
+}
+
+#========== End The secret of Metamax Withdrawal Result Cliet ===========

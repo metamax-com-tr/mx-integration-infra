@@ -109,7 +109,6 @@ resource "aws_lambda_function" "ziraatbank_withdraw_client" {
       ZIRAAT_WITHDRAW_CLIENT_URL   = "https://odm.ziraatbank.com.tr:12178/NKYParaTransferiWS/NKYParaTransferiWS.asmx?wsdl"
       QUARKUS_REST_CLIENT_CONNECT_TIMEOUT = 5000
       QUARKUS_REST_CLIENT_READ_TIMEOUT    = 10000
-      
       APPLICATION_REPOSITORY_AUTOCREATE   = false
       REST_CLIENT_DEBUG                   = "INFO"
     }
@@ -398,7 +397,6 @@ resource "aws_lambda_function" "ziraatbank_withdrawal_result_client" {
       QUARKUS_REST_CLIENT_READ_TIMEOUT    = 10000
       APPLICATION_REPOSITORY_AUTOCREATE   = false
       REST_CLIENT_DEBUG                   = "INFO"
-      APPLICATION_REPOSITORY_AUTOCREATE   = false
     }
   }
 
@@ -689,7 +687,6 @@ resource "aws_lambda_function" "metamax_withdrawResult_client" {
       QUARKUS_REST_CLIENT_READ_TIMEOUT    = 10000
       APPLICATION_REPOSITORY_AUTOCREATE   = false
       REST_CLIENT_DEBUG                   = "INFO"
-      APPLICATION_REPOSITORY_AUTOCREATE   = false
     }
   }
 

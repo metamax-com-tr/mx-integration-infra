@@ -15,9 +15,9 @@ resource "aws_secretsmanager_secret" "bank_integrations_rsa_private_key" {
 #
 # In a result don't use this private pem on production or development.
 #
-# # How to generare RSA 512bit Private and Public Key
+# # How to generare RSA 1024bit Private and Public Key
 # ```sh
-# $ openssl genrsa -out private.pem 1024
+# $ openssl genrsa -out private.pem 2048
 # $ openssl rsa -pubout -in private.pem -out public.pem
 # $ ls -ls
 # total 8

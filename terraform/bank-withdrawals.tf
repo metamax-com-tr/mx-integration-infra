@@ -120,7 +120,7 @@ resource "aws_lambda_function" "ziraatbank_withdraw_client" {
       BANK_ZIRAAT_TRANSFER_START_TIME = "08:35"
     }
   }
-  
+
   vpc_config {
     security_group_ids = [aws_security_group.ziraatbank_withdraw_client.id]
     subnet_ids         = aws_subnet.bank_integration.*.id

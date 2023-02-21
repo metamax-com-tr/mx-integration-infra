@@ -120,7 +120,7 @@ resource "aws_lambda_function" "ziraatbank_withdraw_client" {
       BANK_ZIRAAT_TRANSFER_START_TIME = "08:35"
     }
   }
-
+  
   vpc_config {
     security_group_ids = [aws_security_group.ziraatbank_withdraw_client.id]
     subnet_ids         = aws_subnet.bank_integration.*.id
@@ -411,6 +411,8 @@ resource "aws_lambda_function" "ziraatbank_withdrawal_result_client" {
       BANK_ZIRAAT_TRANSFER_START_TIME                = "08:35"
     }
   }
+
+
 
   vpc_config {
     security_group_ids = [aws_security_group.ziraatbank_withdrawal_result_client.id]
@@ -709,6 +711,8 @@ resource "aws_lambda_function" "metamax_withdrawResult_client" {
     }
   }
 
+
+
   vpc_config {
     security_group_ids = [aws_security_group.bank_statements.id]
     subnet_ids         = aws_subnet.bank_integration.*.id
@@ -870,8 +874,8 @@ resource "aws_secretsmanager_secret_version" "bank_withdraw_client_latest" {
   "customerNumber": "customerNumber",
   "corporationCode": "corporationCode"
 }
-
 EOF
+
 }
 
 #========== End The secret of Metamax Withdrawal Result Cliet ===========

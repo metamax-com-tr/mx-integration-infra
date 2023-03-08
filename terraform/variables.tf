@@ -189,16 +189,16 @@ locals {
       egress = [
         {
           cidr_blocks = [
-            "85.111.1.49/32",
+            "85.111.64.184/32",
           ]
-          description      = "Luca Test Server"
-          from_port        = 57007
+          description      = "Luca Server"
+          from_port        = 80
           ipv6_cidr_blocks = []
           prefix_list_ids  = []
           protocol         = "tcp"
           security_groups  = []
           self             = false
-          to_port          = 57007
+          to_port          = 80
         },
         {
           cidr_blocks = [

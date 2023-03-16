@@ -384,3 +384,23 @@ resource "aws_lambda_permission" "ziraatbank_fetch_statement_permission_for_ever
   principal     = "events.amazonaws.com"
   source_arn    = aws_cloudwatch_event_rule.ziraatbank_fetch_statement_cron_every_five.arn
 }
+
+
+resource "aws_s3_bucket" "bank_statements" {
+  bucket = "${var.namespace}-bank-statements-1d2"
+
+
+  tags = {
+    NameSpace   = "bank-integration"
+    Environment = "${local.environments[terraform.workspace]}"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "bank_statements" {
+  bucket = aws_s3_bucket.bank_statements.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}

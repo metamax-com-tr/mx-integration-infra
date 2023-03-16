@@ -287,7 +287,6 @@ EOF
   }
 }
 
-
 resource "aws_lambda_function" "ziraatbank_fetch_statement" {
   s3_bucket     = local.lambda_artifact_bucket[terraform.workspace]
   s3_key        = local.ziraatbank_fetch_statement_default_artifact[terraform.workspace]
@@ -297,7 +296,6 @@ resource "aws_lambda_function" "ziraatbank_fetch_statement" {
   runtime       = local.lambda_withdrawal_functions_profil[terraform.workspace].runtime
   timeout       = local.lambda_withdrawal_functions_profil[terraform.workspace].timeout
   memory_size   = local.lambda_withdrawal_functions_profil[terraform.workspace].memory_size
-
 
   environment {
     variables = {
@@ -310,8 +308,6 @@ resource "aws_lambda_function" "ziraatbank_fetch_statement" {
       QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_READ_TIMEOUT              = 10000
       AWS_SECRET_NAME                                                     = ""
       QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_URL                       = ""
-
-
     }
   }
 
@@ -350,4 +346,41 @@ resource "aws_lambda_permission" "ziraatbank_fetch_statement" {
   function_name = aws_lambda_function.ziraatbank_fetch_statement.function_name
   principal     = "logs.eu-west-1.amazonaws.com"
   source_arn    = "${aws_cloudwatch_log_group.ziraatbank_fetch_statement.arn}:*"
+}
+
+resource "aws_cloudwatch_event_rule" "ziraatbank_fetch_statement_cron_every_five" {
+  name                = "ziraatbank-fetch-statement"
+  description         = "Every N time ZiraatBank statement API call"
+  schedule_expression = "rate(5 minutes)"
+
+  tags = {
+    NameSpace   = "bank-integration"
+    Environment = "${local.environments[terraform.workspace]}"
+  }
+}
+
+resource "aws_cloudwatch_event_target" "ziraatbank_fetch_statement_target" {
+  arn  = aws_lambda_function.ziraatbank_fetch_statement.arn
+  rule = aws_cloudwatch_event_rule.ziraatbank_fetch_statement_cron_every_five.id
+
+  input_transformer {
+    input_paths = {
+      instance = "$.detail.instance",
+      status   = "$.detail.status",
+    }
+    input_template = <<EOF
+{
+  "instance_id": <instance>,
+  "instance_status": <status>
+}
+EOF
+  }
+}
+
+resource "aws_lambda_permission" "ziraatbank_fetch_statement_permission_for_every_minute" {
+  statement_id  = "CloudWatchEveryFiveMinuteCall"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.ziraatbank_fetch_statement.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.ziraatbank_fetch_statement_cron_every_five.arn
 }

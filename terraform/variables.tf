@@ -103,6 +103,13 @@ locals {
     production  = "metamax-integrations-bank-deposits-bank-deposits-gateway/bank-deposits-gateway-v0.0.0.production.zip"
   }
 
+  ziraatbank_fetch_statement_default_artifact = {
+    default     = "private-projects-bank-deposit-gateway/lambda-development-c23a387e.zip"
+    development = "private-projects-bank-deposit-gateway/lambda-development-c23a387e.zip"
+    testing     = "private-projects-bank-deposit-gateway/lambda-development-c23a387e.zip"
+    production  = "private-projects-bank-deposit-gateway/lambda-development-c23a387e.zip"
+  }
+
   ziraatbank_statements_client_default_artifact = {
     default     = "metamax-integrations-bank-deposits-ziraatbank-statements-client/ziraatbank-statements-client-v0.0.39.development.zip"
     development = "metamax-integrations-bank-deposits-ziraatbank-statements-client/ziraatbank-statements-client-v0.0.39.development.zip"
@@ -115,6 +122,13 @@ locals {
     development = "metamax-integrations-accounting-metamax-accounting-integration/metamax-accounting-integration-production-da304494.zip"
     testing     = "metamax-integrations-accounting-metamax-accounting-integration/metamax-accounting-integration-production-da304494.zip"
     production  = "metamax-integrations-accounting-metamax-accounting-integration/metamax-accounting-integration-production-da304494.zip"
+  }
+
+  accounting_integration_processor_luca_host = {
+    default     = "http://85.111.1.49:57007"
+    development = "http://85.111.1.49:57007"
+    testing     = "http://85.111.1.49:57007"
+    production  = "http://ticari.luca.com.tr"
   }
 
 

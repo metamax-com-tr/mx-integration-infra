@@ -876,6 +876,12 @@ resource "aws_secretsmanager_secret_version" "bank_withdraw_client_latest" {
 }
 EOF
 
+  lifecycle {
+    ignore_changes = [
+      secret_string
+    ]
+  }
+
 }
 
 #========== End The secret of Metamax Withdrawal Result Cliet ===========

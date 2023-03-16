@@ -260,3 +260,94 @@ resource "aws_iam_role_policy_attachment" "bank_statement_handler_default" {
   policy_arn = aws_iam_policy.bank_statement_handler_default.arn
 }
 
+
+## ZiraatBank Fetch Statements
+
+resource "aws_iam_role" "ziraatbank_fetch_statement" {
+  name               = "ziraatbank_fetch_statement"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "lambda.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+
+  tags = {
+    NameSpace   = "${var.namespace}"
+    Environment = "${local.environments[terraform.workspace]}"
+  }
+}
+
+
+resource "aws_lambda_function" "ziraatbank_fetch_statement" {
+  s3_bucket     = local.lambda_artifact_bucket[terraform.workspace]
+  s3_key        = local.ziraatbank_fetch_statement_default_artifact[terraform.workspace]
+  function_name = "ziraatbank_fetch_statement"
+  role          = aws_iam_role.bank_statement_handler.arn
+  handler       = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
+  runtime       = local.lambda_withdrawal_functions_profil[terraform.workspace].runtime
+  timeout       = local.lambda_withdrawal_functions_profil[terraform.workspace].timeout
+  memory_size   = local.lambda_withdrawal_functions_profil[terraform.workspace].memory_size
+
+
+  environment {
+    variables = {
+      QUARKUS_LAMBDA_HANDLER                                              = "ziraatbank-fetch-statements"
+      APPLICATION_REST_CLIENT_LOGGING_SCOPE                               = "all",
+      APPLICATION_REST_CLIENT_LOGGING_BODY_LIMIT                          = "100000",
+      APPLICATION_LOG_CATAGORY_ORG_JBOSS_RESTEASY_REACTIVE_CLIENT_LOGGING = "ERROR",
+      QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_SCOPE                     = "javax.inject.Singleton"
+      QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_CONNECT_TIMEOUT           = 5000
+      QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_READ_TIMEOUT              = 10000
+      AWS_SECRET_NAME                                                     = ""
+      QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_URL                       = ""
+
+
+    }
+  }
+
+  vpc_config {
+    security_group_ids = [aws_security_group.ziraatbank_fetch_statement.id]
+    subnet_ids         = aws_subnet.bank_integration.*.id
+  }
+
+  tags = {
+    NameSpace   = "bank-integration"
+    Environment = "${local.environments[terraform.workspace]}"
+  }
+
+  depends_on = [
+    aws_sqs_queue.bank_integration_deposits
+  ]
+
+  lifecycle {
+    ignore_changes = [
+      # s3_key
+    ]
+  }
+}
+
+resource "aws_cloudwatch_log_group" "ziraatbank_fetch_statement" {
+  name              = "/aws/lambda/ziraatbank-fetch-statement"
+  retention_in_days = local.cloud_watch[terraform.workspace].retention_in_days
+  tags = {
+    NameSpace   = "${var.namespace}"
+    Environment = "${local.environments[terraform.workspace]}"
+  }
+}
+
+resource "aws_lambda_permission" "ziraatbank_fetch_statement" {
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.ziraatbank_fetch_statement.function_name
+  principal     = "logs.eu-west-1.amazonaws.com"
+  source_arn    = "${aws_cloudwatch_log_group.ziraatbank_fetch_statement.arn}:*"
+}

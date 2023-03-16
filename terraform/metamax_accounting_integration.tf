@@ -59,7 +59,7 @@ resource "aws_lambda_function" "accounting_integration_processor" {
       APPLICATION_REPOSITORY_AUTOCREATE         = false
 
       # Luca configurations
-      LUCA_REST_CLIENT_LUCA_URL = "http://ticari.luca.com.tr"
+      LUCA_REST_CLIENT_LUCA_URL = local.accounting_integration_processor_luca_host[terraform.workspace]
       AWS_SECRET_NAME           = aws_secretsmanager_secret.accounting_integration_processor.name
     }
   }

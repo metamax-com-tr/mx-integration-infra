@@ -307,7 +307,7 @@ resource "aws_lambda_function" "ziraatbank_fetch_statement" {
       QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_CONNECT_TIMEOUT           = 5000
       QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_READ_TIMEOUT              = 10000
       AWS_SECRET_NAME                                                     = ""
-      QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_URL                       = ""
+      QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_URL                       = "https://hesap.ziraatbank.com.tr/HEK_NKYWS/HesapHareketleri.asmx"
     }
   }
 
@@ -403,4 +403,143 @@ resource "aws_s3_bucket_public_access_block" "bank_statements" {
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
+}
+
+resource "aws_iam_policy" "ziraatbank_fetch_statement_default" {
+  name        = "${local.environments[terraform.workspace]}-${var.namespace}-ziraatbank_fetch_statement_default"
+  description = "Default policy for ZiraatBank Fetch Statements"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "VisualEditor1",
+      "Effect": "Allow",
+      "Action": [
+          "s3:GetObject",
+          "s3:GetObjectVersion",
+          "s3:ListMultipartUploadParts"
+      ],
+      "Resource": "${aws_s3_bucket.bank_statements.arn}/*"
+    },
+    {
+      "Sid": "VisualEditor2",
+      "Effect": "Allow",
+      "Action": [
+          "s3:PutObject",
+          "s3:GetObject",
+          "s3:GetObjectVersion",
+          "s3:ListMultipartUploadParts"
+      ],
+      "Resource": "${aws_s3_bucket.bank_statements.arn}/*"
+    },
+    {
+      "Sid": "VisualEditor3",
+      "Effect": "Allow",
+      "Action": [
+        "sqs:SendMessage",
+        "sns:Publish"
+      ],
+      "Resource": [
+        "${aws_sqs_queue.bank_deposit_hook.arn}",
+        "${aws_sns_topic.ziraatbank_fetch_statement_failure.arn}"
+      ]
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "ziraatbank_fetch_statement_default" {
+  role       = aws_iam_role.bank_statement_handler.name
+  policy_arn = aws_iam_policy.ziraatbank_fetch_statement_default.arn
+}
+
+
+# https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_CreateQueue.html#API_CreateQueue_RequestParameters
+resource "aws_sqs_queue" "bank_deposit_hook" {
+  name       = "bank-deposit-hook"
+  fifo_queue = false
+  redrive_policy = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.bank_deposit_hook_deadletter.arn
+    maxReceiveCount     = 3
+  })
+  # 12 hours
+  visibility_timeout_seconds = 5
+  receive_wait_time_seconds  = 0
+
+  # 6 hours
+  # message_retention_seconds = 21600
+
+  tags = {
+    NameSpace   = "bank-integration"
+    Environment = "${local.environments[terraform.workspace]}"
+  }
+
+  # depends_on = [
+  #   aws_sqs_queue.bank_deposit_hook_deadletter
+  # ]
+}
+
+resource "aws_sqs_queue" "bank_deposit_hook_deadletter" {
+  name       = "bank-deposit-hook-deadletter"
+  fifo_queue = false
+  # redrive_allow_policy = jsonencode({
+  #   redrivePermission = "byQueue",
+  #   sourceQueueArns   = [aws_sqs_queue.bank_deposit_hook.arn]
+  # })
+
+  # 14 days
+  message_retention_seconds  = 1209600
+  visibility_timeout_seconds = 30
+
+  tags = {
+    NameSpace   = "bank-integration"
+    Environment = "${local.environments[terraform.workspace]}"
+  }
+}
+
+
+resource "aws_sns_topic" "ziraatbank_fetch_statement_failure" {
+  name = "ziraatbank-fetch-statement-failure"
+
+  tags = {
+    NameSpace   = "bank-integration"
+    Environment = "${local.environments[terraform.workspace]}"
+  }
+}
+
+
+resource "aws_lambda_function_event_invoke_config" "ziraatbank_fetch_statement" {
+  function_name = aws_lambda_function.ziraatbank_fetch_statement.function_name
+  destination_config {
+    on_failure {
+      destination = aws_sns_topic.ziraatbank_fetch_statement_failure.arn
+    }
+    on_success {
+      destination = aws_sqs_queue.bank_deposit_hook.arn
+    }
+  }
+}
+
+resource "aws_secretsmanager_secret" "accounting_integration_processor" {
+  name = "${local.environments[terraform.workspace]}_accounting_integration_processor"
+
+  tags = {
+    NameSpace   = "accounting-integration"
+    Environment = "${local.environments[terraform.workspace]}"
+  }
+}
+
+resource "aws_secretsmanager_secret_version" "accounting_integration_processor" {
+  secret_id     = aws_secretsmanager_secret.accounting_integration_processor.id
+  secret_string = <<EOF
+{
+  "musteri": "10000000",
+  "firma": "3782",
+  "kullaniciAdi": "metamax",
+  "parola": "metamax"
+}
+EOF
 }

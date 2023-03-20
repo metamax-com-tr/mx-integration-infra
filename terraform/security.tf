@@ -117,7 +117,7 @@ resource "aws_security_group" "ziraatbank_fetch_statement" {
 
 resource "aws_security_group_rule" "ziraatbank_fetch_statement_access" {
   type              = "egress"
-  security_group_id = aws_security_group.bank_statements.id
+  security_group_id = aws_security_group.ziraatbank_fetch_statement.id
   cidr_blocks       = local.aws_security_group_ziraat_bank_statement_host[terraform.workspace].cidr_blocks
   description       = "Ziraat Bank API Server IP"
   from_port         = local.aws_security_group_ziraat_bank_statement_host[terraform.workspace].port
@@ -128,7 +128,7 @@ resource "aws_security_group_rule" "ziraatbank_fetch_statement_access" {
 }
 
 resource "aws_security_group_rule" "ziraatbank_fetch_statement_aws_service_acccess" {
-  security_group_id = aws_security_group.bank_statements.id
+  security_group_id = aws_security_group.ziraatbank_fetch_statement.id
 
   type = "egress"
   cidr_blocks = [

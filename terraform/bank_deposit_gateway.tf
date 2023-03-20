@@ -290,8 +290,8 @@ EOF
 resource "aws_lambda_function" "ziraatbank_fetch_statement" {
   s3_bucket     = local.lambda_artifact_bucket[terraform.workspace]
   s3_key        = local.ziraatbank_fetch_statement_default_artifact[terraform.workspace]
-  function_name = "ziraatbank_fetch_statement"
-  role          = aws_iam_role.bank_statement_handler.arn
+  function_name = "ziraatbank-fetch-statement"
+  role          = aws_iam_role.ziraatbank_fetch_statement.arn
   handler       = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
   runtime       = local.lambda_withdrawal_functions_profil[terraform.workspace].runtime
   timeout       = local.lambda_withdrawal_functions_profil[terraform.workspace].timeout
@@ -306,7 +306,9 @@ resource "aws_lambda_function" "ziraatbank_fetch_statement" {
       QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_SCOPE                     = "javax.inject.Singleton"
       QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_CONNECT_TIMEOUT           = 5000
       QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_READ_TIMEOUT              = 10000
-      AWS_SECRET_NAME                                                     = ""
+      AWS_SECRET_NAME                                                     = "${aws_secretsmanager_secret.ziraatbank_fetch_statement.name}"
+      AWS_S3_BUCKET_NAME                                                  = "${aws_s3_bucket.bank_statements.bucket}"
+      AWS_METAMAX_RSAKEY                                                  = "${aws_secretsmanager_secret.bank_integrations_rsa_private_key.name}"
       QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_URL                       = "https://hesap.ziraatbank.com.tr/HEK_NKYWS/HesapHareketleri.asmx"
     }
   }
@@ -385,16 +387,15 @@ resource "aws_lambda_permission" "ziraatbank_fetch_statement_permission_for_ever
   source_arn    = aws_cloudwatch_event_rule.ziraatbank_fetch_statement_cron_every_five.arn
 }
 
-
 resource "aws_s3_bucket" "bank_statements" {
   bucket = "${var.namespace}-bank-statements-1d2"
-
 
   tags = {
     NameSpace   = "bank-integration"
     Environment = "${local.environments[terraform.workspace]}"
   }
 }
+
 
 resource "aws_s3_bucket_public_access_block" "bank_statements" {
   bucket = aws_s3_bucket.bank_statements.id
@@ -418,8 +419,11 @@ resource "aws_iam_policy" "ziraatbank_fetch_statement_default" {
       "Effect": "Allow",
       "Action": [
           "s3:GetObject",
+          "s3:PutObject",
           "s3:GetObjectVersion",
-          "s3:ListMultipartUploadParts"
+          "s3:GetObjectVersionAttributes",
+          "s3:ListMultipartUploadParts",
+          "s3:GetObjectAttributes"
       ],
       "Resource": "${aws_s3_bucket.bank_statements.arn}/*"
     },
@@ -427,24 +431,42 @@ resource "aws_iam_policy" "ziraatbank_fetch_statement_default" {
       "Sid": "VisualEditor2",
       "Effect": "Allow",
       "Action": [
-          "s3:PutObject",
-          "s3:GetObject",
-          "s3:GetObjectVersion",
+          "s3:ListBucket",
           "s3:ListMultipartUploadParts"
       ],
-      "Resource": "${aws_s3_bucket.bank_statements.arn}/*"
+      "Resource": "${aws_s3_bucket.bank_statements.arn}"
     },
     {
       "Sid": "VisualEditor3",
       "Effect": "Allow",
       "Action": [
-        "sqs:SendMessage",
         "sns:Publish"
       ],
       "Resource": [
-        "${aws_sqs_queue.bank_deposit_hook.arn}",
         "${aws_sns_topic.ziraatbank_fetch_statement_failure.arn}"
       ]
+    },
+    {
+      "Sid": "VisualEditor4",
+      "Effect": "Allow",
+      "Action": [
+         "secretsmanager:GetSecretValue",
+         "secretsmanager:ListSecretVersionIds"
+      ],
+      "Resource": [
+        "${aws_secretsmanager_secret.ziraatbank_fetch_statement.arn}",
+        "${aws_secretsmanager_secret.bank_integrations_rsa_private_key.arn}"
+      ]
+    },
+    {
+      "Sid": "VisualEditor5",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+        "logs:CreateLogGroup"
+      ],
+      "Resource": "${aws_cloudwatch_log_group.ziraatbank_fetch_statement.arn}:*"
     }
   ]
 }
@@ -452,53 +474,12 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "ziraatbank_fetch_statement_default" {
-  role       = aws_iam_role.bank_statement_handler.name
+  role       = aws_iam_role.ziraatbank_fetch_statement.name
   policy_arn = aws_iam_policy.ziraatbank_fetch_statement_default.arn
 }
 
 
-# https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_CreateQueue.html#API_CreateQueue_RequestParameters
-resource "aws_sqs_queue" "bank_deposit_hook" {
-  name       = "bank-deposit-hook"
-  fifo_queue = false
-  redrive_policy = jsonencode({
-    deadLetterTargetArn = aws_sqs_queue.bank_deposit_hook_deadletter.arn
-    maxReceiveCount     = 3
-  })
-  # 12 hours
-  visibility_timeout_seconds = 5
-  receive_wait_time_seconds  = 0
 
-  # 6 hours
-  # message_retention_seconds = 21600
-
-  tags = {
-    NameSpace   = "bank-integration"
-    Environment = "${local.environments[terraform.workspace]}"
-  }
-
-  # depends_on = [
-  #   aws_sqs_queue.bank_deposit_hook_deadletter
-  # ]
-}
-
-resource "aws_sqs_queue" "bank_deposit_hook_deadletter" {
-  name       = "bank-deposit-hook-deadletter"
-  fifo_queue = false
-  # redrive_allow_policy = jsonencode({
-  #   redrivePermission = "byQueue",
-  #   sourceQueueArns   = [aws_sqs_queue.bank_deposit_hook.arn]
-  # })
-
-  # 14 days
-  message_retention_seconds  = 1209600
-  visibility_timeout_seconds = 30
-
-  tags = {
-    NameSpace   = "bank-integration"
-    Environment = "${local.environments[terraform.workspace]}"
-  }
-}
 
 
 resource "aws_sns_topic" "ziraatbank_fetch_statement_failure" {
@@ -517,29 +498,34 @@ resource "aws_lambda_function_event_invoke_config" "ziraatbank_fetch_statement" 
     on_failure {
       destination = aws_sns_topic.ziraatbank_fetch_statement_failure.arn
     }
-    on_success {
-      destination = aws_sqs_queue.bank_deposit_hook.arn
-    }
   }
 }
 
-resource "aws_secretsmanager_secret" "accounting_integration_processor" {
-  name = "${local.environments[terraform.workspace]}_accounting_integration_processor"
+resource "aws_secretsmanager_secret" "ziraatbank_fetch_statement" {
+  name = "${local.environments[terraform.workspace]}_ziraatbank_fetch_statement"
 
   tags = {
-    NameSpace   = "accounting-integration"
+    NameSpace   = "bank-integration"
     Environment = "${local.environments[terraform.workspace]}"
   }
 }
 
-resource "aws_secretsmanager_secret_version" "accounting_integration_processor" {
-  secret_id     = aws_secretsmanager_secret.accounting_integration_processor.id
+resource "aws_secretsmanager_secret_version" "ziraatbank_fetch_statement" {
+  secret_id     = aws_secretsmanager_secret.ziraatbank_fetch_statement.id
   secret_string = <<EOF
 {
-  "musteri": "10000000",
-  "firma": "3782",
-  "kullaniciAdi": "metamax",
-  "parola": "metamax"
+  "username": "username",
+  "password": "password",
+  "customerNumber": "customerNumber",
+  "corporationCode": "corporationCode"
 }
 EOF
+
+  lifecycle {
+    ignore_changes = [
+      secret_string
+    ]
+  }
 }
+
+## END OF ZiraatBank Fetch Statements

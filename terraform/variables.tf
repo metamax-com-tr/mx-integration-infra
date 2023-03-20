@@ -110,6 +110,13 @@ locals {
     production  = "private-projects-bank-deposit-gateway/lambda-development-c23a387e.zip"
   }
 
+  deposit_webhook_default_artifact = {
+    default     = "private-projects-bank-deposit-gateway/webhook-development-533096d2.zip"
+    development = "private-projects-bank-deposit-gateway/webhook-development-533096d2.zip"
+    testing     = "private-projects-bank-deposit-gateway/webhook-development-533096d2.zip"
+    production  = "private-projects-bank-deposit-gateway/webhook-development-533096d2.zip"
+  }
+
   ziraatbank_statements_client_default_artifact = {
     default     = "metamax-integrations-bank-deposits-ziraatbank-statements-client/ziraatbank-statements-client-v0.0.39.development.zip"
     development = "metamax-integrations-bank-deposits-ziraatbank-statements-client/ziraatbank-statements-client-v0.0.39.development.zip"

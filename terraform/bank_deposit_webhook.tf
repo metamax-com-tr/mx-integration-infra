@@ -68,12 +68,13 @@ resource "aws_lambda_function" "bank_deposit_webhook" {
       APPLICATION_REST_CLIENT_LOGGING_SCOPE                               = "all",
       APPLICATION_REST_CLIENT_LOGGING_BODY_LIMIT                          = "100000",
       APPLICATION_LOG_CATAGORY_ORG_JBOSS_RESTEASY_REACTIVE_CLIENT_LOGGING = "ERROR",
-      QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_SCOPE                     = "javax.inject.Singleton"
-      QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_CONNECT_TIMEOUT           = 5000
-      QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_READ_TIMEOUT              = 10000
-      AWS_S3_BUCKET_NAME                                                  = "${aws_s3_bucket.bank_statements.bucket}"
-      AWS_METAMAX_RSAKEY                                                  = "${aws_secretsmanager_secret.bank_integrations_rsa_private_key.name}"
-      QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_URL                       = "https://hesap.ziraatbank.com.tr/HEK_NKYWS/HesapHareketleri.asmx"
+      QUARKUS_REST_CLIENT_METAMAX_DEPOSIT_CLIENT_CONNECT_TIMEOUT          = 5000
+      QUARKUS_REST_CLIENT_METAMAX_DEPOSIT_CLIENT_READ_TIMEOUT             = 5000
+      QUARKUS_REST_CLIENT_METAMAX_DEPOSIT_CLIENT_SCOPE                    = "javax.inject.Singleton"
+      QUARKUS_REST_CLIENT_METAMAX_DEPOSIT_CLIENT_URL                      = "https://api.${local.metamax_gateway_host[terraform.workspace]}"
+      # QUARKUS_REST_CLIENT_METAMAX_DEPOSIT_CLIENT_URL = "https://eov1rgt3vpvwwl2.m.pipedream.net"
+      AWS_S3_BUCKET_NAME = "${aws_s3_bucket.bank_statements.bucket}"
+      AWS_METAMAX_RSAKEY = "${aws_secretsmanager_secret.bank_integrations_rsa_private_key.name}"
     }
   }
 
@@ -90,7 +91,7 @@ resource "aws_lambda_function" "bank_deposit_webhook" {
 
   lifecycle {
     ignore_changes = [
-      # s3_key
+      s3_key
     ]
   }
 }
@@ -174,6 +175,38 @@ resource "aws_iam_policy" "bank_deposit_webhook_default" {
         "ec2:AttachNetworkInterface"
       ],
       "Resource": "*"
+    },
+     {
+      "Sid": "VisualEditor4",
+      "Effect": "Allow",
+      "Action": [
+          "s3:GetObject",
+          "s3:GetObjectVersion",
+          "s3:GetObjectVersionAttributes",
+          "s3:ListMultipartUploadParts",
+          "s3:GetObjectAttributes"
+      ],
+      "Resource": "${aws_s3_bucket.bank_statements.arn}/*"
+    },
+    {
+      "Sid": "VisualEditor2",
+      "Effect": "Allow",
+      "Action": [
+          "s3:ListBucket",
+          "s3:ListMultipartUploadParts"
+      ],
+      "Resource": "${aws_s3_bucket.bank_statements.arn}"
+    },
+    {
+      "Sid": "VisualEditor6",
+      "Effect": "Allow",
+      "Action": [
+         "secretsmanager:GetSecretValue",
+         "secretsmanager:ListSecretVersionIds"
+      ],
+      "Resource": [
+        "${aws_secretsmanager_secret.bank_integrations_rsa_private_key.arn}"
+      ]
     }
   ]
 }

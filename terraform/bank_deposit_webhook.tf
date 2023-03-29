@@ -68,7 +68,7 @@ resource "aws_lambda_function" "bank_deposit_webhook" {
       APPLICATION_REST_CLIENT_LOGGING_SCOPE                               = "all",
       APPLICATION_REST_CLIENT_LOGGING_BODY_LIMIT                          = "100000",
       APPLICATION_LOG_CATAGORY_ORG_JBOSS_RESTEASY_REACTIVE_CLIENT_LOGGING = "ERROR",
-      QUARKUS_REST_CLIENT_METAMAX_DEPOSIT_CLIENT_CONNECT_TIMEOUT          = 5000
+      QUARKUS_REST_CLIENT_METAMAX_DEPOSIT_CLIENT_CONNECT_TIMEOUT          = 3000
       QUARKUS_REST_CLIENT_METAMAX_DEPOSIT_CLIENT_READ_TIMEOUT             = 5000
       QUARKUS_REST_CLIENT_METAMAX_DEPOSIT_CLIENT_SCOPE                    = "javax.inject.Singleton"
       QUARKUS_REST_CLIENT_METAMAX_DEPOSIT_CLIENT_URL                      = "https://api.${local.metamax_gateway_host[terraform.workspace]}"

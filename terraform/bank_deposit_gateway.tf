@@ -300,12 +300,13 @@ resource "aws_lambda_function" "ziraatbank_fetch_statement" {
   environment {
     variables = {
       QUARKUS_LAMBDA_HANDLER                                              = "ziraatbank-fetch-statements"
+      FETCH_TIME_START_INTERVAL                                           = "360"
       APPLICATION_REST_CLIENT_LOGGING_SCOPE                               = "all",
       APPLICATION_REST_CLIENT_LOGGING_BODY_LIMIT                          = "100000",
       APPLICATION_LOG_CATAGORY_ORG_JBOSS_RESTEASY_REACTIVE_CLIENT_LOGGING = "ERROR",
       QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_SCOPE                     = "javax.inject.Singleton"
-      QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_CONNECT_TIMEOUT           = 5000
-      QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_READ_TIMEOUT              = 10000
+      QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_CONNECT_TIMEOUT           = 2000
+      QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_READ_TIMEOUT              = 4000
       AWS_SECRET_NAME                                                     = "${aws_secretsmanager_secret.ziraatbank_fetch_statement.name}"
       AWS_S3_BUCKET_NAME                                                  = "${aws_s3_bucket.bank_statements.bucket}"
       AWS_METAMAX_RSAKEY                                                  = "${aws_secretsmanager_secret.bank_integrations_rsa_private_key.name}"

@@ -63,7 +63,7 @@ resource "aws_sqs_queue" "bank_integration_bank_statements_deadletter" {
 }
 
 
-# https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_CreateQueue.html#API_CreateQueue_RequestParameters
+#https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_CreateQueue.html#API_CreateQueue_RequestParameters
 resource "aws_sqs_queue" "bank_integration_deposits" {
   name       = "bank-integration-deposits"
   fifo_queue = false

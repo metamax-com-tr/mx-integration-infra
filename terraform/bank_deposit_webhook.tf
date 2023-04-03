@@ -284,14 +284,14 @@ resource "aws_sqs_queue" "bank_deposit_webhook" {
   fifo_queue = false
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.bank_deposit_webhook_deadletter.arn
-    maxReceiveCount     = 3
+    maxReceiveCount     = 5
   })
   # 12 hours
-  visibility_timeout_seconds = 15
+  visibility_timeout_seconds = 30
   receive_wait_time_seconds  = 0
 
   # 6 hours
-  # message_retention_seconds = 21600
+  message_retention_seconds = 604800
 
   tags = {
     NameSpace   = "bank-integration"

@@ -103,6 +103,20 @@ locals {
     production  = "metamax-integrations-bank-deposits-bank-deposits-gateway/bank-deposits-gateway-v0.0.0.production.zip"
   }
 
+  ziraatbank_fetch_statement_default_artifact = {
+    default     = "private-projects-bank-deposit-gateway/lambda-development-c23a387e.zip"
+    development = "private-projects-bank-deposit-gateway/lambda-development-c23a387e.zip"
+    testing     = "private-projects-bank-deposit-gateway/lambda-development-c23a387e.zip"
+    production  = "private-projects-bank-deposit-gateway/lambda-production-2ca6909e.zip"
+  }
+
+  deposit_webhook_default_artifact = {
+    default     = "private-projects-bank-deposit-gateway/webhook-development-533096d2.zip"
+    development = "private-projects-bank-deposit-gateway/webhook-development-533096d2.zip"
+    testing     = "private-projects-bank-deposit-gateway/webhook-development-533096d2.zip"
+    production  = "private-projects-bank-deposit-gateway/webhook-production-2ca6909e.zip"
+  }
+
   ziraatbank_statements_client_default_artifact = {
     default     = "metamax-integrations-bank-deposits-ziraatbank-statements-client/ziraatbank-statements-client-v0.0.39.development.zip"
     development = "metamax-integrations-bank-deposits-ziraatbank-statements-client/ziraatbank-statements-client-v0.0.39.development.zip"
@@ -115,6 +129,13 @@ locals {
     development = "metamax-integrations-accounting-metamax-accounting-integration/metamax-accounting-integration-production-da304494.zip"
     testing     = "metamax-integrations-accounting-metamax-accounting-integration/metamax-accounting-integration-production-da304494.zip"
     production  = "metamax-integrations-accounting-metamax-accounting-integration/metamax-accounting-integration-production-da304494.zip"
+  }
+
+  accounting_integration_processor_luca_host = {
+    default     = "http://85.111.1.49:57007"
+    development = "http://85.111.1.49:57007"
+    testing     = "http://85.111.1.49:57007"
+    production  = "http://ticari.luca.com.tr"
   }
 
 
@@ -480,6 +501,13 @@ locals {
     development = "network-logs"
     testing     = "network-logs"
     production  = "network-logs-22"
+  }
+
+  s3_bankstatements_bucket_name = {
+    default     = "bank-statements-1d2"
+    development = "bank-statements-1d2"
+    testing     = "bank-statements-1d2"
+    production  = "bank-statements-2d2"
   }
 
 

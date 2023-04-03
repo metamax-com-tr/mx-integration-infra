@@ -106,6 +106,44 @@ resource "aws_security_group_rule" "ziraat_bank_statement_aws_service_acccess" {
   to_port                  = 443
 }
 
+resource "aws_security_group" "ziraatbank_fetch_statement" {
+  name        = "ziraatbank_fetch_statement"
+  description = "allow outbound access from ALB only"
+  vpc_id      = aws_vpc.aws_vpc.id
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_security_group_rule" "ziraatbank_fetch_statement_access" {
+  type              = "egress"
+  security_group_id = aws_security_group.ziraatbank_fetch_statement.id
+  cidr_blocks       = local.aws_security_group_ziraat_bank_statement_host[terraform.workspace].cidr_blocks
+  description       = "Ziraat Bank API Server IP"
+  from_port         = local.aws_security_group_ziraat_bank_statement_host[terraform.workspace].port
+  ipv6_cidr_blocks  = []
+  prefix_list_ids   = []
+  protocol          = "tcp"
+  to_port           = local.aws_security_group_ziraat_bank_statement_host[terraform.workspace].port
+}
+
+resource "aws_security_group_rule" "ziraatbank_fetch_statement_aws_service_acccess" {
+  security_group_id = aws_security_group.ziraatbank_fetch_statement.id
+
+  type = "egress"
+  cidr_blocks = [
+    "0.0.0.0/0",
+  ]
+  description              = "Access to AWS service over the Internet"
+  from_port                = 443
+  ipv6_cidr_blocks         = []
+  prefix_list_ids          = []
+  protocol                 = "tcp"
+  source_security_group_id = null
+  to_port                  = 443
+}
+
+
 resource "aws_security_group" "ziraatbank_withdraw_client" {
   name        = "ziraatbank_withdraw_client"
   description = "allow outbound access to ZiraatBank"

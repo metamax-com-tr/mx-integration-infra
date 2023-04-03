@@ -59,7 +59,7 @@ resource "aws_lambda_function" "accounting_integration_processor" {
       APPLICATION_REPOSITORY_AUTOCREATE         = false
 
       # Luca configurations
-      LUCA_REST_CLIENT_LUCA_URL = "http://ticari.luca.com.tr"
+      LUCA_REST_CLIENT_LUCA_URL = local.accounting_integration_processor_luca_host[terraform.workspace]
       AWS_SECRET_NAME           = aws_secretsmanager_secret.accounting_integration_processor.name
     }
   }
@@ -295,6 +295,7 @@ resource "aws_iam_role_policy_attachment" "accounting_integration_processor_secr
 # - arn:aws:sns:eu-central-1:694552987607:staging-matamax-presales
 # - arn:aws:sns:eu-central-1:694552987607:staging-matamax-presale-cancels
 # - arn:aws:sns:eu-central-1:694552987607:staging-matamax-fills
+# - arn:aws:sns:eu-central-1:694552987607:staging-metamax-rentpayments
 
 
 
@@ -322,6 +323,9 @@ resource "aws_iam_role_policy_attachment" "accounting_integration_processor_secr
 # --topic-arn arn:aws:sns:eu-central-1:694552987607:staging-matamax-presale-cancels \
 # --action-name Subscribe ListSubscriptionsByTopic --profile prod-metamax
 
+# aws sns add-permission --label lambda-access --aws-account-id 639300795004 \
+# --topic-arn arn:aws:sns:eu-central-1:694552987607:staging-metamax-rentpayments \
+# --action-name Subscribe ListSubscriptionsByTopic --profile prod-metamax
 
 
 
@@ -354,6 +358,11 @@ resource "aws_iam_role_policy_attachment" "accounting_integration_processor_secr
 # --statement-id staging-matamax-presale-cancels  --action "lambda:InvokeFunction" \
 # --principal sns.amazonaws.com --profile metamax-dev-terraform-ci
 
+# aws lambda add-permission --function-name  accounting-integration-processor \
+# --source-arn arn:aws:sns:eu-central-1:694552987607:staging-metamax-rentpayments \
+# --statement-id staging-metamax-rentpayments  --action "lambda:InvokeFunction" \
+# --principal sns.amazonaws.com --profile metamax-dev-terraform-ci
+
 
 # aws sns subscribe --protocol lambda \
 # --topic-arn arn:aws:sns:eu-central-1:694552987607:staging-matamax-bank-statements \
@@ -377,5 +386,10 @@ resource "aws_iam_role_policy_attachment" "accounting_integration_processor_secr
 
 # aws sns subscribe --protocol lambda \
 # --topic-arn arn:aws:sns:eu-central-1:694552987607:staging-matamax-presale-cancels \
+# --notification-endpoint arn:aws:lambda:eu-central-1:639300795004:function:accounting-integration-processor \
+# --profile metamax-dev-terraform-ci
+
+# aws sns subscribe --protocol lambda \
+# --topic-arn arn:aws:sns:eu-central-1:694552987607:staging-metamax-rentpayments \
 # --notification-endpoint arn:aws:lambda:eu-central-1:639300795004:function:accounting-integration-processor \
 # --profile metamax-dev-terraform-ci

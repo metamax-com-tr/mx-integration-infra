@@ -33,6 +33,11 @@ resource "aws_secretsmanager_secret_version" "bank_integrations_rsa_private_key_
 }
 EOF
 
+  lifecycle {
+    ignore_changes = [
+      secret_string
+    ]
+  }
 
 }
 

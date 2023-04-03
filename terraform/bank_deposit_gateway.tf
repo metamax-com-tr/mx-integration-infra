@@ -389,7 +389,7 @@ resource "aws_lambda_permission" "ziraatbank_fetch_statement_permission_for_ever
 }
 
 resource "aws_s3_bucket" "bank_statements" {
-  bucket = "${var.namespace}-bank-statements-1d2"
+  bucket = "${var.namespace}-${local.s3_bankstatements_bucket_name[terraform.workspace]}"
 
   tags = {
     NameSpace   = "bank-integration"
@@ -415,6 +415,30 @@ resource "aws_iam_policy" "ziraatbank_fetch_statement_default" {
 {
   "Version": "2012-10-17",
   "Statement": [
+     {
+      "Sid": "",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:CreateNetworkInterface"
+      ],
+      "Resource": [
+          "arn:aws:ec2:*:*:subnet/*",
+          "arn:aws:ec2:*:*:security-group/*",
+          "arn:aws:ec2:*:*:network-interface/*"
+      ]
+    },
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeNetworkInterfaces",
+        "ec2:CreateNetworkInterface",
+        "ec2:DeleteNetworkInterface",
+        "ec2:DescribeInstances",
+        "ec2:AttachNetworkInterface"
+      ],
+      "Resource": "*"
+    },
     {
       "Sid": "VisualEditor1",
       "Effect": "Allow",

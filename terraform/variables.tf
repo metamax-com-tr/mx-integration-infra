@@ -107,14 +107,14 @@ locals {
     default     = "private-projects-bank-deposit-gateway/lambda-development-c23a387e.zip"
     development = "private-projects-bank-deposit-gateway/lambda-development-c23a387e.zip"
     testing     = "private-projects-bank-deposit-gateway/lambda-development-c23a387e.zip"
-    production  = "private-projects-bank-deposit-gateway/lambda-development-c23a387e.zip"
+    production  = "private-projects-bank-deposit-gateway/lambda-production-2ca6909e.zip"
   }
 
   deposit_webhook_default_artifact = {
     default     = "private-projects-bank-deposit-gateway/webhook-development-533096d2.zip"
     development = "private-projects-bank-deposit-gateway/webhook-development-533096d2.zip"
     testing     = "private-projects-bank-deposit-gateway/webhook-development-533096d2.zip"
-    production  = "private-projects-bank-deposit-gateway/webhook-development-533096d2.zip"
+    production  = "private-projects-bank-deposit-gateway/webhook-production-2ca6909e.zip"
   }
 
   ziraatbank_statements_client_default_artifact = {
@@ -501,6 +501,13 @@ locals {
     development = "network-logs"
     testing     = "network-logs"
     production  = "network-logs-22"
+  }
+
+  s3_bankstatements_bucket_name = {
+    default     = "bank-statements-1d2"
+    development = "bank-statements-1d2"
+    testing     = "bank-statements-1d2"
+    production  = "bank-statements-2d2"
   }
 
 

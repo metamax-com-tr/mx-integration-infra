@@ -138,7 +138,8 @@ resource "aws_lambda_function" "ziraatbank_withdraw_client" {
 
   lifecycle {
     ignore_changes = [
-      s3_key
+      s3_key,
+      environment
     ]
   }
 }
@@ -431,7 +432,8 @@ resource "aws_lambda_function" "ziraatbank_withdrawal_result_client" {
 
   lifecycle {
     ignore_changes = [
-      s3_key
+      s3_key,
+      environment
     ]
   }
 }
@@ -730,7 +732,8 @@ resource "aws_lambda_function" "metamax_withdrawResult_client" {
 
   lifecycle {
     ignore_changes = [
-      s3_key
+      s3_key,
+      environment
     ]
   }
 }

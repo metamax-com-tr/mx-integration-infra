@@ -30,5 +30,10 @@ resource "aws_secretsmanager_secret_version" "accounting_integration_processor" 
   "parola": "metamax"
 }
 EOF
+  lifecycle {
+    ignore_changes = [
+      secret_string
+    ]
+  }
 }
 

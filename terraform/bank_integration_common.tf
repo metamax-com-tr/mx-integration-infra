@@ -188,12 +188,12 @@ resource "aws_sqs_queue" "bank_integration_bank_withdrawal_checkstatus" {
     deadLetterTargetArn = aws_sqs_queue.bank_integration_bank_withdrawal_checkstatus_deadletter.arn
     maxReceiveCount     = 5
   })
-  # 12 hours
+
   visibility_timeout_seconds = 30
   receive_wait_time_seconds  = 0
 
-  # 6 hours
-  message_retention_seconds = 60 * 10
+  # 1 Day
+  message_retention_seconds = 60*60*24
 
   tags = {
     NameSpace   = "bank-withdrawal"

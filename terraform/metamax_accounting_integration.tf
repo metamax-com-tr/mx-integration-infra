@@ -51,13 +51,8 @@ resource "aws_lambda_function" "accounting_integration_processor" {
       APPLICATION_REST_CLIENT_LOGGING_SCOPE                               = "all",
       APPLICATION_REST_CLIENT_LOGGING_BODY_LIMIT                          = "100000",
       APPLICATION_LOG_CATAGORY_ORG_JBOSS_RESTEASY_REACTIVE_CLIENT_LOGGING = "ERROR",
-      QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_SCOPE                     = "javax.inject.Singleton"
-      QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_CONNECT_TIMEOUT           = 5000
-      QUARKUS_REST_CLIENT_ZIRAAT_DEPOSIT_CLIENT_READ_TIMEOUT              = 10000
       # https://quarkus.io/guides/all-config#quarkus-vertx_quarkus.vertx.warning-exception-time
       QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME = "5s"
-      APPLICATION_REPOSITORY_AUTOCREATE         = false
-
       # Luca configurations
       LUCA_REST_CLIENT_LUCA_URL = local.accounting_integration_processor_luca_host[terraform.workspace]
       AWS_SECRET_NAME           = aws_secretsmanager_secret.accounting_integration_processor.name

@@ -11,7 +11,7 @@ resource "aws_iam_role" "github_deployment_role_for_accounting_integration" {
         {
             "Effect": "Allow",
             "Principal": {
-                "Federated": "arn:aws:iam::639300795004:oidc-provider/token.actions.githubusercontent.com"
+                "Federated": "${local.aws_identity_providers[terraform.workspace]}"
             },
             "Action": "sts:AssumeRoleWithWebIdentity",
             "Condition": {

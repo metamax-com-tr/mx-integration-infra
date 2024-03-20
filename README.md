@@ -36,6 +36,6 @@ Subcommands:
   default
 * development
   production
-
-
 ``
+
+**Note: terraform.tfvars keeps AWS CLI profile. You must sure that the profile belongs to 'production' or 'development' AWS Account which appled on.**

@@ -75,6 +75,14 @@ locals {
 
   }
 
+  aws_identity_providers = {
+    default     = "arn:aws:iam::639300795004:oidc-provider/token.actions.githubusercontent.com"
+    development = "arn:aws:iam::639300795004:oidc-provider/token.actions.githubusercontent.com"
+    testing     = "arn:aws:iam::639300795004:oidc-provider/token.actions.githubusercontent.com"
+    production  = "arn:aws:iam::975147499485:oidc-provider/token.actions.githubusercontent.com"
+  }
+
+
   lambda_artifact_bucket = {
     default     = "artifacts-lbljk"
     development = "artifacts-lbljk"

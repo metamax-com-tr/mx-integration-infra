@@ -5,6 +5,7 @@ terraform {
       version = "5.49.0"
     }
   }
+  #  AWS Account 973484206705
   backend "s3" {
     bucket  = "mx-terraforms"
     key     = "bank-integration-infra"

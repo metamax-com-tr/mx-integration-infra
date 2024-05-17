@@ -1,7 +1,7 @@
 [![pipeline status](https://gitlab.orema.com.tr/metamax/infra/badges/main/pipeline.svg)](https://gitlab.orema.com.tr/metamax/infra/-/commits/main)
-# Metamax Infrastructure
+# Metamax Intagrations AWS Projet Infrastructure
 
-This project is Infrastructure schema based Terraform.
+This project is Infrastructure schema based Terraform. Accounting and Bank integrations are uping and running on this infra defined by that Terraform project. 
 
 # Requiretments
 * [Terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)

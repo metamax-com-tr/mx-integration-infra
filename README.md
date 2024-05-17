@@ -19,7 +19,7 @@ First you need AWS secret to access your AWS resources. After getting that you m
 
 # How to use terrform Workspace
 
-``sh
+```sh
 
 $ terraform workspace 
 Usage: terraform [global options] workspace
@@ -36,6 +36,6 @@ Subcommands:
   default
 * development
   production
-``
+```
 
 **Note: terraform.tfvars keeps AWS CLI profile. You must sure that the profile belongs to 'production' or 'development' AWS Account which appled on.**

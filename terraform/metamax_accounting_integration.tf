@@ -41,21 +41,18 @@ resource "aws_lambda_function" "accounting_integration_processor" {
   function_name = "accounting-integration-processor"
   role          = aws_iam_role.accounting_integration_processor.arn
   handler       = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
-  runtime       = local.lambda_withdrawal_functions_profil[terraform.workspace].runtime
-  timeout       = local.lambda_withdrawal_functions_profil[terraform.workspace].timeout
-  memory_size   = local.lambda_withdrawal_functions_profil[terraform.workspace].memory_size
+  runtime       = local.lambda_accounting_integration_functions_profil[terraform.workspace].runtime
+  timeout       = local.lambda_accounting_integration_functions_profil[terraform.workspace].timeout
+  memory_size   = local.lambda_accounting_integration_functions_profil[terraform.workspace].memory_size
 
   environment {
     variables = {
-      QUARKUS_LAMBDA_HANDLER                                              = "accounting-processor"
-      APPLICATION_REST_CLIENT_LOGGING_SCOPE                               = "all",
-      APPLICATION_REST_CLIENT_LOGGING_BODY_LIMIT                          = "100000",
-      APPLICATION_LOG_CATAGORY_ORG_JBOSS_RESTEASY_REACTIVE_CLIENT_LOGGING = "ERROR",
+      QUARKUS_LAMBDA_HANDLER = "accounting-transfer-with-sns"
       # https://quarkus.io/guides/all-config#quarkus-vertx_quarkus.vertx.warning-exception-time
       QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME = "5s"
       # Luca configurations
-      LUCA_REST_CLIENT_LUCA_URL = local.accounting_integration_processor_luca_host[terraform.workspace]
-      AWS_SECRET_NAME           = aws_secretsmanager_secret.accounting_integration_processor.name
+      LUCA_SERVICE_URL    = local.accounting_integration_processor_luca_host[terraform.workspace]
+      LUCA_AWS_SECRET_KEY = aws_secretsmanager_secret.accounting_integration_processor.name
     }
   }
 

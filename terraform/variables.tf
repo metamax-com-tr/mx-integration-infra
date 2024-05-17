@@ -170,6 +170,29 @@ locals {
     }
   }
 
+  lambda_accounting_integration_functions_profil = {
+    default = {
+      runtime     = "java17"
+      timeout     = 20
+      memory_size = 1024
+    }
+    development = {
+      runtime     = "java17"
+      timeout     = 20
+      memory_size = 1024
+    }
+    testing = {
+      runtime     = "java17"
+      timeout     = 20
+      memory_size = 1024
+    }
+    production = {
+      runtime     = "java17"
+      timeout     = 120
+      memory_size = 1024
+    }
+  }
+
   aws_security_group_accounting_integration_processor = {
 
     default = {

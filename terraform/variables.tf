@@ -4,16 +4,6 @@ variable "aws_region" {
   default     = "eu-central-1"
 }
 
-variable "aws_cli_profile" {
-  description = "Named profiles for the AWS CLI"
-  type        = string
-}
-
-# Aws Zone
-variable "aws_zone_id" {
-  description = "Aws Route53 domain id"
-  type        = string
-}
 
 variable "cidr" {
   description = "The CIDR block for the VPC."
@@ -67,6 +57,16 @@ variable "ziraatbank_withdraw_client_default_artifact" {
 
 # Metamax Resource profiles by environments
 locals {
+
+  aws_cli_profiles = {
+    development = "metamax-dev-terraform-ci"
+    production  = "bank-transfer-prod"
+  }
+  aws_zone_ids = {
+    development = "Z00382738ZYXQ4TJI53Z"
+    production  = "SECRET"
+  }
+
   environments = {
     default     = "default"
     development = "development"

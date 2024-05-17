@@ -1,3 +1,9 @@
+variable "s3_backend_aws_profile" {
+  type = string
+  description = "Terraform Stage Storage For S3 BackEnd."
+  default = "terraform-devops"
+}
+
 variable "aws_region" {
   type        = string
   description = "AWS Region"

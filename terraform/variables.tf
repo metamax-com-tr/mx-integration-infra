@@ -27,12 +27,6 @@ variable "namespace" {
   default     = "metamax"
 }
 
-
-variable "metamax_secret" {
-  sensitive   = true
-  description = "All secrets for metamax project"
-}
-
 variable "ecs_task_default_image" {
   description = "Gateway default image for cold start on building infra"
   type        = string

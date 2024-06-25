@@ -1,5 +1,5 @@
 resource "aws_cognito_user_pool" "user_pool" {
-  name = "user-pool-${var.application_key}-${var.application_stage}"
+  name = "${var.namespace}-user-pool"
 
   alias_attributes = ["email", "phone_number"]
 
@@ -31,15 +31,18 @@ resource "aws_cognito_user_pool" "user_pool" {
 
   # Lambda Triggers
   lambda_config {
-    create_auth_challenge          = aws_lambda_function.lambda_function.arn
-    define_auth_challenge          = aws_lambda_function.lambda_function.arn
-    post_confirmation              = aws_lambda_function.lambda_function.arn
-    pre_authentication             = aws_lambda_function.lambda_function.arn
-    pre_sign_up                    = aws_lambda_function.lambda_function.arn
-    verify_auth_challenge_response = aws_lambda_function.lambda_function.arn
+    # create_auth_challenge          = aws_lambda_function.lambda_function.arn
+    # define_auth_challenge          = aws_lambda_function.lambda_function.arn
+    # post_confirmation              = aws_lambda_function.lambda_function.arn
+    # pre_authentication             = aws_lambda_function.lambda_function.arn
+    # pre_sign_up                    = aws_lambda_function.lambda_function.arn
+    # verify_auth_challenge_response = aws_lambda_function.lambda_function.arn
   }
 
-  depends_on = [aws_ses_domain_identity.email_identity, aws_lambda_function.lambda_function]
+  depends_on = [
+    aws_ses_domain_identity.email_identity,
+    # aws_lambda_function.lambda_function
+  ]
 
   # Attributes
   schema {
@@ -88,7 +91,9 @@ resource "aws_cognito_user_pool" "user_pool" {
   }
 
   tags = {
-    Name = "user-pool-${var.application_key}-${var.application_stage}"
+    NameSpace   = "${var.namespace}"
+    Environment = "${local.environments[terraform.workspace]}"
+    Name        = "${var.namespace}-user-pool"
   }
 
   lifecycle {
@@ -138,9 +143,9 @@ resource "aws_cognito_user_pool_client" "client" {
   ]
 }
 
-resource "aws_lambda_permission" "lambda_cognito_permission" {
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.lambda_function.function_name
-  principal     = "cognito-idp.amazonaws.com"
-  source_arn    = aws_cognito_user_pool.user_pool.arn
-}
+# resource "aws_lambda_permission" "lambda_cognito_permission" {
+#   action        = "lambda:InvokeFunction"
+#   function_name = aws_lambda_function.lambda_function.function_name
+#   principal     = "cognito-idp.amazonaws.com"
+#   source_arn    = aws_cognito_user_pool.user_pool.arn
+# }

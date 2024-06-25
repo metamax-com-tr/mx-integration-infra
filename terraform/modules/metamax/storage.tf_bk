@@ -1,11 +1,13 @@
-# Cdn Storage
+#Cdn Storage
 resource "aws_s3_bucket" "cdn_bucket" {
-  bucket = "cdn-${var.application_stage}.${data.aws_route53_zone.app_zone.name}"
+  bucket = "cdn-${terraform.workspace}.${data.aws_route53_zone.app_zone.name}"
 
   force_destroy = true
 
   tags = {
-    Name = "cdn-${var.application_stage}.${data.aws_route53_zone.app_zone.name}"
+    NameSpace   = "${var.namespace}"
+    Environment = "${local.environments[terraform.workspace]}"
+    Name        = "cdn-${terraform.workspace}.${data.aws_route53_zone.app_zone.name}"
   }
 }
 

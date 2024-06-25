@@ -1,6 +1,6 @@
 # Local .terraform directories
-**/.terraform/*
-
+terraform/.terraform/**
+.terraform.lock.hcl
 # .tfstate files
 #*.tfstate
 #*.tfstate.*
@@ -37,3 +37,11 @@ terraform.tfstate.backup
 
 # OSX template
 .DS_Store
+
+# TerraForm hidden files
+terraform/init.local.sh
+terraform/init.*.sh
+terraform/terraform.tfvars
+terraform/terraform.tfstate.d
+terraform.development.tfvars
+terraform.production.tfvars

@@ -1,5 +1,5 @@
 resource "aws_lb" "load_balancer" {
-  name                       = "alb-${var.application_key}-${var.application_stage}"
+  name                       = "${var.namespace}-default"
   internal                   = false
   load_balancer_type         = "application"
   security_groups            = [aws_security_group.lb.id]
@@ -9,6 +9,12 @@ resource "aws_lb" "load_balancer" {
   depends_on = [
     aws_vpc.aws_vpc, aws_security_group.lb, aws_subnet.public
   ]
+
+  tags = {
+    NameSpace   = "${var.namespace}"
+    Environment = "${local.environments[terraform.workspace]}"
+    Name        = "${var.namespace}-default"
+  }
 }
 
 resource "aws_lb_listener" "https_443" {
@@ -17,13 +23,13 @@ resource "aws_lb_listener" "https_443" {
   protocol          = "HTTPS"
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.app_blue["gateway"].arn # Referencing our target group
+    target_group_arn = aws_lb_target_group.gateway_app_blue.arn # Referencing our target group
   }
 
   certificate_arn = aws_acm_certificate.ssl_cert.arn
 
   depends_on = [
-    aws_lb.load_balancer, aws_lb_target_group.app_blue, aws_lb_target_group.app_green
+    aws_lb.load_balancer, aws_lb_target_group.gateway_app_blue, aws_lb_target_group.gateway_app_green
   ]
 
   lifecycle {

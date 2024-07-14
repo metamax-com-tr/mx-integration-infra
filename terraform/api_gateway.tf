@@ -11,9 +11,9 @@ resource "aws_api_gateway_rest_api" "bank_integration" {
 
   lifecycle {
     create_before_destroy = true
-    ignore_changes = [
-      endpoint_configuration
-    ]
+    # ignore_changes = [
+    #   endpoint_configuration
+    # ]
   }
 
   tags = {

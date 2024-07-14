@@ -75,6 +75,12 @@ locals {
 
   }
 
+  metamax_withdrawal_request_sns_topic = {
+    default     = "arn:aws:sns:eu-central-1:694552987607:staging-mx-bank-integration-withdraw-request"
+    development = "arn:aws:sns:eu-central-1:694552987607:staging-mx-bank-integration-withdraw-request"
+    production  = ""
+  }
+
   aws_identity_providers = {
     default     = "arn:aws:iam::639300795004:oidc-provider/token.actions.githubusercontent.com"
     development = "arn:aws:iam::639300795004:oidc-provider/token.actions.githubusercontent.com"

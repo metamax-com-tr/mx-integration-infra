@@ -1,6 +1,4 @@
 
-
-
 ## ZiraatBank Fetch Statements
 
 resource "aws_iam_role" "ziraatbank_fetch_statement" {

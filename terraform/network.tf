@@ -301,29 +301,6 @@ resource "aws_route_table" "bank_integration" {
   }
 }
 
-# resource "aws_network_acl" "network_acl" {
-#   vpc_id     = aws_vpc.aws_vpc.id
-#   subnet_ids = [for subnet in aws_subnet.public : subnet.id]
-#   tags = {
-#     Name        = "Metamax Network ACL "
-#     NameSpace   = "${var.namespace}"
-#     Environment = "${local.environments[terraform.workspace]}"
-#   }
-# }
-
-
-# resource "aws_network_acl_rule" "rule" {
-#   network_acl_id = aws_network_acl.network_acl.id
-#   count          = length(local.network_acl_rules[terraform.workspace])
-#   rule_number    = local.network_acl_rules[terraform.workspace][count.index].rule_number
-#   egress         = local.network_acl_rules[terraform.workspace][count.index].egress
-#   protocol       = local.network_acl_rules[terraform.workspace][count.index].protocol
-#   rule_action    = local.network_acl_rules[terraform.workspace][count.index].rule_action
-#   cidr_block     = local.network_acl_rules[terraform.workspace][count.index].cidr_block
-#   from_port      = local.network_acl_rules[terraform.workspace][count.index].from_port
-#   to_port        = local.network_acl_rules[terraform.workspace][count.index].to_port
-# }
-
 
 resource "aws_network_acl" "bank_integration_public" {
   vpc_id     = aws_vpc.aws_vpc.id
@@ -357,14 +334,3 @@ resource "aws_network_acl_rule" "ziraatbank_statment_secure_web" {
   to_port        = 65535
 }
 
-
-# resource "aws_network_acl_rule" "ziraatbank_statment_web" {
-#   network_acl_id = aws_network_acl.bank_integration_public.id
-#   rule_number = 101
-#   egress      = "false"
-#   protocol    = "-1"
-#   rule_action = "allow"
-#   cidr_block  = "195.177.206.43/0"
-#   from_port   = 80
-#   to_port     = 80
-# }

@@ -118,6 +118,28 @@ resource "aws_sqs_queue" "bank_withdrawal_withdrawal_request" {
   # 10 minute
   message_retention_seconds = 600
 
+  # https://docs.aws.amazon.com/sns/latest/dg/subscribe-sqs-queue-to-sns-topic.html
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "sns.amazonaws.com"
+      },
+      "Action": "SQS:SendMessage",
+      "Resource": "arn:aws:sqs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:bank-withdrawal-withdrawal-request",
+      "Condition": {
+        "ArnEquals": {
+          "aws:SourceArn": "${local.metamax_withdrawal_request_sns_topic[terraform.workspace]}"
+        }
+      }
+    }
+  ]
+}
+EOF
+
   tags = {
     NameSpace   = "bank-withdrawal"
     Environment = "${local.environments[terraform.workspace]}"
@@ -139,6 +161,12 @@ resource "aws_sqs_queue" "bank_withdrawal_withdrawal_request_deadletter" {
     NameSpace   = "bank-withdrawal"
     Environment = "${local.environments[terraform.workspace]}"
   }
+}
+
+resource "aws_sns_topic_subscription" "production_crm_sns_sqs_subscriptions" {
+  topic_arn = local.metamax_withdrawal_request_sns_topic[terraform.workspace]
+  protocol  = "sqs"
+  endpoint  = aws_sqs_queue.bank_withdrawal_withdrawal_request.arn
 }
 
 # https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_CreateQueue.html#API_CreateQueue_RequestParameters
